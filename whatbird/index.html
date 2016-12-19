@@ -137,9 +137,22 @@ function answer() {
   // The whole answer formatted to show the user:
   var finalstr = allbirds[WhichBirdIndex]["name"] + " ("
                  + allbirds[WhichBirdIndex]["code"] + ")";
+
   var ans = document.getElementById("answer").value;
-  res = fuzzy(ans);
-  //alert("fuzzy() returned " + res + ", length" + res.length);
+
+  var res = '';
+  // First, is it a 4-letter code?
+  if (ans.length == 4) {
+    anscode = ans.toUpperCase();
+    for (i=0; i < allbirds.length; ++i)
+      if (allbirds[i].code == anscode) {
+        res = [ realans ];
+        break;
+      }
+  }
+
+  if (!res)
+    res = fuzzy(ans);
 
   if (res.length == 0)
     // No matches -- the answer wasn't even close to right.
@@ -155,7 +168,7 @@ function answer() {
   }
   else {
     // One match. Is it right?
-    if (res == realans)
+    if (res[0] == realans)
       show_ans("You got it! " + finalstr);
     else
       show_ans("Sorry, no. It's a " + finalstr);
@@ -191,8 +204,7 @@ function answerIfEnter(event) {
 <p>
 Bird quiz: based on a picture or sound, try to identify
 what bird you're seeing or hearing.
-Type in the bird's name.
-(Eventually this will also accept 4-letter codes.)
+Type in the name or 4-letter code of the bird you've identified.
 
 <noscript>
 <b>You'll need to enable Javascript to use the quiz.</b>
