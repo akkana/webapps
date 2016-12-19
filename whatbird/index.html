@@ -1,0 +1,231 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>What bird is it?</title>
+
+<style>
+  #playpause {text-decoration:none;}
+  #playpause:hover{text-decoration:underline;cursor:pointer;}
+</style>
+
+<script language="javascript" src="birds.json"></script>
+
+<script language="javascript">
+
+var WhichBirdIndex = -1;
+
+// pics_and_sounds is a list of all the images and sounds we'll choose
+// from randomly. It's an array of [i, s, f] where i is an index into
+// allbirds, f is the actual media file.
+// and s is the key into allbirds[i], either "images" or "sounds"
+var pics_and_sounds = [];
+
+// Initial page load: initialize the list of birds, images and sounds,
+// then show the first quiz.
+function load() {
+  // allbirds was loaded from birds.json. But we need the list of
+  // birds, images and sounds to weight the random choices.
+  for (var i=0; i < allbirds.length; i++) {
+    var bird = allbirds[i];
+    if ("images" in bird) {
+      for (var j=0; j < bird["images"].length; j++) {
+        pics_and_sounds.push([ i, bird["images"][j], "images" ]);
+      }
+    }
+    if ("sounds" in bird) {
+      for (var j=0; j < bird["sounds"].length; j++) {
+        pics_and_sounds.push([ i, bird["sounds"][j], "sounds" ]);
+      }
+    }
+  }
+
+  // Show the first quiz
+  newquiz();
+}
+
+// Reset the page, showing a new quiz.
+function newquiz() {
+  // Clear the entry field
+  document.getElementById("answer").value = "";
+  // And the comments
+  show_ans("");
+
+  var i = Math.floor(Math.random() * pics_and_sounds.length);
+  WhichBirdIndex = pics_and_sounds[i][0];
+  var mediafile = pics_and_sounds[i][1];
+  var t = pics_and_sounds[i][2];
+  var whichbird = allbirds[WhichBirdIndex];
+  //alert(pics_and_sounds[i]);
+
+  // Need to be able to toggle visibility depending on
+  // whether we're presenting images or audio:
+  var birdpic = document.getElementById("birdpic");
+  var audiodiv = document.getElementById("audiodiv");
+
+  if (t == "images") {
+    audiodiv.style.visibility = "collapse";
+    birdpic.src = mediafile;
+    birdpic.style.visibility = "visible";
+  }
+  else {
+    birdpic.style.visibility = "collapse";
+    audiodiv.style.visibility = "visible";
+    newaudio(mediafile);
+  }
+
+  // Focus the input entry:
+  document.getElementById("answer").focus();
+
+  return true;
+}
+
+function newaudio(f) {
+    player = document.getElementById("audioplayer");
+    player.src = f;
+}
+
+function stopaudio() {
+    player = document.getElementById("audioplayer");
+    player.removeAttribute("src");
+}
+
+// Fuzzy search from http://stackoverflow.com/a/13107950
+// Returns an array of one or more matches.
+function fuzzy(item) {
+  function oc(a) {
+    var o = {}; for (var i=0; i<a.length; i++) o[a[i]] = ""; return o;
+  }
+  var test = [];
+  for (var n=1; n<=item.length; n++)
+    test.push(item.substr(0,n) + "*" + item.substr(n+1,item.length-n));
+  var result = [];
+  for (var r=0; r<test.length; r++) {
+    for (var i=0; i<allbirds.length; i++) {
+      name = allbirds[i]["name"]
+      lcname = name.toLowerCase()
+      if (lcname.indexOf(test[r].toLowerCase().split("*")[0]) != -1)
+      if (lcname.indexOf(test[r].toLowerCase().split("*")[1]) != -1)
+      if (0 < lcname.indexOf(test[r].toLowerCase().split("*")[1])
+            - lcname.indexOf(test[r].toLowerCase().split("*")[0] < 2 ) )
+      if (!(name in oc(result)))  result.push(name);
+    }
+  }
+  return result;
+}
+
+// Does an array contain an object? (Amazingly, not a JS built-in.)
+function contains(a, obj) {
+    var i = a.length;
+    while (i--) {
+       if (a[i] === obj) {
+           return true;
+       }
+    }
+    return false;
+}
+
+// Display whether the user got it right.
+function show_ans(s) {
+  var feedback = document.getElementById("feedback");
+  feedback.innerHTML = s;
+}
+
+// Callback when the user presses the Submit button or hits Enter
+function answer() {
+  // The real answer, simple name:
+  var realans = allbirds[WhichBirdIndex].name;
+  // The whole answer formatted to show the user:
+  var finalstr = allbirds[WhichBirdIndex]["name"] + " ("
+                 + allbirds[WhichBirdIndex]["code"] + ")";
+  var ans = document.getElementById("answer").value;
+  res = fuzzy(ans);
+  //alert("fuzzy() returned " + res + ", length" + res.length);
+
+  if (res.length == 0)
+    // No matches -- the answer wasn't even close to right.
+    show_ans("Sorry, no. It's a " + finalstr);
+  else if (res.length > 1) {
+    // The user may have given a vague answer that matches several birds,
+    // like "chickadee" instead of "mountain chickadee".
+    if (contains(res, realans)) {
+      show_ans("Partly right -- it's a " + finalstr);
+    } else {
+      show_ans("Sorry, no. It's a " + finalstr);
+    }
+  }
+  else {
+    // One match. Is it right?
+    if (res == realans)
+      show_ans("You got it! " + finalstr);
+    else
+      show_ans("Sorry, no. It's a " + finalstr);
+  }
+
+  // Focus the newquiz button instead of the entry.
+  document.getElementById("newquiz").focus();
+
+  return true;
+}
+
+// Good grief, JS seriously doesn't have a way to call a function
+// when enter/return is pressed? We have to monitor all onKeyUp
+// and check whether it's code 13.
+function answerIfEnter(event) {
+  if (event.keyCode == 13 && document.getElementById("answer").value) {
+    return answer();
+  }
+  return false;
+}
+
+// https://www.allaboutbirds.org/our-review-best-iphone-apps-for-learning-bird-songs/
+// has some suggestions that might be useful for getting more birdsongs.
+// Also don't forget about Xeno-Canto.org.
+
+</script>
+</head>
+
+<body onload="load();">
+
+<h1>What bird is it?</h1>
+
+<p>
+Bird quiz: based on a picture or sound, try to identify
+what bird you're seeing or hearing.
+Type in the bird's name.
+(Eventually this will also accept 4-letter codes.)
+
+<noscript>
+<b>You'll need to enable Javascript to use the quiz.</b>
+</noscript>
+
+<p>
+Bird name or code:
+<input type=text size=35 id="answer" autofocus="autofocus"
+  onKeyUp="return answerIfEnter(event);">
+<input type="submit" value="Submit" onclick="return answer();">
+<input type="submit" id="newquiz" value="Another bird"
+ onclick="return newquiz();">
+
+<div id="feedback">
+</div>
+
+<div id="audiodiv">
+Play the bird's song or call:
+<audio id="audioplayer" controls>
+<source id="audiosource" src="" type="">
+Your browser does not support the audio element.
+</audio>
+</div>
+
+
+<!-- 
+  <div id="playpause" onclick="toggleaudio(this, '');">
+    Play
+  </div>
+ -->
+
+<p>
+<img id="birdpic" src="blank.png" alt="bird image will go here">
+
+</body>
+</html>
