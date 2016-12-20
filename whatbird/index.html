@@ -1,9 +1,12 @@
 <html>
 <head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>What bird is it?</title>
 
 <style type="text/css">
+  img { max-width: 100%; height: auto; }
 </style>
 
 <!-- birdmedia will define allbirds and pics_and_sounds -->
@@ -54,12 +57,13 @@ function newquiz() {
   var audiodiv = document.getElementById("audiodiv");
 
   if (t == "images") {
-    audiodiv.style.visibility = "collapse";
     birdpic.src = mediafile;
+    audiodiv.style.visibility = "collapse";
     birdpic.style.visibility = "visible";
   }
   else {
     birdpic.style.visibility = "collapse";
+    birdpic.src = "";
     audiodiv.style.visibility = "visible";
     newaudio(mediafile);
   }
