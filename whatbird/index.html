@@ -3,43 +3,29 @@
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <title>What bird is it?</title>
 
-<style>
-  #playpause {text-decoration:none;}
-  #playpause:hover{text-decoration:underline;cursor:pointer;}
+<style type="text/css">
 </style>
 
-<script language="javascript" src="birds.json"></script>
+<!-- birdmedia will define allbirds and pics_and_sounds -->
+<script language="javascript" src="birdlist/birdmedia.js"></script>
 
 <script language="javascript">
 
-var WhichBirdIndex = -1;
+var WhichBirdCode = null;
 
-// pics_and_sounds is a list of all the images and sounds we'll choose
-// from randomly. It's an array of [i, s, f] where i is an index into
-// allbirds, f is the actual media file.
-// and s is the key into allbirds[i], either "images" or "sounds"
-var pics_and_sounds = [];
+// Loaded from birdmedia.js:
+//
+// allbirds is the list of birds for which we have media.
+// It's { "code" : { "name" : "common name", "sciname" : "scientific name" } }
+//
+// pics_and_sounds is a list of all the images and sounds we'll
+// choose from randomly.
+// It's an array of [ [code, f, s], ... ] where
+// code is an index into allbirds, f is the actual media file,
+// and s is either "images" or "sounds"
 
-// Initial page load: initialize the list of birds, images and sounds,
-// then show the first quiz.
+// Initial page load: just show the first quiz.
 function load() {
-  // allbirds was loaded from birds.json. But we need the list of
-  // birds, images and sounds to weight the random choices.
-  for (var i=0; i < allbirds.length; i++) {
-    var bird = allbirds[i];
-    if ("images" in bird) {
-      for (var j=0; j < bird["images"].length; j++) {
-        pics_and_sounds.push([ i, bird["images"][j], "images" ]);
-      }
-    }
-    if ("sounds" in bird) {
-      for (var j=0; j < bird["sounds"].length; j++) {
-        pics_and_sounds.push([ i, bird["sounds"][j], "sounds" ]);
-      }
-    }
-  }
-
-  // Show the first quiz
   newquiz();
 }
 
@@ -48,14 +34,16 @@ function newquiz() {
   // Clear the entry field
   document.getElementById("answer").value = "";
   // And the comments
-  show_ans("");
+  show_ans("&nbsp;");
+
+  // Stop any audio that's playing.
+  stopaudio();
 
   var i = Math.floor(Math.random() * pics_and_sounds.length);
-  WhichBirdIndex = pics_and_sounds[i][0];
+  WhichBirdCode = pics_and_sounds[i][0];
   var mediafile = pics_and_sounds[i][1];
   var t = pics_and_sounds[i][2];
-  var whichbird = allbirds[WhichBirdIndex];
-  //alert(pics_and_sounds[i]);
+  var whichbird = allbirds[WhichBirdCode];
 
   // Need to be able to toggle visibility depending on
   // whether we're presenting images or audio:
@@ -86,23 +74,29 @@ function newaudio(f) {
 
 function stopaudio() {
     player = document.getElementById("audioplayer");
+    player.pause();
     player.removeAttribute("src");
 }
 
-// Fuzzy search from http://stackoverflow.com/a/13107950
+// Fuzzy search adapted from http://stackoverflow.com/a/13107950
 // Returns an array of one or more matches.
 function fuzzy(item) {
+  lcitem = item.toLowerCase();
   function oc(a) {
     var o = {}; for (var i=0; i<a.length; i++) o[a[i]] = ""; return o;
   }
   var test = [];
-  for (var n=1; n<=item.length; n++)
-    test.push(item.substr(0,n) + "*" + item.substr(n+1,item.length-n));
+  for (var n=1; n<=lcitem.length; n++)
+    test.push(lcitem.substr(0,n) + "*" + lcitem.substr(n+1,lcitem.length-n));
   var result = [];
   for (var r=0; r<test.length; r++) {
-    for (var i=0; i<allbirds.length; i++) {
-      name = allbirds[i]["name"]
-      lcname = name.toLowerCase()
+    for (var key in allbirds) {
+      name = allbirds[key]["name"];
+      lcname = name.toLowerCase();
+      // Check for an exact match, and assume there's only one.
+      if (lcitem == lcname) {
+          return [lcitem];
+      }
       if (lcname.indexOf(test[r].toLowerCase().split("*")[0]) != -1)
       if (lcname.indexOf(test[r].toLowerCase().split("*")[1]) != -1)
       if (0 < lcname.indexOf(test[r].toLowerCase().split("*")[1])
@@ -133,10 +127,9 @@ function show_ans(s) {
 // Callback when the user presses the Submit button or hits Enter
 function answer() {
   // The real answer, simple name:
-  var realans = allbirds[WhichBirdIndex].name;
+  var realans = allbirds[WhichBirdCode].name;
   // The whole answer formatted to show the user:
-  var finalstr = allbirds[WhichBirdIndex]["name"] + " ("
-                 + allbirds[WhichBirdIndex]["code"] + ")";
+  var finalstr = allbirds[WhichBirdCode]["name"] + " (" + WhichBirdCode + ")";
 
   var ans = document.getElementById("answer").value;
 
@@ -144,11 +137,8 @@ function answer() {
   // First, is it a 4-letter code?
   if (ans.length == 4) {
     anscode = ans.toUpperCase();
-    for (i=0; i < allbirds.length; ++i)
-      if (allbirds[i].code == anscode) {
-        res = [ realans ];
-        break;
-      }
+    if (anscode in allbirds)
+      res = [ realans ];
   }
 
   if (!res)
@@ -156,22 +146,27 @@ function answer() {
 
   if (res.length == 0)
     // No matches -- the answer wasn't even close to right.
-    show_ans("Sorry, no. It's a " + finalstr);
+    show_ans("Sorry, I don't have any bird matching your answer. It's a " + finalstr);
   else if (res.length > 1) {
     // The user may have given a vague answer that matches several birds,
     // like "chickadee" instead of "mountain chickadee".
+    var out;
     if (contains(res, realans)) {
-      show_ans("Partly right -- it's a " + finalstr);
+      out = "Partly right -- it's a " + finalstr;
     } else {
-      show_ans("Sorry, no. It's a " + finalstr);
+      out = "Sorry, no. It's a " + finalstr;
     }
+    out += "<p>Your answer of " + ans + " matched:";
+    for (i=0; i<res.length; ++i)
+      out += "<br>" + res[i];
+    show_ans(out);
   }
   else {
     // One match. Is it right?
-    if (res[0] == realans)
+    if (res[0].toLowerCase() == realans.toLowerCase())
       show_ans("You got it! " + finalstr);
     else
-      show_ans("Sorry, no. It's a " + finalstr);
+      show_ans("Sorry, not a " + res[0] + ". It's a " + realans + " = " + finalstr);
   }
 
   // Focus the newquiz button instead of the entry.
@@ -199,7 +194,7 @@ function answerIfEnter(event) {
 
 <body onload="load();">
 
-<h1>What bird is it?</h1>
+<img src="WhatBird.jpg" width=960 height=100 alt="What Bird?">
 
 <p>
 Bird quiz: based on a picture or sound, try to identify
@@ -219,12 +214,13 @@ Bird name or code:
  onclick="return newquiz();">
 
 <div id="feedback">
+&nbsp;
 </div>
 
 <div id="audiodiv">
 Play the bird's song or call:
 <audio id="audioplayer" controls>
-<source id="audiosource" src="" type="">
+<source id="audiosource" src="">
 Your browser does not support the audio element.
 </audio>
 </div>
