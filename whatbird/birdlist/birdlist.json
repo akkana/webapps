@@ -5,6 +5,7 @@
   "LASP" : { "name" : "Lark Sparrow", "sciname" : "Chondestes grammacus" },
   "EAWP" : { "name" : "Eastern Wood-Pewee", "sciname" : "Contopus virens" },
   "BOWA" : { "name" : "Bohemian Waxwing", "sciname" : "Bombycilla garrulus" },
+  "CEDW" : { "name" : "Cedar Waxwing", "sciname" : "Bombycilla cedorum" },
   "AMCR" : { "name" : "American Crow", "sciname" : "Corvus brachyrhynchos" },
   "AMCO" : { "name" : "American Coot", "sciname" : "Fulica americana" },
   "BRTH" : { "name" : "Brown Thrasher", "sciname" : "Toxostoma rufum" },
