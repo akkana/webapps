@@ -18,9 +18,10 @@
 
 import os
 import json
+import shutil
 from difflib import SequenceMatcher
 
-with open("birdlist.json") as fp:
+with open("birdlist/birdlist.json") as fp:
     j = fp.read()
     birdlist = json.loads(j)
 
@@ -93,10 +94,13 @@ def find_media(mediadir, mediatype):
 birdsused = set()
 pics_and_sound = "var pics_and_sounds = [\n"
 
-find_media("../images", "images")
-find_media("../sounds", "sounds")
+find_media("images", "images")
+find_media("sounds", "sounds")
 
 pics_and_sound += '];'
+
+# Back up the file:
+shutil.copyfile("birdmedia.js", "birdmedia.js.bak")
 
 # Now write the file
 with open("birdmedia.js", "w") as fp:

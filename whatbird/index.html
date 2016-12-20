@@ -7,11 +7,14 @@
 </style>
 
 <!-- birdmedia will define allbirds and pics_and_sounds -->
-<script language="javascript" src="birdlist/birdmedia.js"></script>
+<script language="javascript" src="birdmedia.js"></script>
 
 <script language="javascript">
 
 var WhichBirdCode = null;
+
+var Score = 0;
+var Total = 0;
 
 // Loaded from birdmedia.js:
 //
@@ -144,6 +147,8 @@ function answer() {
   if (!res)
     res = fuzzy(ans);
 
+  Total += 1;
+
   if (res.length == 0)
     // No matches -- the answer wasn't even close to right.
     show_ans("Sorry, I don't have any bird matching your answer. It's a " + finalstr);
@@ -153,6 +158,7 @@ function answer() {
     var out;
     if (contains(res, realans)) {
       out = "Partly right -- it's a " + finalstr;
+      Score += 1/res.length;
     } else {
       out = "Sorry, no. It's a " + finalstr;
     }
@@ -163,11 +169,17 @@ function answer() {
   }
   else {
     // One match. Is it right?
-    if (res[0].toLowerCase() == realans.toLowerCase())
+    if (res[0].toLowerCase() == realans.toLowerCase()) {
       show_ans("You got it! " + finalstr);
+      Score += 1;
+    }
     else
       show_ans("Sorry, not a " + res[0] + ". It's a " + realans + " = " + finalstr);
   }
+
+  // Update the scorecard
+  document.getElementById("scorecard").innerHTML =
+      "Score so far: " + Score + " out of " + Total;
 
   // Focus the newquiz button instead of the entry.
   document.getElementById("newquiz").focus();
@@ -200,6 +212,9 @@ function answerIfEnter(event) {
 Bird quiz: based on a picture or sound, try to identify
 what bird you're seeing or hearing.
 Type in the name or 4-letter code of the bird you've identified.
+If a photo shows more than one bird, name the rarer one.
+<p>
+<b id="scorecard"></b>
 
 <noscript>
 <b>You'll need to enable Javascript to use the quiz.</b>
@@ -218,19 +233,13 @@ Bird name or code:
 </div>
 
 <div id="audiodiv">
+<p>
 Play the bird's song or call:
 <audio id="audioplayer" controls>
 <source id="audiosource" src="">
 Your browser does not support the audio element.
 </audio>
 </div>
-
-
-<!-- 
-  <div id="playpause" onclick="toggleaudio(this, '');">
-    Play
-  </div>
- -->
 
 <p>
 <img id="birdpic" src="blank.png" alt="bird image will go here">

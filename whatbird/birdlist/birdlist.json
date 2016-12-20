@@ -53,6 +53,7 @@
   "LBWO" : { "name" : "Ladder-backed Woodpecker", "sciname" : "Picoides scalaris" },
   "RUTU" : { "name" : "Ruddy Turnstone", "sciname" : "Arenaria interpres" },
   "NRWS" : { "name" : "Northern Rough-winged Swallow", "sciname" : "Stelgidopteryx serripennis" },
+  "VGSW" : { "name" : "Violet-green Swallow", "sciname" : "Tachycineta thalassina" },
   "CALT" : { "name" : "California Towhee", "sciname" : "Melozone crissalis" },
   "VABU" : { "name" : "Varied Bunting", "sciname" : "Passerina versicolor" },
   "CHPH" : { "name" : "Chinese Pond-Heron", "sciname" : "Ardeola bacchus" },

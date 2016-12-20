@@ -1,0 +1,40 @@
+This is "What Bird?", a game where you try to identify a bird from
+a photograph or sound clip.
+
+The media (photos and sound files) are not included in the source
+distribution. You need to collect your own. Put photos in the images/
+directory, and audio files in sounds/. Subdirectories are fine: you
+may want to use subdirectories to indicate who took the photos or
+where you got them., like images/JaneSmith/winter_wren.jpg
+
+There are no fixed guidelines on how big a bird image should be.
+They'll be shown at full size. I mostly use images around 800 pixels wide
+if I can (smaller if that's the best I have for that bird) since that
+size shows fairly well on most browsers.
+
+Both images and sounds should either include the bird's full name,
+or start with the bird's 4-letter code. You can use underscores in
+place of spaces; numbers and non-alphabetic characters at the
+beginning and end of filenames will be ignored. Case will be ignored
+in filenames. No guarantees about what sort of filenames will be
+recognized, but currently here are some sample filenames that work:
+
+white_tailed_kite3.jpg
+15-WETA_western_tanager_1_phrase.mp3
+
+Once you have your images and sound collected, from the top level
+directory (the parent of birdlist, images, and sounds), run this:
+
+python birdlist/populate-allbirds.py
+
+This will attempt to create a file called birdlist/birdmedia.js
+that includes both a list of all the media files you have, indexed
+by bird, and a master bird index with the codes, names, and scientific
+names of all birds for which you have media.
+
+If you add new media files, you should re-run populate-allbirds.py
+to update the lists in birdmedia.js.
+
+The files you'll need on a web server are index.html, birdmedia.js,
+and the images/ and sounds/ directories with your media files.
+
