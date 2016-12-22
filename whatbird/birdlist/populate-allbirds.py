@@ -4,8 +4,10 @@
 # names and scientific names; then find files in ../images and ../sounds
 # and make a javascript-parseable JSON list of birds with associated
 # image and sound files that looks like this:
-# var pics_and_sounds = [
+# var pics = [
 #   [ CODE : [ "file.jpg", "image" ],
+# ];
+# var sounds = [
 #   [ CODE : [ "file.mp3", "sound" ],
 # ];
 # plus an allbirds that looks like this:
@@ -26,11 +28,10 @@ with open("birdlist/birdlist.json") as fp:
     birdlist = json.loads(j)
 
 def add_file(root, f, bird, mediatype):
-    global pics_and_sound, birdsused
+    global pics_and_sounds, birdsused
     print "Adding:", f, bird
-    pics_and_sound += '  [ "%s", "%s", "%s" ],\n' % (bird,
-                                                     os.path.join(root, f),
-                                                     mediatype)
+    pics_and_sounds += '  [ "%s", "%s" ],\n' % (bird,
+                                                os.path.join(root, f))
     birdsused.add(bird)
 
 def find_media(mediadir, mediatype):
@@ -92,12 +93,13 @@ def find_media(mediadir, mediatype):
                                                       name, best_ratio)
 
 birdsused = set()
-pics_and_sound = "var pics_and_sounds = [\n"
-
+pics_and_sounds = "var pics = [\n"
 find_media("images", "images")
-find_media("sounds", "sounds")
+pics_and_sounds += '];\n\n'
 
-pics_and_sound += '];'
+pics_and_sounds += "var sounds = [\n"
+find_media("sounds", "sounds")
+pics_and_sounds += '];\n'
 
 # Back up the file:
 shutil.copyfile("birdmedia.js", "birdmedia.js.bak")
@@ -110,6 +112,6 @@ with open("birdmedia.js", "w") as fp:
             % (code, birdlist[code]["name"],birdlist[code]["sciname"])
     print >>fp, '};'
     print >>fp, ''
-    print >>fp, pics_and_sound
+    print >>fp, pics_and_sounds
 
 
