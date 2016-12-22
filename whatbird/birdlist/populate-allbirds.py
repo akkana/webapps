@@ -102,7 +102,8 @@ find_media("sounds", "sounds")
 pics_and_sounds += '];\n'
 
 # Back up the file:
-shutil.copyfile("birdmedia.js", "birdmedia.js.bak")
+if os.path.exists("birdmedia.js"):
+    shutil.copyfile("birdmedia.js", "birdmedia.js.bak")
 
 # Now write the file
 with open("birdmedia.js", "w") as fp:
