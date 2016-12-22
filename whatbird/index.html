@@ -7,6 +7,7 @@
 
 <style type="text/css">
   img { max-width: 100%; height: auto; }
+  #newquiz { margin-left: 2.5em; }
 </style>
 
 <!-- birdmedia will define allbirds and pics_and_sounds -->
@@ -144,8 +145,9 @@ function answer() {
   // First, is it a 4-letter code?
   if (ans.length == 4) {
     anscode = ans.toUpperCase();
-    if (anscode in allbirds)
+    if (anscode == WhichBirdCode) {
       res = [ realans ];
+    }
   }
 
   if (!res)
@@ -162,11 +164,11 @@ function answer() {
     var out;
     if (contains(res, realans)) {
       out = "Partly right -- it's a " + finalstr;
-      Score += 1/res.length;
+      Score += 1./res.length;
     } else {
       out = "Sorry, no. It's a " + finalstr;
     }
-    out += "<p>Your answer of " + ans + " matched:";
+    out += "<p>Your answer of " + ans + " was similar to:";
     for (i=0; i<res.length; ++i)
       out += "<br>" + res[i];
     show_ans(out);
@@ -183,7 +185,8 @@ function answer() {
 
   // Update the scorecard
   document.getElementById("scorecard").innerHTML =
-      "Score so far: " + Score + " out of " + Total;
+      "Score so far: " + Math.round(Score*100)/100 + " out of " + Total;
+      //"Score so far: " + Score + " out of " + Total;
 
   // Focus the newquiz button instead of the entry.
   document.getElementById("newquiz").focus();
@@ -231,6 +234,8 @@ Bird name or code:
 <input type="submit" value="Submit" onclick="return answer();">
 <input type="submit" id="newquiz" value="Another bird"
  onclick="return newquiz();">
+<input id="chooseImages" type="checkbox"checked="checked" >Images
+<input id="chooseSounds" type="checkbox"checked="checked" >Calls/Songs
 
 <div id="feedback">
 &nbsp;
