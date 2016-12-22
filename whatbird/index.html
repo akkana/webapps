@@ -10,7 +10,7 @@
   #newquiz { margin-left: 2.5em; }
 </style>
 
-<!-- birdmedia will define allbirds and pics_and_sounds -->
+<!-- birdmedia will define allbirds, pics, and sounds -->
 <script language="javascript" src="birdmedia.js"></script>
 
 <script language="javascript">
@@ -25,13 +25,13 @@ var Total = 0;
 // allbirds is the list of birds for which we have media.
 // It's { "code" : { "name" : "common name", "sciname" : "scientific name" } }
 //
-// pics_and_sounds is a list of all the images and sounds we'll
+// pics and sounds are lists of all the images and sounds we'll
 // choose from randomly.
 // It's an array of [ [code, f, s], ... ] where
 // code is an index into allbirds, f is the actual media file,
 // and s is either "images" or "sounds"
 
-// Initial page load: just show the first quiz.
+// Initial page load: just show a new quiz.
 function load() {
   newquiz();
 }
@@ -46,10 +46,39 @@ function newquiz() {
   // Stop any audio that's playing.
   stopaudio();
 
-  var i = Math.floor(Math.random() * pics_and_sounds.length);
-  WhichBirdCode = pics_and_sounds[i][0];
-  var mediafile = pics_and_sounds[i][1];
-  var t = pics_and_sounds[i][2];
+  // We might be choosing from images, sounds, or both.
+  var totChoices = 0;
+  var imageschecked = document.getElementById("chooseImages").checked;
+  var soundschecked = document.getElementById("chooseSounds").checked;
+  var picslen = pics.length;
+  var soundslen = sounds.length;
+
+  var mediafile, t;
+  if (imageschecked && soundschecked) {
+    var i = Math.floor(Math.random() * (picslen+soundslen));
+    if (i < pics.length) {
+      WhichBirdCode = pics[i][0];
+      mediafile = pics[i][1];
+      t = "images";
+    } else {
+      i -= picslen;
+      WhichBirdCode = sounds[i][0];
+      mediafile = sounds[i][1];
+      t = "sounds";
+    }
+  }
+  else if (imageschecked) {
+    var i = Math.floor(Math.random() * picslen);
+    WhichBirdCode = pics[i][0];
+    mediafile = pics[i][1];
+    t = "images";
+  }
+  else {
+    var i = Math.floor(Math.random() * soundslen);
+    WhichBirdCode = sounds[i][0];
+    mediafile = sounds[i][1];
+    t = "sounds";
+  }
   var whichbird = allbirds[WhichBirdCode];
 
   // Need to be able to toggle visibility depending on
