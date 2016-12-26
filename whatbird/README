@@ -35,6 +35,8 @@ names of all birds for which you have media.
 If you add new media files, you should re-run populate-allbirds.py
 to update the lists in birdmedia.js.
 
-The files you'll need on a web server are index.html, birdmedia.js,
-and the images/ and sounds/ directories with your media files.
+The files you'll need on a web server are index.html, whatbird.js,
+the generated file birdmedia.js,
+awesomplete.js and awesomplete.css.
+You'll also need images/ and sounds/ directories with your media files.
 
