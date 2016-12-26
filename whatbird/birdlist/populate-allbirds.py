@@ -133,6 +133,8 @@ def add_xeno_canto(whichdir, mediatype):
     with open(f) as fp:
         for line in fp:
             line = line.strip()
+            if not line:
+                continue
             space = line.find(' ')
             if line < 0:
                 continue
