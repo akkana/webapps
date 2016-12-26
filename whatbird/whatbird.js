@@ -65,23 +65,45 @@ function newquiz() {
   // whether we're presenting images or audio:
   var birdpic = document.getElementById("birdpic");
   var audiodiv = document.getElementById("audiodiv");
+  var xenocanto = document.getElementById("xeno-canto");
 
   if (t == "images") {
     birdpic.src = mediafile;
     audiodiv.style.visibility = "collapse";
+    xenocanto.style.visibility = "collapse";
     birdpic.style.visibility = "visible";
   }
   else {
     birdpic.style.visibility = "collapse";
     birdpic.src = "";
-    audiodiv.style.visibility = "visible";
-    newaudio(mediafile);
+
+    // Is it a xeno-canto clip?
+    if (mediafile.startsWith("xeno-canto")) {
+      // xeno-canto media files should be of the form: xeno-canto/ID
+      // http://www.xeno-canto.org/help/embed/332645
+      cantoID = basename(mediafile);
+      audiodiv.style.visibility = "collapse";
+      xenocanto.src= "http://www.xeno-canto.org/" + cantoID + "/embed";
+      xenocanto.style.visibility = "visible";
+    } else {
+      audiodiv.style.visibility = "visible";
+      xenocanto.style.visibility = "collapse";
+      newaudio(mediafile);
+    }
   }
 
   // Focus the input entry:
   document.getElementById("answer").focus();
 
   return true;
+}
+
+function basename(str)
+{
+   var base = new String(str).substring(str.lastIndexOf('/') + 1);
+    if(base.lastIndexOf(".") != -1)
+        base = base.substring(0, base.lastIndexOf("."));
+   return base;
 }
 
 function newaudio(f) {
