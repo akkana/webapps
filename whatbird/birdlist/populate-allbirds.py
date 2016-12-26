@@ -127,7 +127,7 @@ def add_xeno_canto(whichdir, mediatype):
          287516 American robin
          287516 AMRO
     '''
-    f = os.path.join(whichdir, "xeno-canto")
+    f = "birdlist/xeno-canto"
     if not os.path.exists(f):
         return
     with open(f) as fp:
