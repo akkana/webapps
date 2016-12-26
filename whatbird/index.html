@@ -6,9 +6,17 @@
 <title>What bird is it?</title>
 
 <style type="text/css">
+  body { background: white; }
+  #feedback { background: #f5f5ff;
+              border: 2px inset #eee; margin: 1em; padding: .5em; }
   img { max-width: 100%; height: auto; }
   #newquiz { margin-left: 2.5em; }
-  #xeno-canto { visibility: collapse; }
+  #media_area { position: relative; }
+  #attribution { position: absolute; top: 1em; right: 1em; background: white; }
+  #audiodiv { visibility: collapse; position: absolute; top: 0; left: 0; }
+  #xenodiv { visibility: collapse; position: absolute; top: 0; left: 0; }
+  #xenocover { z-index: 100; position: absolute; bottom: 0; height: 55px; width: 350px; background: white; }
+  #birdpic { visibility: collapse; position: absolute; top: 0; left: 0; }
 </style>
 
 <link rel="stylesheet" href="awesomplete.css" />
@@ -17,6 +25,7 @@
 <!-- birdmedia will define allbirds, pics, and sounds -->
 <script language="javascript" src="birdmedia.js"></script>
 
+<!-- The code that runs the quiz -->
 <script language="javascript" src="whatbird.js"></script>
 
 <script language="javascript">
@@ -83,21 +92,32 @@ Bird name or code:
 &nbsp;
 </div>
 
-<div id="audiodiv">
-<p>
-Play the bird's song or call:
-<audio id="audioplayer" controls>
-<source id="audiosource" src="">
-Your browser does not support the audio element.
-</audio>
+<div id="media_area">
+
+  <div id="audiodiv">
+    <p>
+    Play the bird's song or call:
+    <audio id="audioplayer" controls>
+      <source id="audiosource" src="">
+      Your browser does not support the audio element.
+    </audio>
+  </div>
+
+  <div id="xenodiv">
+    <iframe id="xeno-canto" src='" scrolling='no' frameborder='0'
+            width='340' height='220'>
+    </iframe>
+    <div id="xenocover">
+      Sound from Xeno-Canto.org.
+    </div>
+  </div>
+
+  <img id="birdpic" src="blank.png" alt="bird image will go here">
+
+<div id="attribution">
+  Place attribution here.
 </div>
-
-<iframe id="xeno-canto" src='" scrolling='no' frameborder='0' 
- width='340' height='220'>
-</iframe>
-
-<p>
-<img id="birdpic" src="blank.png" alt="bird image will go here">
+</div>
 
 </body>
 </html>

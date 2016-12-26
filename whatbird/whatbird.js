@@ -61,33 +61,54 @@ function newquiz() {
   }
   var whichbird = allbirds[WhichBirdCode];
 
+  // Get the attribution, if any.
+  d = dirname(mediafile);
+  if (d && (d in copyrights))
+    copyright = copyrights[d];
+  else
+    copyright = "";
+  document.getElementById("attribution").innerHTML = copyright;
+
+  // Now update the HTML page.
+
   // Need to be able to toggle visibility depending on
   // whether we're presenting images or audio:
   var birdpic = document.getElementById("birdpic");
   var audiodiv = document.getElementById("audiodiv");
-  var xenocanto = document.getElementById("xeno-canto");
+  var xenodiv = document.getElementById("xenodiv");
+
+  // Even though the xenocover is inside the xenodiv, it will be visible
+  // even when the xenodiv is hidden. Maybe because of its z-order.
+  // Anyway, we have to hide it separately.
+  var xenocover = document.getElementById("xenocover");
 
   if (t == "images") {
     birdpic.src = mediafile;
-    audiodiv.style.visibility = "collapse";
-    xenocanto.style.visibility = "collapse";
+    audiodiv.style.visibility = "hidden";
+    xenodiv.style.visibility = "hidden";
+    xenocover.style.visibility = "hidden";
     birdpic.style.visibility = "visible";
   }
   else {
-    birdpic.style.visibility = "collapse";
+    birdpic.style.visibility = "hidden";
     birdpic.src = "";
 
     // Is it a xeno-canto clip?
-    if (mediafile.startsWith("xeno-canto")) {
+    if (mediafile.startsWith("http://www.xeno-canto.org/")) {
+      // Make sure the bird name will be hidden
+      xenocover.style.visibility = "visible";
+
       // xeno-canto media files should be of the form: xeno-canto/ID
       // http://www.xeno-canto.org/help/embed/332645
-      cantoID = basename(mediafile);
-      audiodiv.style.visibility = "collapse";
-      xenocanto.src= "http://www.xeno-canto.org/" + cantoID + "/embed";
-      xenocanto.style.visibility = "visible";
+      var xenocanto = document.getElementById("xeno-canto");
+      var cantoID = basename(mediafile);
+      audiodiv.style.visibility = "hidden";
+      xenocanto.src= mediafile;
+      xenodiv.style.visibility = "visible";
     } else {
       audiodiv.style.visibility = "visible";
-      xenocanto.style.visibility = "collapse";
+      xenodiv.style.visibility = "hidden";
+      xenocover.style.visibility = "hidden";
       newaudio(mediafile);
     }
   }
@@ -98,12 +119,20 @@ function newquiz() {
   return true;
 }
 
-function basename(str)
+function basename(s)
 {
-   var base = new String(str).substring(str.lastIndexOf('/') + 1);
-    if(base.lastIndexOf(".") != -1)
-        base = base.substring(0, base.lastIndexOf("."));
-   return base;
+  var slash = s.lastIndexOf('/');
+  if (slash < 0)
+    return null;
+  return s.substring(slash+1);
+}
+
+function dirname(s)
+{
+  var slash = s.lastIndexOf('/');
+  if (slash < 0)
+    return s;
+  return s.substring(0, slash);
 }
 
 function newaudio(f) {
@@ -213,6 +242,10 @@ function answer() {
     else
       show_ans("Sorry, not a " + res[0] + ". It's a " + realans + " = " + finalstr);
   }
+
+  // Un-hide the bird name if it's xeno-canto
+  var cover = document.getElementById("xenocover");
+  cover.style.visibility = "hidden";
 
   // Update the scorecard
   document.getElementById("scorecard").innerHTML =
