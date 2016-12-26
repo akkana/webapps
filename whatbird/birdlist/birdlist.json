@@ -189,6 +189,7 @@
   "OCAW" : { "name" : "Olive-capped Warbler", "sciname" : "Setophaga pityophila" },
   "PUFI" : { "name" : "Purple Finch", "sciname" : "Haemorhous purpureus" },
   "WESJ" : { "name" : "Western Scrub-Jay", "sciname" : "Aphelocoma californica" },
+  "WOSJ" : { "name" : "Woodhouse's Scrub-Jay", "sciname" : "Aphelocoma woodhouseii" },
   "BGTA" : { "name" : "Blue-gray Tanager", "sciname" : "Thraupis episcopus" },
   "LBDO" : { "name" : "Long-billed Dowitcher", "sciname" : "Limnodromus scolopaceus" },
   "WILW" : { "name" : "Willow Warbler", "sciname" : "Phylloscopus trochilus" },
