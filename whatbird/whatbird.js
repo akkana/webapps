@@ -223,14 +223,16 @@ function answer() {
     // like "chickadee" instead of "mountain chickadee".
     var out;
     if (contains(res, realans)) {
-      out = "Partly right -- it's a " + finalstr;
+      out = "Close -- it's a " + finalstr;
       Score += 1./res.length;
     } else {
       out = "Sorry, no. It's a " + finalstr;
     }
+    /*
     out += "<p>Your answer of " + ans + " was similar to:";
     for (i=0; i<res.length; ++i)
       out += "<br>" + res[i];
+     */
     show_ans(out);
   }
   else {
