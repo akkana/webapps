@@ -47,13 +47,28 @@ def add_file(root, f, bird, mediatype):
 
 def find_media(mediadir, mediatype):
     for root, dirs, files in os.walk(mediadir):
+        attributions = {}
+        try:
+            with open(os.path.join(root, "Attributions")) as fp:
+                print "Found an Attributions file in", root
+                for line in fp:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    space = line.find(' ')
+                    if not space:
+                        continue
+                    fnam = os.path.join(root, line[:space].strip())
+                    copyrights[fnam] = line[space+1:].strip()
+        except:
+            print "No attributions file in", root
+
         try:
             with open(os.path.join(root, "Copyright")) as fp:
-                print "Found a copyright in", root
+                print "Found a copyright for", root
                 copyrights[root] = fp.read().strip()
         except:
-            print "No copyright in", root
-            pass
+            print "No Copyright file in", root
 
         for f in files:
             name, ext = os.path.splitext(f)
@@ -173,8 +188,11 @@ with open("birdmedia.js", "w") as fp:
     print >>fp, ''
     if copyrights:
         print >>fp, 'var copyrights = {'
-        for key in copyrights:
-            print >>fp, '  "%s" : "%s",' % (key, copyrights[key])
+        keys = copyrights.keys()
+        keys.sort()
+        for key in keys:
+            print >>fp, '  "%s" : "Image from %s",' % (key,
+                                            copyrights[key].replace('"', '\\"'))
         print >>fp, '};'
 
 

@@ -33,10 +33,12 @@ function newquiz() {
   var picslen = pics.length;
   var soundslen = sounds.length;
 
+  //alert("There are " + picslen + " images and " + soundslen + " sounds");
+
   var mediafile, t;
   if (imageschecked && soundschecked) {
     var i = Math.floor(Math.random() * (picslen+soundslen));
-    if (i < pics.length) {
+    if (i < picslen) {
       WhichBirdCode = pics[i][0];
       mediafile = pics[i][1];
       t = "images";
@@ -62,11 +64,15 @@ function newquiz() {
   var whichbird = allbirds[WhichBirdCode];
 
   // Get the attribution, if any.
-  d = dirname(mediafile);
-  if (d && (d in copyrights))
-    copyright = copyrights[d];
-  else
-    copyright = "";
+  if (mediafile in copyrights)
+    copyright = copyrights[mediafile];
+  else {
+    d = dirname(mediafile);
+    if (d && (d in copyrights))
+      copyright = copyrights[d];
+    else
+      copyright = "";
+  }
   document.getElementById("attribution").innerHTML = copyright;
 
   // Now update the HTML page.
@@ -83,6 +89,19 @@ function newquiz() {
   var xenocover = document.getElementById("xenocover");
 
   if (t == "images") {
+    // mediafile may be a relative url, e.g. images/foo/bar.jpg.
+    // But firefox has a bug where sometimes, unpredictably,
+    // it can't set img src to a relative URL; mousing over
+    // the src in the DOM inspector says "could not load the image"
+    // but it's not clear why.
+    // Googling firefox "could not load the image"
+    // suggests that this firefox bug is fairly widespread.
+    /*
+    loc = window.location.href
+    if (loc.endsWith(".html"))
+      loc = dirname(loc) + '/'
+    birdpic.src = loc + mediafile;
+    */
     birdpic.src = mediafile;
     audiodiv.style.visibility = "hidden";
     xenodiv.style.visibility = "hidden";

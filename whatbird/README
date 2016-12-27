@@ -40,3 +40,14 @@ the generated file birdmedia.js,
 awesomplete.js and awesomplete.css.
 You'll also need images/ and sounds/ directories with your media files.
 
+ATTRIBUTIONS:
+
+Two types of copyright/attribution files are supported.
+First, if you have a lot of files from the same source, you can
+put a file named Copyright into that directory and whatever's in
+that file will be used for every file in the directory.
+
+Second, for public domain and Creative Commons sources where you have
+lots of files from different sources, you can make a file called
+Attributions which contains lines where the filename comes first,
+and everything else on that line is the copyright for that image.
