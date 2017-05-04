@@ -8,19 +8,11 @@
   <meta content="utf-8" http-equiv="encoding">
   <link rel="stylesheet" type="text/css" href="styles/galilean.css">
 
-  <!-- The code for calculating Jovian moon and GRS positions: -->
-  <script type="text/javascript" src="scripts/jupiter.js"></script>
-  <!-- Code for displaying it here -->
-  <script type="text/javascript" src="scripts/jup-page.js"></script>
-  <!-- A calendar widget -->
-  <script type="text/javascript" src="scripts/calendar.js"></script>
-
   <!-- various progressive-web-appy stuff -->
+  <link rel="manifest" href="manifest.json">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <link rel="canonical" href="http://shallowsky.com/galilean/">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.json">
-
   <!-- Add to home screen for Safari on iOS -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -31,7 +23,7 @@
 
 </head>
 
-<body onload="initpage();">
+<body> <!-- onload="initpage();"> -->
 <div id="intro" class="chatty">
 <h1>Galilean Moons of Jupiter</h1>
 <p>
@@ -87,12 +79,27 @@ Set a date explicitly:
  size=40>
  -->
 
+<p>
+<input type="text" id="datefield" readonly=true size=8 />
+<!-- We may need 12 characters in the time field. But three of them
+  -- are colons and others may be 1s, and the size will be set by ems.
+  -- So specify a size much smaller than 12.
+  -->
+<input type="text" id="timefield" size=9 />
+
 <input type="button" name="changeDate" value="Recalculate" onClick="setDate();">
 <span id="recalculating"><i>Recalculating ...</i></span>
 
-<p>
-<input type="text" id="datefield" size=12 />
-<input type="text" id="timefield" size=12 />
+<!-- In theory, cal-cont-cont sets up a relative item
+     and then calendar-container can be positioned absolutely inside that.
+     In practice, it doesn't work, probably because the zero width/height
+     makes the calendar inside it invisible.
+     http://stackoverflow.com/questions/6040005/relatively-position-an-element-without-it-taking-up-space-in-document-flow
+ -->
+<br>
+<span id="hidden-relative">
+  <span id="calendar-container"></span>
+</span>
 
 <p>
 <input type="button" name="nextDay" value="-day" onClick="addHours(-24);">
@@ -108,7 +115,7 @@ Set a date explicitly:
        onClick="toggleAnimation();">
 <input type="button" name="faster" value="faster" onClick="animateFaster(20);">
 <input type="button" name="slower" value="slower" onClick="animateFaster(-20);">
-<span id="animDelay">Delay: 100 milliseconds</span>
+<span id="animDelay">(100 msec)</span>
 
 <p>
 Show events for
@@ -120,7 +127,7 @@ hours.
 <input type="button" name="predict" value="Print"
        onClick="printUpcoming();">
 <p>
-<pre id="upcoming"></pre>
+<div id="upcoming"></div>
 
 <div id="footnotes" class="chatty">
 <hr>
@@ -161,6 +168,18 @@ Jupiter on GitHub</a> |
 <a href="/astro.html">Akkana's Astronomy Page</a> |
 <a href="/">Shallow Sky home</a>
 </div>
+
+  <!-- The code for calculating Jovian moon and GRS positions: -->
+  <script type="text/javascript" src="scripts/jupiter.js"></script>
+
+  <!-- Code for displaying it on this page -->
+  <script type="text/javascript" src="scripts/jup-page.js"></script>
+
+  <!-- A calendar widget -->
+  <script type="text/javascript" src="scripts/calendar.js"></script>
+
+  <!-- DeltaHeavy in #javascript says this is better than body onload -->
+  <script>document.addEventListener('DOMContentLoaded', initpage);</script>
 
 </body>
 </html>

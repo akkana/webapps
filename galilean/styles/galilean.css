@@ -1,3 +1,14 @@
+
+/* Prevent text magnification on orientation change on Android.
+ * Seems like that should be something the user chooses in chrome,
+ * but chrome doesn't seem to offer that.
+ */
+body {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: none;
+  -ms-text-size-adjust: 100%;
+}
+
 div#jupframe {
   background: black;
   color: white;
@@ -26,12 +37,21 @@ div#jupframe {
  */
 input[type=button]#now { margin-left: 3em; }
 
-/* Verbose text: want this on the web page but not on small devices.
-@media handheld, max-width: 500px, screen and max-height: 500px {
-  .chatty { display: none; }
-}
+/* Verbose text: want this on the web page but not on small devices or windows.
+ * On my Galaxy S5, portrait mode has a width of about 48em, I think;
+ * Landscape mode changes the font size (weird!) and is about 59.
+ * Note: I see "handheld" mentioned on the web but android doesn't respect it.
  */
-@media media, screen and (max-width: 500px), screen and (max-height: 500px) {
-  .chatty { display: none; }
+@media (max-width: 60em), (max-height: 40em) {
+  .chatty { display: None }
 }
 
+/* The calendar */
+#hidden-relative {
+  position: relative; /* width: 0; height: 0;*/
+}
+#calendar-container {
+  position: absolute; left: 0px; top: 0em;
+  background: white;
+  opacity: .8;
+}

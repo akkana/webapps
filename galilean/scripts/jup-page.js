@@ -17,11 +17,11 @@ function initpage() {
     if (idx > 0) {
     idx = url.indexOf("date=", idx);
     if (idx > 0) {
-    date = new Date(decodeURIComponent(url.substr(idx + 5)));
-    // Discussion of the three decoding options in javascript:
-    // http://unixpapa.com/js/querystring.html
-    // http://stackoverflow.com/questions/747641/what-is-the-difference-between-decodeuricomponent-and-decodeuri
-    }
+      date = new Date(decodeURIComponent(url.substr(idx + 5)));
+      // Discussion of the three decoding options in javascript:
+      // http://unixpapa.com/js/querystring.html
+      // http://stackoverflow.com/questions/747641/what-is-the-difference-between-decodeuricomponent-and-decodeuri
+      }
     }
 
   if (!date) {
@@ -30,16 +30,6 @@ function initpage() {
     updateDate(date);
   }
   */
-
-  // Some useful times for testing:
-  // Ganymede just about to reappear from eclipse before disappearing again:
-  //date = new Date('Sat Nov 10 2012 16:10:00 GMT-0800 (PDT)');
-  // Europa should be visible at 19:51 but gone at 19:59; back at 20:06 re xephem:
-  //date = new Date('Mon Mar 10 2013 19:53:00 GMT-0700 (PDT)');
-  //date = new Date('Mon Mar 10 2013 19:57:00 GMT-0700 (PDT)');
-  //date = new Date('Mon Mar 10 2013 20:02:00 GMT-0700 (PDT)');
-  // 2 transits, 2 shadows:
-  //date = new Date('Wed Mar 10 2010 06:35:17 GMT-0800 (PST)');
 
   // Call the code that calculates the positions, defined in jupiter.js.
   jup = new Jupiter();
@@ -52,23 +42,16 @@ function initpage() {
   useNewDate();
 }
 
-// OMG the list of things Javascript doesn't have built in!
-// Leading zeroes for 2-digit numbers.
-function leading0(n) {
-  if (n < 10)
-    return '0' + n;
-  else
-    return n;
-}
-
 function updateDateTimeFields(d) {
-  document.getElementById("datefield").value =
-    d.getFullYear() + "-" + leading0(d.getMonth() + 1)  + "-" + leading0(d.getDate());
-  document.getElementById("timefield").value =
-    leading0(d.getHours()) + ":" + leading0(d.getMinutes())
-    + ":" + leading0(d.getSeconds())
-    // For now, assume timezone offset is in hours.
-    + " +" + (d.getTimezoneOffset()/60);
+  /*
+  alert("updating " + d);
+  alert("Setting date field to '" + date2str(d) + "'");
+  alert("Setting time field to '" + time2str(d) + "'");
+  */
+  //alert("Setting date time fields to '" + date2str(d) + "' and '"
+  //      + time2str(d) + "' from " + d);
+  document.getElementById("datefield").value = date2str(d);
+  document.getElementById("timefield").value = time2str(d);
 }
 
 function screenWidth() {
@@ -92,7 +75,6 @@ function basename(str)
 }
 
 function placeImage(im, left, top, width, height) {
-    //alert("Placing " + basename(im.src) + " at " + left + ", " + top + "; " + width + "x" + height);
   im.style.left = left;
   if (top) {
     im.style.top = top;
@@ -113,7 +95,7 @@ function placeImage(im, left, top, width, height) {
 // If no timezone, assume the time is UTC.
 function parseDateTime(dateString, timeString) {
   // The date regexp is easy, YYYY-MM-DD
-  var re_date = /(\d{4})-(\d{2})-(\d{2})/;
+  var re_date = /(\d{4})-(\d{1,2})-(\d{1,2})/;
   var dateArray = re_date.exec(dateString);
 
   // The time array is more complicated because it has optional parts.
@@ -128,7 +110,7 @@ function parseDateTime(dateString, timeString) {
   var hour, min, sec, tzoffset;
 
   // H:M:S +TZ
-  var timeArray = /(\d{2}):(\d{2}):(\d{2}) \+(\d)/.exec(timeString);
+  var timeArray = /(\d{1,2}):(\d{1,2}):(\d{1,2}) \+(\d)/.exec(timeString);
   //alert("timeArray: " + timeArray);
   if (timeArray) {
     hour = +timeArray[1];
@@ -137,7 +119,7 @@ function parseDateTime(dateString, timeString) {
     tzoffset = +timeArray[4];
   } else {
     // H:M:S
-    timeArray = /(\d{2}):(\d{2}):(\d{2})/.exec(timeString);
+    timeArray = /(\d{1,2}):(\d{1,2}):(\d{1,2})/.exec(timeString);
     if (timeArray) {
       hour = +timeArray[1];
       min = +timeArray[2];
@@ -145,7 +127,7 @@ function parseDateTime(dateString, timeString) {
       tzoffset = null;
     } else {
       // H:M +TZ
-      timeArray = /(\d{2}):(\d{2}) \+(\d)/.exec(timeString);
+      timeArray = /(\d{1,2}):(\d{1,2}) \+(\d)/.exec(timeString);
       //alert("timeArray: " + timeArray);
       if (timeArray) {
         hour = +timeArray[1];
@@ -154,7 +136,7 @@ function parseDateTime(dateString, timeString) {
         tzoffset = +timeArray[4];
       } else {
         // H:M
-        timeArray = /(\d{2}):(\d{2})/.exec(timeString);
+        timeArray = /(\d{1,2}):(\d{1,2})/.exec(timeString);
         if (timeArray) {
           hour = +timeArray[1];
           min = +timeArray[2];
@@ -196,7 +178,8 @@ function useNewDate()
                         document.getElementById("timefield").value);
 
   if (!d)
-    alert("Couldn't parse date");
+    alert("Couldn't parse date '" + document.getElementById("datefield").value
+          + "' '" + document.getElementById("timefield").value + "'");
 
   drawJupiter(jup, d);
   predictUpcoming();
@@ -247,7 +230,7 @@ function animateFaster(amt) {
     animateTime -= animateTime % 10;
 
   var animspan = document.getElementById("animDelay");
-  animspan.innerHTML = "Delay: " + animateTime + " milliseconds";
+  animspan.innerHTML = "(" + animateTime + " msec)";
 }
 
 function toggleAnimation() {
@@ -388,7 +371,7 @@ function predictUpcoming()
   if (!upcoming) return;
   upcomingStr = upcomingEvents(jup.getDate(),
                     parseInt(document.getElementById("upcoming-hrs").value));
-  upcoming.innerHTML = upcomingStr;
+  upcoming.innerHTML = upcomingStr.replace(/\n/g, "<br>\n");;
   //upcoming.value = upcomingStr;
   //upcoming.appendChild(document.createTextNode(upcomingStr));
   busy.style.visibility = "hidden";

@@ -250,7 +250,12 @@ calendar = {
       div.setAttribute('id',this.opt['calendar']);
       div.className="calendar-box";
 
-      document.getElementsByTagName("body")[0].insertBefore(div,document.getElementsByTagName("body")[0].firstChild);
+      var container = document.getElementById("calendar-container");
+      if (!container)
+        container = document.getElementsByTagName("body")[0];
+      container.insertBefore(div, container.firstChild);
+
+      //document.getElementsByTagName("body")[0].insertBefore(div,document.getElementsByTagName("body")[0].firstChild);
     }
   }
 }

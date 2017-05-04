@@ -379,6 +379,39 @@ function clone(obj) {
     return temp;
 }
 
+// OMG the list of things Javascript doesn't have built in!
+// Quickie function to add leading zeroes for 2-digit numbers.
+function leading0(n) {
+  if (n < 10)
+    return '0' + n;
+  else
+    return n;
+}
+
+function datetime2str(d) {
+    return date2str(d) + " " + time2str(d);
+}
+
+function date2str(d) {
+    /*
+    alert("date2str " + d);
+    alert("Year " + d.getFullYear());
+    alert("Date " + d.get());
+    alert("Month " + d.getMonth());
+    alert("Monthint " + (+d.getMonth()+1));
+    alert("leading0 " + leading0(+d.getMonth()+1));
+    */
+    return "" + d.getFullYear() + '-' + leading0(+d.getMonth()+1) + '-'
+        + leading0(d.getDate());
+}
+
+function time2str(d) {
+    return "" + leading0(d.getHours()) + ":" + leading0(d.getMinutes())
+        + ":" + leading0(d.getSeconds())
+        // For now, assume timezone offset is in hours.
+        + " +" + (d.getTimezoneOffset()/60);
+}
+
 //
 // Build a table of upcoming moon events for a given interval.
 //
@@ -395,15 +428,16 @@ function upcomingEvents(date, tothrs)
 
     var moonnames = [ "Io", "Europa", "Ganymede", "Callisto" ];
 
-    var d = new Date(date);
+    var dd = new Date(date);
     var lastmoondata  = [ null, null, null, null ];
     // Moon data includes moonx, moony, shadowx, shadowy, farside, and eclipsed.
 
     var verbose = false;
 
     for (var mins = -30; mins < tothrs * 60; mins += interval) {
-        d.setTime(date.getTime() + mins * 60 * 1000);
-        jup.setDate(d);
+        dd.setTime(date.getTime() + mins * 60 * 1000);
+        jup.setDate(dd);
+        d = datetime2str(dd);
         if (verbose)
             upcoming += "\r\n" + d + "\r\n";
 
@@ -493,3 +527,4 @@ function pluralize(num, word)
         return num + " " + word + "es";
     return num + " " + word + "s";
 }
+
