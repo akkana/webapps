@@ -1,0 +1,166 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+  <title>Galilean Moons of Jupiter</title>
+
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+  <meta content="utf-8" http-equiv="encoding">
+  <link rel="stylesheet" type="text/css" href="styles/galilean.css">
+
+  <!-- The code for calculating Jovian moon and GRS positions: -->
+  <script type="text/javascript" src="scripts/jupiter.js"></script>
+  <!-- Code for displaying it here -->
+  <script type="text/javascript" src="scripts/jup-page.js"></script>
+  <!-- A calendar widget -->
+  <script type="text/javascript" src="scripts/calendar.js"></script>
+
+  <!-- various progressive-web-appy stuff -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="canonical" href="http://shallowsky.com/galilean/">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Add to home screen for Safari on iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Weather PWA">
+  <link rel="apple-touch-icon" href="images/icons/icon-152x152.png">
+  <meta name="msapplication-TileImage" content="images/icons/icon-144x144.png">
+  <meta name="msapplication-TileColor" content="#2F3BA2">
+
+</head>
+
+<body onload="initpage();">
+<div id="intro" class="chatty">
+<h1>Galilean Moons of Jupiter</h1>
+<p>
+Here are the four bright "Galilean" moons of Jupiter --
+Io, Europa, Ganymede and Callisto -- and their shadows.
+It also shows the position of Jupiter's "great red spot" (GRS).
+
+<p>
+North is up; west is right (binocular/Newtonian view, not refractor).
+</div>
+
+<noscript>
+<p>
+<b>
+The moon positions are set using Javascript, which is disabled
+in your browser. You'll need to turn it back on if you want to see
+the current position of Jupiter's moons.
+</b>
+</noscript>
+
+<div id="jupframe">
+<img id="jupiter" src="images/smalljup.png">
+<img id="grs" src="images/grs.png">
+<img id="shadow0" src="images/moonshadow.png">
+<img id="shadow1" src="images/moonshadow.png">
+<img id="shadow2" src="images/moonshadow.png">
+<img id="shadow3" src="images/moonshadow.png">
+<img id="moon0" src="images/borderedmoon.png">
+<img id="moon1" src="images/borderedmoon.png">
+<img id="moon2" src="images/borderedmoon.png">
+<img id="moon3" src="images/borderedmoon.png">
+<span id="label0" class="moonlabel">I</span>
+<span id="label1" class="moonlabel">E</span>
+<span id="label2" class="moonlabel">G</span>
+<span id="label3" class="moonlabel">C</span>
+<span id="slabel0" class="shadowlabel">I</span>
+<span id="slabel1" class="shadowlabel">E</span>
+<span id="slabel2" class="shadowlabel">G</span>
+<span id="slabel3" class="shadowlabel">C</span>
+<span id="elabel0" class="eclipselabel">I</span>
+<span id="elabel1" class="eclipselabel">E</span>
+<span id="elabel2" class="eclipselabel">G</span>
+<span id="elabel3" class="eclipselabel">C</span>
+<span id="grslabel">GRS</span>
+</div>
+
+<p>
+<!-- Don't wrap these in a form -- it keeps the dates from working
+     when you hit enter. -->
+<!-- 
+Set a date explicitly:
+<input id="datefield" type="datetime" onChange="setDate(); return false;"
+ size=40>
+ -->
+
+<input type="button" name="changeDate" value="Recalculate" onClick="setDate();">
+<span id="recalculating"><i>Recalculating ...</i></span>
+
+<p>
+<input type="text" id="datefield" size=12 />
+<input type="text" id="timefield" size=12 />
+
+<p>
+<input type="button" name="nextDay" value="-day" onClick="addHours(-24);">
+<input type="button" name="nextHour" value="-hour" onClick="addHours(-1);">
+<input type="button" name="nextHour" value="-5 min" onClick="addHours(-1/12);">
+<input type="button" name="nextHour" value="+5 min" onClick="addHours(1/12);">
+<input type="button" name="nextHour" value="+hour" onClick="addHours(1);">
+<input type="button" name="nextDay" value="+day" onClick="addHours(24);">
+<input type="button" name="now" id="now" value="*Now*"
+       onClick="drawJupiter(jup, new Date()); predictUpcoming(); return true">
+<p>
+<input type="button" name="animate" value="Animate"
+       onClick="toggleAnimation();">
+<input type="button" name="faster" value="faster" onClick="animateFaster(20);">
+<input type="button" name="slower" value="slower" onClick="animateFaster(-20);">
+<span id="animDelay">Delay: 100 milliseconds</span>
+
+<p>
+Show events for
+<input id="upcoming-hrs" type="text" value="8" size=4
+ onChange="predictUpcoming();">
+hours.
+<input type="button" name="predict" value="Predict"
+       onClick="predictUpcoming();">
+<input type="button" name="predict" value="Print"
+       onClick="printUpcoming();">
+<p>
+<pre id="upcoming"></pre>
+
+<div id="footnotes" class="chatty">
+<hr>
+
+<h3>About this app</h3>
+
+<p>
+Times are approximate. There are lots of different models for Jupiter's
+moons, and they all seem to give slightly different results, especially
+for shadow events and eclipses. Start observing ten or fifteen
+minutes early if you want to be sure of catching something.
+
+<p>
+This is a re-implementation of my much older
+<a href="/jupiter.html">Java Jupiter</a> page
+using HTML, CSS and Javascript (and nicer graphics).
+It is Copyright &copy; 2000 - 2013 by Akkana Peck,
+licensed under the GNU Public License v.2.
+Feel free to share it or modify it! If you do, I'd appreciate hearing
+about it, and a link back to my site.
+
+<p>
+I use this app on Android with the help of my
+<a href="http://shallowsky.com/software/android/WebClient/">WebClient</a>
+wrapper app.
+<br>
+For older Java phones,
+Miguel Moreto has adapted this code for a neat mobile phone app called
+<a href="http://code.google.com/p/mobilejupiter/">Mobile Jupiter</a>.
+
+<hr>
+<a href="https://github.com/akkana/scripts/tree/master/jsjupiter">Javascript
+Jupiter on GitHub</a> |
+<a href="/software/">Akkana's other software</a>
+<br>
+<a href="http://shallowsky.com/blog/tags/astronomy/">Articles tagged "astronomy" on my blog, "Shallow Thoughts"
+<br>
+<a href="/astro.html">Akkana's Astronomy Page</a> |
+<a href="/">Shallow Sky home</a>
+</div>
+
+</body>
+</html>
