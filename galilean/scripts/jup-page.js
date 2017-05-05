@@ -5,7 +5,7 @@
 var jup = null;
 
 function initpage() {
-  calendar.set("datefield", useNewDate);
+  //calendar.set("datefield", useNewDate);
 
   var date = null;
 
@@ -50,8 +50,9 @@ function updateDateTimeFields(d) {
   */
   //alert("Setting date time fields to '" + date2str(d) + "' and '"
   //      + time2str(d) + "' from " + d);
-  document.getElementById("datefield").value = date2str(d);
-  document.getElementById("timefield").value = time2str(d);
+  //document.getElementById("datefield").value = date2str(d);
+  //document.getElementById("timefield").value = time2str(d);
+  document.getElementById("datetimeinput").value = datetime2str(d);
 }
 
 function screenWidth() {
@@ -93,10 +94,10 @@ function placeImage(im, left, top, width, height) {
 // Parse a date and time in form YYYY-MM-DD HH:MM:SS +TZ.
 // Return UTC time, already corrected for timezone.
 // If no timezone, assume the time is UTC.
-function parseDateTime(dateString, timeString) {
+function parseDateTime(dateTimeString) {
   // The date regexp is easy, YYYY-MM-DD
-  var re_date = /(\d{4})-(\d{1,2})-(\d{1,2})/;
-  var dateArray = re_date.exec(dateString);
+  var re_date = /(\d{4})-(\d{1,2})-(\d{1,2}) *([0-9].*)$/;
+  var dateArray = re_date.exec(dateTimeString);
 
   // The time array is more complicated because it has optional parts.
   // It could be H:M, H:M:S, H:M +TZ or H:M:S +TZ.
@@ -107,10 +108,11 @@ function parseDateTime(dateString, timeString) {
   // optional fields was present.
   // Using separate regexps is easier.
   // XXX This doesn't allow for -tzoffset. Is that ever used?
+  var timeString = dateArray[4];
   var hour, min, sec, tzoffset;
 
   // H:M:S +TZ
-  var timeArray = /(\d{1,2}):(\d{1,2}):(\d{1,2}) \+(\d)/.exec(timeString);
+  var timeArray = /(\d{1,2}):(\d{1,2}):(\d{1,2}) ([\+-]\d)/.exec(timeString);
   //alert("timeArray: " + timeArray);
   if (timeArray) {
     hour = +timeArray[1];
@@ -174,12 +176,13 @@ function parseDateTime(dateString, timeString) {
 function useNewDate()
 {
   // parse date and time from the two fields:
-  var d = parseDateTime(document.getElementById("datefield").value,
-                        document.getElementById("timefield").value);
+  var d = parseDateTime(document.getElementById("datetimeinput").value);
 
-  if (!d)
-    alert("Couldn't parse date '" + document.getElementById("datefield").value
-          + "' '" + document.getElementById("timefield").value + "'");
+  if (!d) {
+    alert("Couldn't parse date/time '"
+          + document.getElementById("datetimeinput").value);
+    return;
+  }
 
   drawJupiter(jup, d);
   predictUpcoming();
