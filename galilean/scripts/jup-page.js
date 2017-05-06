@@ -43,25 +43,22 @@ function initpage() {
 }
 
 function updateDateTimeFields(d) {
-  /*
-  alert("updating " + d);
-  alert("Setting date field to '" + date2str(d) + "'");
-  alert("Setting time field to '" + time2str(d) + "'");
-  */
-  //alert("Setting date time fields to '" + date2str(d) + "' and '"
-  //      + time2str(d) + "' from " + d);
-  //document.getElementById("datefield").value = date2str(d);
-  //document.getElementById("timefield").value = time2str(d);
   document.getElementById("datetimeinput").value = datetime2str(d);
 }
 
 function screenWidth() {
-  if (window.innerWidth != null)
-    return window.innerWidth;
-  if (document.documentElement.clientWidth)
-    return document.documentElement.clientWidth;
-  if (document.body.clientWidth)    // For IE8
-    return document.body.clientWidth;
+  var width = document.getElementById("jupframe").offsetWidth;
+  if (width != null)
+    return width;
+  width = window.innerWidth;
+  if (width != null)
+    return width;
+  width = document.documentElement.clientWidth;
+  if (width != null)
+    return width;
+  width = document.body.clientWidth;    // For IE8
+  if (width != null)
+    return width;
   return 800;
 }
 
