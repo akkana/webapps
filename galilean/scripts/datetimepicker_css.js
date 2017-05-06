@@ -842,6 +842,7 @@ function RenderCssCal(bNewCal)
 		ypos = ypos - calHeight;
 	}
 
+	/* The first time through, add some style and script tags to body */
 	if (!winCal)
 	{
 		headID = document.getElementsByTagName("head")[0];
@@ -870,21 +871,35 @@ function RenderCssCal(bNewCal)
 			cssText = document.createTextNode(cssStr);
 			style.appendChild(cssText);
 		}
-
 		headID.appendChild(style);
-		// create the outer frame that allows the cal. to be moved
 		span = document.createElement("span");
 		span.id = calSpanID;
-		span.style.position = "absolute";
-		span.style.left = (xpos + CalPosOffsetX) + 'px';
-		span.style.top = (ypos - CalPosOffsetY) + 'px';
-		span.style.width = CalWidth + 'px';
-		span.style.border = "solid 1pt " + SpanBorderColor;
-		span.style.padding = "0";
-		span.style.cursor = "move";
-		span.style.backgroundColor = SpanBgColor;
-		span.style.zIndex = 100;
-		document.body.appendChild(span);
+
+		// This is the first time through, but is calSpanID
+		// already defined in the document? If so, it also has style
+		// and we shouldn't overwrite the style specified there.
+		winCal = document.getElementById(calSpanID);
+		if (!winCal) {
+			// create the outer frame that allows the cal. to be moved
+			span.style.position = "absolute";
+			span.style.left = (xpos + CalPosOffsetX) + 'px';
+			span.style.top = (ypos - CalPosOffsetY) + 'px';
+			span.style.width = CalWidth + 'px';
+			span.style.border = "solid 1pt " + SpanBorderColor;
+			span.style.padding = "0";
+			span.style.cursor = "move";
+			span.style.backgroundColor = SpanBgColor;
+			span.style.zIndex = 100;
+		}
+		// If the document has a cal-container, stick the new cal there.
+		cal_container = document.getElementById("cal-container");
+		if (cal_container) {
+			cal_container.appendChild(span);
+		}
+		// Otherwise it can be a child of the body.
+		else {
+		    document.body.appendChild(span);
+		}
 		winCal = document.getElementById(calSpanID);
 	}
 
@@ -896,8 +911,10 @@ function RenderCssCal(bNewCal)
 		// set the position for a new calendar only
 		if (bNewCal === true)
 		{
+                    /*
 			winCal.style.left = (xpos + CalPosOffsetX) + 'px';
 			winCal.style.top = (ypos - CalPosOffsetY) + 'px';
+                     */
 		}
 	}
 
@@ -1162,13 +1179,14 @@ function closewin(id) {
                 callback(id, Cal.FormatDate(Cal.Date));
         }
     }
-    
+
 	var CalId = document.getElementById(id);
 	CalId.focus();
 	winCal.style.visibility = 'hidden';
 
-    if (Cal.callback)
+    if (Cal.callback) {
         Cal.callback();
+    }
 }
 
 function changeBorder(element, col, oldBgColor)

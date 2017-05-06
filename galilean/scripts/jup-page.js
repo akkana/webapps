@@ -188,24 +188,14 @@ function useNewDate()
   predictUpcoming();
 }
 
-/*
-// Update the date field to the given date, then call useNewDate().
-function updateDate(newdate)
-{
-  var datefield = document.getElementById("datefield");
-  if (!datefield) {
-    return;
-  }
-  alert("datestring:" + newdate.toDateString());
-  datefield.value = newdate.toDateString();
-  useNewDate();
-}
-*/
-
+// Add or subtract hours (or days) from jupiter's current time.
+// Update the date field and the graphics.
 function addHours(hrs) {
   var d = jup.getDate();
   d.setTime(d.getTime() + 60 * 60 * hrs * 1000);
-  updateDate(d);
+  document.getElementById("datetimeinput").value = datetime2str(d);
+  drawJupiter(jup, d);
+  predictUpcoming();
 }
 
 // Animate:
@@ -238,10 +228,13 @@ function animateFaster(amt) {
 
 function toggleAnimation() {
   animating = !animating;
+  btn = document.getElementById("animate");
   if (animating) {
+    btn.value = "Stop";
     animateStep();
   }
   else {
+    btn.value = "Animate";
     predictUpcoming();
   }
 }

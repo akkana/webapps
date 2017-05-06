@@ -1,6 +1,6 @@
 
 /* Prevent text magnification on orientation change on Android.
- * Seems like that should be something the user chooses in chrome,
+ * Seems like that ought to be something the user chooses in chrome,
  * but chrome doesn't seem to offer that.
  */
 body {
@@ -19,7 +19,7 @@ div#jupframe {
 
 /* All images and labels inside the jupframe are absolutely positioned */
 #jupframe img, #jupframe span {
-   position: absolute; visibility: hidden; z-index: 50
+   position: absolute; visibility: hidden; z-index: 50;
 }
 
 #jupframe span.moonlabel { color: white; top: .3em; }
@@ -32,26 +32,63 @@ div#jupframe {
 
 #upcoming { background: #fffcf5; border: 1px inset; padding: 5px;  }
 
+#datetimeinput { size: 18; }
+
 /* I can't find any way to style an input button by name --
  * it has to have an id as well as a name.
  */
-input[type=button]#now { margin-left: 3em; }
+input[type=button]#prevDay  { background: #fcc; font-weight: bold; }
+input[type=button]#prevHour { background: #fdd; font-weight: bold; }
+input[type=button]#prevMins { background: #fee; font-weight: bold; }
+input[type=button]#nextDay  { background: #ccf; font-weight: bold; }
+input[type=button]#nextHour { background: #ddf; font-weight: bold; }
+input[type=button]#nextMins { background: #eef; font-weight: bold; }
 
-/* Verbose text: want this on the web page but not on small devices or windows.
- * On my Galaxy S5, portrait mode has a width of about 48em, I think;
- * Landscape mode changes the font size (weird!) and is about 59.
- * Note: I see "handheld" mentioned on the web but android doesn't respect it.
+input[type=button]#now { background: lightgreen; font-weight: bold; }
+
+input[type=button]#animate { background: yellow; font-weight: bold; width: 6em; }
+
+/* As usual, the only way I could find to make the alignment of the
+ * calendar image sane was to do it with a table row. Otherwise,
+ * the image is higher than everything else, for no reason since it
+ * has no border, margin or padding.
  */
-@media (max-width: 60em), (max-height: 40em) {
-  .chatty { display: None }
+table.valign-row td {
+  vertical-align: bottom;
 }
 
 /* The calendar */
-#hidden-relative {
+#cal-container {
   position: relative; /* width: 0; height: 0;*/
+  z-index: 100;
 }
-#calendar-container {
-  position: absolute; left: 0px; top: 0em;
+#calBorder {
+  position: absolute; left: 2em; top: 0em;
   background: white;
-  opacity: .8;
+  /* opacity: .8; */
+  z-index: 90;
+  border: 2px outset black;
+  box-shadow: 10px 10px 5px #888888;
+}
+
+/* Verbose text: want this on the web page but not on small devices or windows.
+ * On my Galaxy S5 with default font, portrait mode has a width of about 48em
+ * and a height of about 34 em, I think;
+ * Landscape mode changes the font size (weird!) and is about 59.
+ * Note: I see "handheld" mentioned on the web but android doesn't respect it.
+ */
+@media (max-width: 40em) {    /* portrait */
+  .chatty { display: None }
+  #datetimeinput { width: 12em; font-size: 1.1rem; }
+  #cal-container { position: fixed; left: .5em; top: 145px; }
+}
+/* landscape */
+@media (max-height: 30em) {   /* landscape */
+  .chatty { display: None }
+  #datetimeinput { width: 12em; font-size: 1.1rem; }
+  /* Would be nice to position the calendar relative to the viewport right,
+   * but right: here doesn't work, probably because it doesn't have a fixed
+   * size for the cal-container. So just fudge it from the left.
+   */
+  #cal-container { position: fixed; left: 20em; top: 0px; }
 }
