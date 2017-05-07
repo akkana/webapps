@@ -1,4 +1,4 @@
-Galilean shows the four bright "Galilean" moons of Jupiter --
+Galilean shows the four bright Galilean moons of Jupiter --
 Io, Europa, Ganymede and Callisto -- and their shadows,
 along with the position of Jupiter's "great red spot" (GRS).
 
