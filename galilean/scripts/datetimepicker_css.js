@@ -1,3 +1,5 @@
+/* -*- Mode: Javascript; js-indent-level: 8; indent-tabs-mode: t; -*- */
+
 //Javasript name: My Date Time Picker
 //Date created: 16-Nov-2003 23:19
 //Creator: TengYong Ng
@@ -40,18 +42,8 @@ var CalPosOffsetY = 0; //Y position offset relative to calendar icon, can be neg
 //Configurable parameters start
 var SpanBorderColor = "#000000";//span border color
 var SpanBgColor = "#FFFFFF"; //span background color
-var MonthYearColor = "#cc0033"; //Font Color of Month and Year in Calendar header.
-var WeekHeadColor = "#18861B"; //var WeekHeadColor="#18861B";//Background Color in Week header.
-var SundayColor = "#C0F64F"; //var SundayColor="#C0F64F";//Background color of Sunday.
-var SaturdayColor = "#C0F64F"; //Background color of Saturday.
-var WeekDayColor = "#FFEDA6"; //Background color of weekdays.
-var FontColor = "blue"; //color of font in Calendar day cell.
-var TodayColor = "#ffbd35"; //var TodayColor="#FFFF33";//Background color of today.
-var SelDateColor = "#8DD53C"; //var SelDateColor = "#8DD53C";//Backgrond color of selected date in textbox.
-var YrSelColor = "#cc0033"; //color of font of Year selector.
-var MthSelColor = "#cc0033"; //color of font of Month selector if "MonthSelector" is "arrow".
-var HoverColor = "#E0FF38"; //color when mouse move over.
-var DisableColor = "#999966"; //color of disabled cell.
+
+var HoverColor = "#E0FF38"; //color of disabled cell.
 var CalBgColor = "#ffffff"; //Background color of Calendar window.
 
 var WeekChar = 2;//number of character for week day. if 2 then Mo,Tu,We. if 3 then Mon,Tue,Wed.
@@ -493,8 +485,8 @@ function GenCell(pValue, pHighLight, pColor, pClickable)
 	{
 		if (PClickable === true) {
 		    if (Cal.ShowTime === true)
-		    { PCellStr = "<td id='c" + PValue + "' class='calTD' style='text-align:center;cursor:pointer;background-color:"+pColor+"' onmousedown='selectDate(this," + PValue + ");'>" + PValue + "</td>"; }
-		    else { PCellStr = "<td class='calTD' style='text-align:center;cursor:pointer;background-color:" + pColor + "' onmouseover='changeBorder(this, 0);' onmouseout=\"changeBorder(this, 1, '" + pColor + "');\" onClick=\"javascript:callback('" + Cal.Ctrl + "','" + Cal.FormatDate(PValue) + "');\">" + PValue + "</td>"; }
+		    { PCellStr = "<td id='c" + PValue + "' class='calTD " + pColor + "' onmousedown='selectDate(this," + PValue + ");'>" + PValue + "</td>"; }
+		    else { PCellStr = "<td class='calTD " + pColor + "' onmouseover='changeBorder(this, 0);' onmouseout=\"changeBorder(this, 1, '" + pColor + "');\" onClick=\"javascript:callback('" + Cal.Ctrl + "','" + Cal.FormatDate(PValue) + "');\">" + PValue + "</td>"; }
 		}
 		else
 		{ PCellStr = "<td style='text-align:center;background-color:"+pColor+"' class='calTD'>"+PValue+"</td>"; }
@@ -625,7 +617,7 @@ function RenderCssCal(bNewCal)
 	//Calendar header shows Month and Year
 	if (ShowMonthYear && Cal.Scroller === "DROPDOWN")
 	{
-	    vCalHeader += "<tr><td colspan='7' class='calR' style='color:" + MonthYearColor + "'>" + Cal.GetMonthName(ShowLongMonth) + " " + Cal.Year + "</td></tr>";
+	    vCalHeader += "<tr><td colspan='7' class='calR MonthYearColor'>" + Cal.GetMonthName(ShowLongMonth) + " " + Cal.Year + "</td></tr>";
 		calHeight += 19;
 	}
 
@@ -642,7 +634,7 @@ function RenderCssCal(bNewCal)
 	}
 	for (i = 0; i < 7; i += 1)
 	{
-	    vCalHeader += "<td style='background-color:"+WeekHeadColor+";width:"+CellWidth+"px;color:#FFFFFF' class='calTD'>" + WeekDayName[i].substr(0, WeekChar) + "</td>";
+	    vCalHeader += "<td class='calTD WeekHeadColor'>" + WeekDayName[i].substr(0, WeekChar) + "</td>";
 	}
 
 	calHeight += 19;
@@ -684,25 +676,25 @@ function RenderCssCal(bNewCal)
 		//added version 2.1.2
 		if (Cal.EnableDateMode === "future" && ((j < dtToday.getDate()) && (Cal.Month === dtToday.getMonth()) && (Cal.Year === dtToday.getFullYear()) || (Cal.Month < dtToday.getMonth()) && (Cal.Year === dtToday.getFullYear()) || (Cal.Year < dtToday.getFullYear())))
 		{
-			strCell = GenCell(j, false, DisableColor, false); //Before today's date is not clickable
+			strCell = GenCell(j, false, "DisableColor", false); //Before today's date is not clickable
         }
         else if (Cal.EnableDateMode === "past" && ((j >= dtToday.getDate()) && (Cal.Month === dtToday.getMonth()) && (Cal.Year === dtToday.getFullYear()) || (Cal.Month > dtToday.getMonth()) && (Cal.Year === dtToday.getFullYear()) || (Cal.Year > dtToday.getFullYear()))) {
-            strCell = GenCell(j, false, DisableColor, false); //After today's date is not clickable
+            strCell = GenCell(j, false, "DisableColor", false); //After today's date is not clickable
         }
 		//if End Year + Current Year = Cal.Year. Disable.
 		else if (Cal.Year > (dtToday.getFullYear()+EndYear))
 		{
-		    strCell = GenCell(j, false, DisableColor, false); 
+		    strCell = GenCell(j, false, "DisableColor", false); 
 		}
 		else if ((j === dtToday.getDate()) && (Cal.Month === dtToday.getMonth()) && (Cal.Year === dtToday.getFullYear()))
 		{
-			strCell = GenCell(j, true, TodayColor);//Highlight today's date
+			strCell = GenCell(j, true, "TodayColor");//Highlight today's date
 		}
 		else
 		{
 			if ((j === selDate.getDate()) && (Cal.Month === selDate.getMonth()) && (Cal.Year === selDate.getFullYear())){
 			     //modified version 1.7
-				strCell = GenCell(j, true, SelDateColor);
+				strCell = GenCell(j, true, "SelDateColor");
             }
 			else
 			{
@@ -710,30 +702,30 @@ function RenderCssCal(bNewCal)
 				{
 					if (vDayCount % 7 === 0)
 					{
-						strCell = GenCell(j, false, SundayColor);
+						strCell = GenCell(j, false, "SundayColor");
 					}
 					else if ((vDayCount + 1) % 7 === 0)
 					{
-						strCell = GenCell(j, false, SaturdayColor);
+						strCell = GenCell(j, false, "SaturdayColor");
 					}
 					else
 					{
-						strCell = GenCell(j, null, WeekDayColor);
+						strCell = GenCell(j, null, "WeekDayColor");
 					}
 				}
 				else
 				{
 					if (vDayCount % 7 === 0)
 					{
-						strCell = GenCell(j, false, SaturdayColor);
+						strCell = GenCell(j, false, "SaturdayColor");
 					}
 					else if ((vDayCount + 6) % 7 === 0)
 					{
-						strCell = GenCell(j, false, SundayColor);
+						strCell = GenCell(j, false, "SundayColor");
 					}
 					else
 					{
-						strCell = GenCell(j, null, WeekDayColor);
+						strCell = GenCell(j, null, "WeekDayColor");
 					}
 				}
 			}
@@ -772,43 +764,108 @@ function RenderCssCal(bNewCal)
 			ShowArrows = true;
 			HourCellWidth = "10px";
 		}
+		vCalTime = "<tr><td colspan='7' style=\"text-align:center;\"><table border='0' width='199px' cellpadding='0' cellspacing='0'><tbody><tr>";
 
-		vCalTime = "<tr><td colspan='7' style=\"text-align:center;\"><table border='0' width='199px' cellpadding='0' cellspacing='0'><tbody><tr><td height='5px' width='" + HourCellWidth + "'>&nbsp;</td>";
-
-		if (ShowArrows && UseImageFiles) //this is where the up and down arrow control the hour.
+		if (Cal.Scroller === "DROPDOWN")
 		{
-		    vCalTime += "<td style='vertical-align:middle;'><table cellspacing='0' cellpadding='0' style='line-height:0pt;width:100%;'><tr><td style='text-align:center;'><img onclick='nextStep(\"Hour\", \"plus\");' onmousedown='startSpin(\"Hour\", \"plus\");' onmouseup='stopSpin();' src='" + imageFilesPath + "cal_plus.gif' width='13px' height='9px' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white'></td></tr><tr><td style='text-align:center;'><img onclick='nextStep(\"Hour\", \"minus\");' onmousedown='startSpin(\"Hour\", \"minus\");' onmouseup='stopSpin();' src='" + imageFilesPath + "cal_minus.gif' width='13px' height='9px' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white'></td></tr></table></td>\n";
+			vCalTime = "<td class='HourSelector'><select name='HourSelector' onChange='javascript:Cal.SetHour(this.selectedIndex + 1);'>";
+			for (i = 1; i <= TimeMode; i += 1)
+			{
+				if (i == Cal.Hours)
+				{
+					SelectStr = "Selected";
+				}
+				else
+				{
+					SelectStr = "";
+				}
+				vCalTime += "<option " + SelectStr + " value=" + i + ">" + i + "</option>";
+			}
+
+			vCalTime += "</select></td>";
+
+			vCalTime += "<td style='font-weight:bold;text-align:center;'>:</td>";
+
+			vCalTime += "<td class='MinuteSelector'><select name='MinuteSelector' onChange='javascript:Cal.SetMinute(this.selectedIndex);'>";
+			for (i = 0; i < 60; i += 1)
+			{
+				if (i == Cal.Minutes)
+				{
+					SelectStr = "Selected";
+				}
+				else
+				{
+					SelectStr = "";
+				}
+				vCalTime += "<option " + SelectStr + " value='" + i + "'>";
+				if (i < 10)
+					vCalTime += '0';
+				vCalTime += i + "</option>";
+			}
+
+			vCalTime += "</select></td>";
+
+			if (Cal.ShowSeconds) {
+				vCalTime += "<td style='font-weight:bold;text-align:center;'>:</td>";
+				vCalTime += "<td class='SecondSelector'><select name='SecondSelector' onChange='javascript:Cal.SetSecond(this.selectedIndex);'>";
+				for (i = 0; i < 60; i += 1)
+				{
+					if (i == Cal.Seconds)
+					{
+						SelectStr = "Selected";
+					}
+					else
+					{
+						SelectStr = "";
+					}
+					vCalTime += "<option " + SelectStr + " value='" + i + "'>";
+					if (i < 10)
+						vCalTime += '0';
+					vCalTime += i + "</option>";
+				}
+
+				vCalTime += "</select></td>";
+			}
 		}
-
-		vCalTime += "<td width='22px'><input type='text' name='hour' maxlength=2 size=1 style=\"WIDTH:22px\" value=" + showHour + " onkeyup=\"javascript:Cal.SetHour(this.value)\">";
-		vCalTime += "</td><td style='font-weight:bold;text-align:center;'>:</td><td width='22px'>";
-		vCalTime += "<input type='text' name='minute' maxlength=2 size=1 style=\"WIDTH: 22px\" value=" + Cal.Minutes + " onkeyup=\"javascript:Cal.SetMinute(this.value)\">";
-
-		if (Cal.ShowSeconds)
+		else    // Not dropdown, use up/down arrows
 		{
-		    vCalTime += "</td><td style='font-weight:bold;'>:</td><td width='22px'>";
-			vCalTime += "<input type='text' name='second' maxlength=2 size=1 style=\"WIDTH: 22px\" value=" + Cal.Seconds + " onkeyup=\"javascript:Cal.SetSecond(parseInt(this.value,10))\">";
-		}
+			vCalTime += "<td height='5px' width='" + HourCellWidth + "'>&nbsp;</td>";
 
-		if (TimeMode === 12)
-		{
-			SelectAm = (Cal.AMorPM === "AM") ? "Selected" : "";
-			SelectPm = (Cal.AMorPM === "PM") ? "Selected" : "";
+			if (ShowArrows && UseImageFiles) //this is where the up and down arrow control the hour.
+			{
+				vCalTime += "<td style='vertical-align:middle;'><table cellspacing='0' cellpadding='0' style='line-height:0pt;width:100%;'><tr><td style='text-align:center;'><img onclick='nextStep(\"Hour\", \"plus\");' onmousedown='startSpin(\"Hour\", \"plus\");' onmouseup='stopSpin();' src='" + imageFilesPath + "cal_plus.gif' width='13px' height='9px' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white'></td></tr><tr><td style='text-align:center;'><img onclick='nextStep(\"Hour\", \"minus\");' onmousedown='startSpin(\"Hour\", \"minus\");' onmouseup='stopSpin();' src='" + imageFilesPath + "cal_minus.gif' width='13px' height='9px' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white'></td></tr></table></td>\n";
+			}
 
-			vCalTime += "</td><td>";
-			vCalTime += "<select name=\"ampm\" onChange=\"javascript:Cal.SetAmPm(this.options[this.selectedIndex].value);\">\n";
-			vCalTime += "<option " + SelectAm + " value=\"AM\">AM</option>";
-			vCalTime += "<option " + SelectPm + " value=\"PM\">PM<option>";
-			vCalTime += "</select>";
-		}
+			vCalTime += "<td width='22px'><input type='text' name='hour' maxlength=2 size=1 style=\"WIDTH:22px\" value=" + showHour + " onkeyup=\"javascript:Cal.SetHour(this.value)\">";
+			vCalTime += "</td><td style='font-weight:bold;text-align:center;'>:</td><td width='22px'>";
+			vCalTime += "<input type='text' name='minute' maxlength=2 size=1 style=\"WIDTH: 22px\" value=" + Cal.Minutes + " onkeyup=\"javascript:Cal.SetMinute(this.value)\">";
 
-		if (ShowArrows && UseImageFiles) //this is where the up and down arrow to change the "Minute".
-		{
-		    vCalTime += "</td>\n<td style='vertical-align:middle;'><table cellspacing='0' cellpadding='0' style='line-height:0pt;width:100%'><tr><td style='text-align:center;'><img onclick='nextStep(\"Minute\", \"plus\");' onmousedown='startSpin(\"Minute\", \"plus\");' onmouseup='stopSpin();' src='" + imageFilesPath + "cal_plus.gif' width='13px' height='9px' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white'></td></tr><tr><td style='text-align:center;'><img onmousedown='startSpin(\"Minute\", \"minus\");' onmouseup='stopSpin();' onclick='nextStep(\"Minute\",\"minus\");' src='" + imageFilesPath + "cal_minus.gif' width='13px' height='9px' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white'></td></tr></table>";
+			if (Cal.ShowSeconds)
+			{
+				vCalTime += "</td><td style='font-weight:bold;'>:</td><td width='22px'>";
+				vCalTime += "<input type='text' name='second' maxlength=2 size=1 style=\"WIDTH: 22px\" value=" + Cal.Seconds + " onkeyup=\"javascript:Cal.SetSecond(parseInt(this.value,10))\">";
+			}
+
+			if (TimeMode === 12)
+			{
+				SelectAm = (Cal.AMorPM === "AM") ? "Selected" : "";
+				SelectPm = (Cal.AMorPM === "PM") ? "Selected" : "";
+
+				vCalTime += "</td><td>";
+				vCalTime += "<select name=\"ampm\" onChange=\"javascript:Cal.SetAmPm(this.options[this.selectedIndex].value);\">\n";
+				vCalTime += "<option " + SelectAm + " value=\"AM\">AM</option>";
+				vCalTime += "<option " + SelectPm + " value=\"PM\">PM<option>";
+				vCalTime += "</select>";
+			}
+
+			if (ShowArrows && UseImageFiles) //this is where the up and down arrow to change the "Minute".
+			{
+				vCalTime += "</td>\n<td style='vertical-align:middle;'><table cellspacing='0' cellpadding='0' style='line-height:0pt;width:100%'><tr><td style='text-align:center;'><img onclick='nextStep(\"Minute\", \"plus\");' onmousedown='startSpin(\"Minute\", \"plus\");' onmouseup='stopSpin();' src='" + imageFilesPath + "cal_plus.gif' width='13px' height='9px' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white'></td></tr><tr><td style='text-align:center;'><img onmousedown='startSpin(\"Minute\", \"minus\");' onmouseup='stopSpin();' onclick='nextStep(\"Minute\",\"minus\");' src='" + imageFilesPath + "cal_minus.gif' width='13px' height='9px' onmouseover='changeBorder(this, 0)' onmouseout='changeBorder(this, 1)' style='border:1px solid white'></td></tr></table>";
+			}
 		}
 
 		vCalTime += "</td>\n<td align='right' valign='bottom' width='" + HourCellWidth + "px'></td></tr>";
-		vCalTime += "<tr><td colspan='8' style=\"text-align:center;\"><input style='width:60px;font-size:12px;' onClick='javascript:closewin(\"" + Cal.Ctrl + "\");'  type=\"button\" value=\"OK\">&nbsp;<input style='width:60px;font-size:12px;' onClick='javascript: winCal.style.visibility = \"hidden\"' type=\"button\" value=\"Cancel\"></td></tr>";
+			vCalTime += "<tr><td colspan='8' style=\"text-align:center;\"><input style='width:60px;font-size:12px;' onClick='javascript:closewin(\"" + Cal.Ctrl + "\");'  type=\"button\" value=\"OK\">&nbsp;<input style='width:60px;font-size:12px;' onClick='javascript: winCal.style.visibility = \"hidden\"' type=\"button\" value=\"Cancel\"></td></tr>";
 	}
 	else //if not to show time.
 	{
@@ -833,7 +890,9 @@ function RenderCssCal(bNewCal)
 	funcCalback += " CalId.value+=' '+Cal.getShowHour()+':'+Cal.Minutes;";
 	funcCalback += " if (Cal.ShowSeconds)  CalId.value+=':'+Cal.Seconds;";
 	funcCalback += " if (TimeMode === 12)  CalId.value+=''+Cal.getShowAMorPM();";
-	funcCalback += "}if(CalId.onchange!=undefined) CalId.onchange();CalId.focus();winCal.style.visibility='hidden';}";
+	funcCalback += "}if(CalId.onchange!=undefined) CalId.onchange();winCal.style.visibility='hidden';}";
+	// This used to do CalId.focus(); but that pops up an on-screen kbd
+	// on mobile devices.
 
 
 	// determines if there is enough space to open the cal above the position where it is called
@@ -1181,7 +1240,8 @@ function closewin(id) {
     }
 
 	var CalId = document.getElementById(id);
-	CalId.focus();
+	//CalId.focus();
+	// Commented out because it calls up an on-screen keyboard.
 	winCal.style.visibility = 'hidden';
 
     if (Cal.callback) {
@@ -1216,7 +1276,8 @@ function changeBorder(element, col, oldBgColor)
 function selectDate(element, date) {
     Cal.Date = date;
     selDate = new Date(Cal.Year, Cal.Month, Cal.Date);
-    element.style.background = SelDateColor;
+    //element.style.background = SelDateColor;
+    element.style.class += " SelDateColor";
     RenderCssCal();
 }
 

@@ -32,7 +32,9 @@ div#jupframe {
 
 #upcoming { background: #fffcf5; border: 1px inset; padding: 5px;  }
 
+/* width of the text input: XXX figure out how to do this
 #datetimeinput { size: 18; }
+*/
 
 /* I can't find any way to style an input button by name --
  * it has to have an id as well as a name.
@@ -56,6 +58,14 @@ input[type=button]#animate { background: yellow; font-weight: bold; width: 6em; 
 table.valign-row td {
   vertical-align: bottom;
 }
+
+input.calendarbtn { border: 2px outset black; cursor: pointer; }
+
+/* The recalculate / change date button */
+input.recalcbtn { border: 2px outset black;
+                   cursor: pointer; background: #fee;
+                 }
+input.recalcbtn:hover { background: #fcc; }
 
 /* The calendar */
 #cal-container {
@@ -82,7 +92,6 @@ table.valign-row td {
   #datetimeinput { width: 12em; font-size: 1.1rem; }
   #cal-container { position: fixed; left: .5em; top: 145px; }
 }
-/* landscape */
 @media (max-height: 30em) {   /* landscape */
   .chatty { display: None }
   #datetimeinput { width: 12em; font-size: 1.1rem; }
