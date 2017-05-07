@@ -69,9 +69,9 @@ input.calendarbtn { border: 2px outset black; cursor: pointer; }
 
 /* The recalculate / change date button */
 input.recalcbtn { border: 2px outset black;
-                   cursor: pointer; background: #fee;
+                   cursor: pointer; background: #533;
                  }
-input.recalcbtn:hover { background: #fcc; }
+input.recalcbtn:hover { background: #966; }
 
 /* The calendar */
 #cal-container {
