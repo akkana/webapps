@@ -185,6 +185,8 @@ function useNewDate()
   predictUpcoming();
 }
 
+window.onresize = useNewDate;
+
 // Add or subtract hours (or days) from jupiter's current time.
 // Update the date field and the graphics.
 function addHours(hrs) {
@@ -248,13 +250,20 @@ function drawJupiter(jup, date) {
   var halfwidth = width/2;
   var height = 100;
   var halfheight = height/2;
-  var jupRadius = 19;
+
+  // smalljup.png is 60x60, so jupiter's radius in the image is 30px.
+  // Adjust its size according to the width of the display.
+  // If we want to be able to show Callisto in its farthest position,
+  // Callisto's orbit is jupRadius * 1,883,000 km / 71492 km or 26.3.
+  //var jupRadius = 19;
+  var jupRadius = halfwidth / 26.3;
   var spotWidth = 27 * jupRadius / 30;
   var spotHeight = 13 * jupRadius / 30;
 
   // Make sure Jupiter is properly centered:
   var img = document.getElementById("jupiter");
   if (img) {
+    img.width = img.height = 2 * jupRadius;
     placeImage(img, halfwidth - jupRadius, halfheight - jupRadius, jupRadius*2);
   }
 
