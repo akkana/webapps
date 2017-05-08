@@ -8,7 +8,7 @@ body {
   -moz-text-size-adjust: none;
   -ms-text-size-adjust: 100%;
 
-  color: white; background: #333;
+  color: white; background: #556;
 }
 
 a:link { color: #ffff00; }
@@ -37,7 +37,7 @@ div#jupframe {
 
 #jupframe span#grslabel { color: #aaa; font-size: .9em; bottom: .1em; }
 
-#upcoming { background: #544; border: 1px inset; padding: 5px;  }
+#upcoming { background: #ddd; color: black; border: 1px inset; padding: 5px;  }
 
 /* width of the text input: XXX figure out how to do this
 #datetimeinput { size: 18; }
