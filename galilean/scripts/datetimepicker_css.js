@@ -44,7 +44,7 @@ var SpanBorderColor = "#000000";//span border color
 var SpanBgColor = "#FFFFFF"; //span background color
 
 var HoverColor = "#E0FF38"; //color of disabled cell.
-var CalBgColor = "#ffffff"; //Background color of Calendar window.
+var CalBgColor = "#cdd"; //Background color of Calendar window.
 
 var WeekChar = 2;//number of character for week day. if 2 then Mo,Tu,We. if 3 then Mon,Tue,Wed.
 var DateSeparator = "-";//Date Separator, you can change it to "-" if you want.

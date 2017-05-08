@@ -21,6 +21,7 @@ div#jupframe {
   position: relative;
   width: 99%;
   height: 100px;
+  padding: 0;
 }
 
 /* All images and labels inside the jupframe are absolutely positioned */
@@ -42,19 +43,23 @@ div#jupframe {
 #datetimeinput { size: 18; }
 */
 
+input[type=button] { background: black; color: white; }
+input[type=text]   { background: #421; color: white; }
+select { background: #224; color: white; }
+
 /* I can't find any way to style an input button by name --
  * it has to have an id as well as a name.
  */
-input[type=button]#prevDay  { background: #fcc; font-weight: bold; }
-input[type=button]#prevHour { background: #fdd; font-weight: bold; }
-input[type=button]#prevMins { background: #fee; font-weight: bold; }
-input[type=button]#nextDay  { background: #ccf; font-weight: bold; }
-input[type=button]#nextHour { background: #ddf; font-weight: bold; }
-input[type=button]#nextMins { background: #eef; font-weight: bold; }
+input[type=button]#prevDay  { background: #733; font-weight: bold; }
+input[type=button]#prevHour { background: #522; font-weight: bold; }
+input[type=button]#prevMins { background: #311; font-weight: bold; }
+input[type=button]#nextDay  { background: #733; font-weight: bold; }
+input[type=button]#nextHour { background: #522; font-weight: bold; }
+input[type=button]#nextMins { background: #311; font-weight: bold; }
 
-input[type=button]#now { background: lightgreen; font-weight: bold; }
+input[type=button]#now { background: darkgreen; font-weight: bold; }
 
-input[type=button]#animate { background: yellow; font-weight: bold; width: 6em; }
+input[type=button]#animate { color: yellow; background: #222; font-weight: bold; width: 6em; }
 
 /* As usual, the only way I could find to make the alignment of the
  * calendar image sane was to do it with a table row. Otherwise,

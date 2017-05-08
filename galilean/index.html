@@ -32,10 +32,6 @@ Here are the four bright "Galilean" moons of Jupiter --
 Io, Europa, Ganymede and Callisto -- and their shadows,
 along with the position of Jupiter's "great red spot" (GRS).
 
-<p>
-North is up; west is right (binocular/Newtonian view, not refractor).
-</div>
-
 <noscript>
 <p>
 <b>
@@ -69,6 +65,16 @@ the current position of Jupiter's moons.
 <span id="elabel2" class="eclipselabel">G</span>
 <span id="elabel3" class="eclipselabel">C</span>
 <span id="grslabel">GRS</span>
+</div>
+
+<p>
+Orientation:
+<select name='orientation' id='orientation' onChange="useNewDate();">
+<option value="NupWright" selected>N up, W right (normal)
+<option value="NupEright">N up, E right (reversed)
+<option value="SupEright">S up, E right (upside down)
+<option value="SupWright">S up, W right (upside down reversed)
+</select>
 </div>
 
 <table class="valign-row"><tr>
@@ -129,10 +135,10 @@ hours.
 <div id="footnotes">
 <hr>
 
-<h3>About the Galilean app</h3>
+<h3>About Galilean</h3>
 
 <p>
-This is a "progressive web app", meaning that you should be able
+Galilean is a "progressive web app", meaning that you should be able
 to install it on the home screen of Android or iOS phones and tablets.
 It doesn't collect data or need any funky permissions, and shouldn't
 need to use the network at all once you have the images downloaded.

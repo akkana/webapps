@@ -19,3 +19,10 @@
 .HourSelector { text-align: right; }
 .MinuteSelector { text-align: left; }
 .SecondSelector { text-align: left; }
+
+#calBorder { background: #bbb; color: black; }
+#calBorder table { background: #bbb; color: black; }
+#calBorder input[type=button] { background: #eee; color: black; }
+#calBorder input[type=text]   { background: #eee; color: black; }
+#calBorder select { background: #ddd; color: black; }
+#calBorder select option { background: #ddd; color: black; }

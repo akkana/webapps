@@ -46,20 +46,45 @@ function updateDateTimeFields(d) {
   document.getElementById("datetimeinput").value = datetime2str(d);
 }
 
+// A place to store the last width and height we measured.
+var gfxWidth, gfxHeight;
+
+// Are we reversing left and right?
+var reverseX = false;
+
+// Are we reversing top and bottom?
+var reverseY = false;
+
 function screenWidth() {
-  var width = document.getElementById("jupframe").offsetWidth;
-  if (width != null)
-    return width;
-  width = window.innerWidth;
-  if (width != null)
-    return width;
-  width = document.documentElement.clientWidth;
-  if (width != null)
-    return width;
-  width = document.body.clientWidth;    // For IE8
-  if (width != null)
-    return width;
-  return 800;
+  // clientWidth, scrollWidth and offsetWidth all give the same result
+  // in this case.
+  gfxWidth = document.getElementById("jupframe").clientWidth;
+  if (gfxWidth != null) {
+    gfxWidth = +gfxWidth;
+    gfxHeight = +document.getElementById("jupframe").clientHeight;
+    return gfxWidth;
+  }
+  gfxWidth = window.innerWidth;
+  if (gfxWidth != null) {
+    gfxWidth = +gfxWidth;
+    gfxHeight = +window.innerHeight;
+    return gfxWidth;
+  }
+  gfxWidth = document.documentElement.clientWidth;
+  if (gfxWidth != null) {
+    gfxWidth = +gfxWidth;
+    gfxHeight = +document.documentElement.clientHeight;
+    return gfxWidth;
+  }
+  gfxWidth = document.body.clientWidth;    // For IE8
+  if (gfxWidth != null) {
+    gfxWidth = +gfxWidth;
+    gfxHeight = +document.body.clientHeight;    // For IE8
+    return gfxWidth;
+  }
+  gfxWidth = 800;
+  gfxHeight = 300;
+  return gfxWidth;
 }
 
 function basename(str)
@@ -72,11 +97,34 @@ function basename(str)
   return base;
 }
 
+// Place an image or other element: could be a text label, etc.
+// as long as it's an element with position: absolute.
+// left must be provided but the other arguments can be omitted,
+// in which case they won't be changed.
+// If width and height are supplied, we'll try to place the image
+// so that it's centered on the given coordinates.
 function placeImage(im, left, top, width, height) {
-  im.style.left = left;
-  if (top) {
-    im.style.top = top;
+  if (!width)
+    width = 0;
+  if (!height) {
+    if (width)
+      height = width;
+    else
+      height = 0;
   }
+
+  if (reverseX)
+    im.style.left = gfxWidth - left - width/2;
+  else
+    im.style.left = left - width/2;
+
+  if (top) {
+    if (reverseY)
+      im.style.top = gfxHeight - top - height/2;
+    else
+      im.style.top = top - height/2;
+  }
+
   if (width) {
     im.width = width;
     if (height) {
@@ -110,7 +158,6 @@ function parseDateTime(dateTimeString) {
 
   // H:M:S +TZ
   var timeArray = /(\d{1,2}):(\d{1,2}):(\d{1,2}) ([\+-]\d)/.exec(timeString);
-  //alert("timeArray: " + timeArray);
   if (timeArray) {
     hour = +timeArray[1];
     min = +timeArray[2];
@@ -127,7 +174,6 @@ function parseDateTime(dateTimeString) {
     } else {
       // H:M +TZ
       timeArray = /(\d{1,2}):(\d{1,2}) \+(\d)/.exec(timeString);
-      //alert("timeArray: " + timeArray);
       if (timeArray) {
         hour = +timeArray[1];
         min = +timeArray[2];
@@ -147,8 +193,6 @@ function parseDateTime(dateTimeString) {
   }
   if (!hour)
     return null;
-
-  //alert(hour + ":" + min + ":" + sec + " + " + tzoffset);
 
   var d;
   if (tzoffset)
@@ -246,7 +290,7 @@ function drawJupiter(jup, date) {
 
   jup.setDate(date);
 
-  var width = parseInt(screenWidth() * .99);
+  var width = screenWidth();
   var halfwidth = width/2;
   var height = 100;
   var halfheight = height/2;
@@ -264,7 +308,29 @@ function drawJupiter(jup, date) {
   var img = document.getElementById("jupiter");
   if (img) {
     img.width = img.height = 2 * jupRadius;
-    placeImage(img, halfwidth - jupRadius, halfheight - jupRadius, jupRadius*2);
+    placeImage(img, halfwidth, halfheight, jupRadius*2);
+  }
+
+  // Are we reversing?
+  // Note that we do this *after* drawing Jupiter.
+  // Jupiter always goes in the center regardless of the orientation.
+  orientation = document.getElementById("orientation");
+  orientation = orientation.options[orientation.selectedIndex].value;
+  if (orientation == "NupWright") {
+    reverseX = false;
+    reverseY = false;
+  }
+  else if (orientation == "NupEright") {
+    reverseX = true;
+    reverseY = false;
+  }
+  else if (orientation == "SupEright") {
+    reverseX = true;
+    reverseY = true;
+  }
+  else if (orientation == "SupWright") {
+    reverseX = false;
+    reverseY = true;
   }
 
   // The GRS:
