@@ -39,9 +39,8 @@ div#jupframe {
 
 #upcoming { background: #ddd; color: black; border: 1px inset; padding: 5px;  }
 
-/* width of the text input: XXX figure out how to do this
-#datetimeinput { size: 18; }
-*/
+/* width of the datetime text input */
+#datetimeinput { width: 15em; }
 
 input[type=button] { background: black; color: white; }
 input[type=text]   { background: #421; color: white; }
@@ -100,7 +99,7 @@ input.recalcbtn:hover { background: #966; }
  */
 @media (max-width: 40em) {    /* portrait */
   .chatty { display: None }
-  #datetimeinput { width: 12em; font-size: 1.1rem; }
+  #datetimeinput { width: 13em; font-size: 1.1rem; }
   #cal-container { position: fixed; left: .5em; top: 145px; }
 }
 @media (max-height: 30em) {   /* landscape */

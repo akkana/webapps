@@ -314,8 +314,8 @@ function drawJupiter(jup, date) {
   // Are we reversing?
   // Note that we do this *after* drawing Jupiter.
   // Jupiter always goes in the center regardless of the orientation.
-  orientation = document.getElementById("orientation");
-  orientation = orientation.options[orientation.selectedIndex].value;
+  orientationSel = document.getElementById("orientation");
+  orientation = orientationSel.options[orientationSel.selectedIndex].value;
   if (orientation == "NupWright") {
     reverseX = false;
     reverseY = false;
@@ -365,7 +365,7 @@ function drawJupiter(jup, date) {
       label.style.visibility = "hidden";
     }
   }
-  else { alert("no grs image"); }
+  //else { alert("no grs image"); }
 
   for (var whichmoon = 0; whichmoon < 4; ++whichmoon) {
     // First handle the shadow
@@ -394,8 +394,8 @@ function drawJupiter(jup, date) {
     img = document.getElementById("moon" + whichmoon);
     label = document.getElementById("label" + whichmoon);
     var eclipselabel = document.getElementById("elabel" + whichmoon);
+    var x = moondata.moonx * jupRadius + halfwidth;
     if (moondata.eclipse) {
-      var x = moondata.moonx * jupRadius + halfwidth;
       placeImage(eclipselabel, x);
       if (img)
         img.style.visibility = "hidden";
@@ -404,7 +404,6 @@ function drawJupiter(jup, date) {
     }
     else if (img && !isNaN(moondata.moonx) && !isNaN(moondata.moony)) {
       img.setAttribute("src", "images/borderedmoon.png");
-      var x = moondata.moonx * jupRadius + halfwidth;
       placeImage(img, x, moondata.moony * jupRadius + halfheight);
       if (moondata.farside)
         img.style.zIndex = 1;
