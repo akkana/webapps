@@ -13,6 +13,7 @@ var _ = function (input, o) {
 	// Setup
 
 	this.isOpened = false;
+	this.filterDelayed = false;
 
 	this.input = $(input);
 	this.input.setAttribute("autocomplete", "off");
@@ -24,6 +25,7 @@ var _ = function (input, o) {
 		minChars: 2,
 		maxItems: 10,
 		autoFirst: false,
+		filterDelay: 500,
 		data: _.DATA,
 		filter: _.FILTER_CONTAINS,
 		sort: _.SORT_BYLENGTH,
@@ -61,9 +63,10 @@ var _ = function (input, o) {
 		"keydown": function(evt) {
 			var c = evt.keyCode;
 
-			// If the dropdown `ul` is in view, then act on keydown for the following keys:
-			// Enter / Esc / Up / Down
-			if(me.opened) {
+			// Act on keydown for the following keys:
+			// Enter / Tab / Esc (only if ul opened)
+			// Up / Down (also opens ul if closed)
+			if (me.opened) {
 				if (c === 13 && me.selected) { // Enter
 					evt.preventDefault();
 					me.select();
@@ -71,11 +74,21 @@ var _ = function (input, o) {
 				else if (c === 27) { // Esc
 					me.close({ reason: "esc" });
 				}
-				else if (c === 38 || c === 40) { // Down/Up arrow
+				else if (c === 9) { // Tab / Shift-Tab
 					evt.preventDefault();
-					me[c === 38? "previous" : "next"]();
+					me[evt.shiftKey ? "previous" : "next"]();
 				}
 			}
+			if (c === 38 || c === 40) { // Down/Up arrow
+				evt.preventDefault();
+				if (!me.opened) {
+					me.open();
+				}
+				else {
+					me[c === 38 ? "previous" : "next"]();
+				}
+			}
+
 		}
 	});
 
@@ -155,7 +168,6 @@ _.prototype = {
 
 		this.ul.setAttribute("hidden", "");
 		this.isOpened = false;
-		this.index = -1;
 
 		$.fire(this.input, "awesomplete-close", o || {});
 	},
@@ -197,7 +209,7 @@ _.prototype = {
 			lis[i].setAttribute("aria-selected", "true");
 			this.status.textContent = lis[i].textContent;
 
-			// scroll to highlighted element in case parent's height is fixed 
+			// scroll to highlighted element in case parent's height is fixed
 			this.ul.scrollTop = lis[i].offsetTop - this.ul.clientHeight + lis[i].clientHeight;
 
 			$.fire(this.input, "awesomplete-highlight", {
@@ -236,6 +248,25 @@ _.prototype = {
 		var value = this.input.value;
 
 		if (value.length >= this.minChars && this._list.length > 0) {
+			/* Check if we still have to delay the evaluate function. If we do, delay it by filterDelay (but we will still
+			use the latest value). We treat this function the same as an input triggered select. So if another
+			select triggers before the delay is over we might delay it again.*/
+			var time = new Date().getTime();
+
+			if (time - this.lastFilterTime < this.filterDelay) {
+				if (!this.filterDelayed) {
+					setTimeout(function () {
+							return this.evaluate();
+						}.bind(this),
+						this.filterDelay);
+					this.filterDelayed = true;
+				}
+				return;
+			}
+			this.lastFilterTime = time;
+			this.filterDelayed = false;
+
+
 			this.index = -1;
 			// Populate list with options that match
 			this.ul.innerHTML = "";
