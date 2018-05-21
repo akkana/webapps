@@ -14,18 +14,21 @@
   img { max-width: 100%; height: auto; }
   #newquiz { margin-left: 2.5em; }
   #media_area { position: relative; }
-  #attribution { position: absolute; top: 1em; right: 1em; background: white; }
+  #attribution { background: white; }
   #audiodiv { visibility: hidden; position: absolute; top: 0; left: 0; }
   #xenodiv { visibility: hidden; position: absolute; top: 0; left: 0; }
   #xenocover { z-index: 100; position: absolute; bottom: 0; height: 55px; width: 350px; background: white; }
-  #birdpic { visibility: hidden; position: absolute; top: 0; left: 0; }
+  #birdpic { visibility: hidden; }
 </style>
 
 <link rel="stylesheet" href="awesomplete.css" />
 <script src="awesomplete.js" async></script>
 
-<!-- birdmedia will define allbirds, pics, and sounds -->
-<script language="javascript" src="birdmedia.js"></script>
+<!-- define allbirds, pics, sounds and copyrights -->
+<script language="javascript" src="allbirds.js"></script>
+<script language="javascript" src="sounds.js"></script>
+<script language="javascript" src="birdpix.js"></script>
+<script language="javascript" src="copyrights.js"></script>
 
 <!-- The code that runs the quiz -->
 <script language="javascript" src="whatbird.js"></script>
@@ -97,7 +100,6 @@ Bird name or code:
 </div>
 
 <div id="media_area">
-
   <div id="audiodiv">
     <p>
     Play the bird's song or call:
@@ -108,18 +110,22 @@ Bird name or code:
   </div>
 
   <div id="xenodiv">
+<!--
+-->
     <iframe id="xeno-canto" src='" scrolling='no' frameborder='0'
-            width='340' height='220'>
+            width='340' height='220' src="about:blank">
     </iframe>
     <div id="xenocover">
       Sound from Xeno-Canto.org.
     </div>
   </div>
 
+  <div id="birdpicdiv">
+  <div id="locdate">&nbsp;</div>
+
   <img id="birdpic" src="blank.png" alt="bird image will go here">
 
-  <div id="attribution">
-&nbsp;
+  <div id="attribution">&nbsp;</div>
   </div>
 </div>
 

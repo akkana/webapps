@@ -18,6 +18,7 @@ var Total = 0;
 
 // Reset the page, showing a new quiz.
 function newquiz() {
+
   // Enable the submit button
   document.getElementById("submit").disabled = false;
 
@@ -39,29 +40,30 @@ function newquiz() {
   //alert("There are " + picslen + " images and " + soundslen + " sounds");
 
   var mediafile, t;
+  var index;
   if (imageschecked && soundschecked) {
-    var i = Math.floor(Math.random() * (picslen+soundslen));
-    if (i < picslen) {
-      WhichBirdCode = pics[i][0];
-      mediafile = pics[i][1];
+    index = Math.floor(Math.random() * (picslen+soundslen));
+    if (index < picslen) {
+      WhichBirdCode = pics[index][0];
+      mediafile = pics[index][1];
       t = "images";
     } else {
-      i -= picslen;
-      WhichBirdCode = sounds[i][0];
-      mediafile = sounds[i][1];
+      index -= picslen;
+      WhichBirdCode = sounds[index][0];
+      mediafile = sounds[index][1];
       t = "sounds";
     }
   }
   else if (imageschecked) {
-    var i = Math.floor(Math.random() * picslen);
-    WhichBirdCode = pics[i][0];
-    mediafile = pics[i][1];
+    index = Math.floor(Math.random() * picslen);
+    WhichBirdCode = pics[index][0];
+    mediafile = pics[index][1];
     t = "images";
   }
   else {
-    var i = Math.floor(Math.random() * soundslen);
-    WhichBirdCode = sounds[i][0];
-    mediafile = sounds[i][1];
+    index = Math.floor(Math.random() * soundslen);
+    WhichBirdCode = sounds[index][0];
+    mediafile = sounds[index][1];
     t = "sounds";
   }
   var whichbird = allbirds[WhichBirdCode];
@@ -85,6 +87,7 @@ function newquiz() {
   var birdpic = document.getElementById("birdpic");
   var audiodiv = document.getElementById("audiodiv");
   var xenodiv = document.getElementById("xenodiv");
+  var xenocanto = document.getElementById("xeno-canto");
 
   // Even though the xenocover is inside the xenodiv, it will be visible
   // even when the xenodiv is hidden. Maybe because of its z-order.
@@ -92,6 +95,7 @@ function newquiz() {
   var xenocover = document.getElementById("xenocover");
 
   if (t == "images") {
+    xenocanto.src= "about:blank";
     // mediafile may be a relative url, e.g. images/foo/bar.jpg.
     // But firefox has a bug where sometimes, unpredictably,
     // it can't set img src to a relative URL; mousing over
@@ -106,10 +110,26 @@ function newquiz() {
     birdpic.src = loc + mediafile;
     */
     birdpic.src = mediafile;
+    //console.log(mediafile);
     audiodiv.style.visibility = "hidden";
     xenodiv.style.visibility = "hidden";
     xenocover.style.visibility = "hidden";
     birdpic.style.visibility = "visible";
+
+    if (pics[index].length > 2)
+      locdate = "Location: " + pics[index][2];
+    else
+      locdate = '';
+    if (pics[index].length > 3) {
+      if (locdate)
+        locdate += ", " + pics[index][3];
+      else
+        locdate = pics[index][3];
+    }
+
+    var locdatediv = document.getElementById("locdate");
+    if (locdatediv)
+      locdatediv.innerHTML = locdate;
   }
   else {
     birdpic.style.visibility = "hidden";
@@ -122,7 +142,6 @@ function newquiz() {
 
       // xeno-canto media files should be of the form: xeno-canto/ID
       // http://www.xeno-canto.org/help/embed/332645
-      var xenocanto = document.getElementById("xeno-canto");
       var cantoID = basename(mediafile);
       audiodiv.style.visibility = "hidden";
       xenocanto.src= mediafile;
@@ -159,19 +178,24 @@ function dirname(s)
 
 function newaudio(f) {
   player = document.getElementById("audioplayer");
-  player.src = f;
+  if (player)
+    player.src = f;
 }
 
 function stopaudio() {
   player = document.getElementById("audioplayer");
-  player.pause();
-  player.removeAttribute("src");
+  if (player) {
+    player.pause();
+    player.removeAttribute("src");
+  }
 }
 
 function partialsearch(item) {
   lcitem = item.toLowerCase();
   var result = [];
   for (var key in allbirds) {
+    if (key.toLowerCase() == lcitem)
+      return [key];
     name = allbirds[key]["name"].toLowerCase();
     if (name == lcitem)
       return [lcitem];
@@ -258,13 +282,14 @@ function answer() {
 
   if (res.length == 0)
     // No matches -- the answer wasn't even close to right.
-    show_ans("Sorry, I don't have any bird matching your answer. It's a " + finalstr);
+    show_ans("Sorry, I don't have any bird matching your answer. It's a "
+             + finalstr);
   else if (res.length > 1) {
     // The user may have given a vague answer that matches several birds,
     // like "chickadee" instead of "mountain chickadee".
     var out;
     if (contains(res, realans)) {
-      out = "It's a " + finalstr;
+      out = "It's a " + finalstr + ".";
       out += "<p>'" + ans + "' could be " + res.join(", ");
       out += "<p>Score = 1 / " + res.length;
       Score += 1./res.length;
@@ -281,7 +306,8 @@ function answer() {
       Score += 1;
     }
     else
-      show_ans("Sorry, not a " + res[0] + ". It's a " + realans + " = " + finalstr);
+      show_ans("Sorry, not a " + allbirds[res[0]]["name"]
+               + " (" + res[0] + "). It's a " + finalstr);
   }
 
   // Un-hide the bird name if it's xeno-canto
