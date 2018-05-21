@@ -18,6 +18,9 @@ var Total = 0;
 
 // Reset the page, showing a new quiz.
 function newquiz() {
+  // Enable the submit button
+  document.getElementById("submit").disabled = false;
+
   // Clear the entry field
   document.getElementById("answer").value = "";
   // And the comments
@@ -155,14 +158,28 @@ function dirname(s)
 }
 
 function newaudio(f) {
-    player = document.getElementById("audioplayer");
-    player.src = f;
+  player = document.getElementById("audioplayer");
+  player.src = f;
 }
 
 function stopaudio() {
-    player = document.getElementById("audioplayer");
-    player.pause();
-    player.removeAttribute("src");
+  player = document.getElementById("audioplayer");
+  player.pause();
+  player.removeAttribute("src");
+}
+
+function partialsearch(item) {
+  lcitem = item.toLowerCase();
+  var result = [];
+  for (var key in allbirds) {
+    name = allbirds[key]["name"].toLowerCase();
+    if (name == lcitem)
+      return [lcitem];
+    if (name.includes(lcitem)) {
+      result.push(allbirds[key]["name"]);
+    }
+  }
+  return result;
 }
 
 // Fuzzy search adapted from http://stackoverflow.com/a/13107950
@@ -213,6 +230,9 @@ function show_ans(s) {
 
 // Callback when the user presses the Submit button or hits Enter
 function answer() {
+  // Disable the submit button
+  document.getElementById("submit").disabled = true;
+
   // The real answer, simple name:
   var realans = allbirds[WhichBirdCode].name;
   // The whole answer formatted to show the user:
@@ -230,7 +250,9 @@ function answer() {
   }
 
   if (!res)
-    res = fuzzy(ans);
+    //res = fuzzy(ans);
+    res = partialsearch(ans);
+  //console.log(res);
 
   Total += 1;
 
@@ -242,16 +264,14 @@ function answer() {
     // like "chickadee" instead of "mountain chickadee".
     var out;
     if (contains(res, realans)) {
-      out = "Close -- it's a " + finalstr;
+      out = "It's a " + finalstr;
+      out += "<p>'" + ans + "' could be " + res.join(", ");
+      out += "<p>Score = 1 / " + res.length;
       Score += 1./res.length;
     } else {
       out = "Sorry, no. It's a " + finalstr;
     }
-    /*
-    out += "<p>Your answer of " + ans + " was similar to:";
-    for (i=0; i<res.length; ++i)
-      out += "<br>" + res[i];
-     */
+
     show_ans(out);
   }
   else {

@@ -8,7 +8,7 @@
 <style type="text/css">
   body { background: white; }
   #feedback { background: #f5f5ff; margin: 1em 0; padding: .5em;
-              border-color: white; border-radius: 15px; 
+              border-color: white; border-radius: 15px;
               /* border-style: outset; */
   }
   img { max-width: 100%; height: auto; }
@@ -33,6 +33,9 @@
 <script language="javascript">
 // Initial page load: just show a new quiz.
 // This can't be in whatbird.js because that file doesn't see awesomplete.js.
+
+var plete;
+
 function load() {
   // Initialize the autocomplete list with the full list of birds.
   var ansinput = document.getElementById("answer");
@@ -46,9 +49,8 @@ function load() {
     birdpletelist.appendChild(option);
     //completes.push(allbirds[key].name + " (" + key + ")");
   }
-  // Now that the options are all set up, it's save to start awesomeplete:
-  //new Awesomplete(ansinput, {minChars: 3});
-  new Awesomplete(ansinput, {list: birdpletelist, minChars: 3});
+  // Now that the options are all set up, it's safe to start awesomeplete:
+  plete = new Awesomplete(ansinput, {list: birdpletelist, minChars: 3});
 
   ansinput.addEventListener("awesomplete-selectcomplete", selectcomplete);
 
@@ -84,7 +86,7 @@ Bird name or code:
 <datalist id="birdpletelist"></datalist>
 
 <!--  onKeyUp="return answerIfEnter(event);"> -->
-<input type="submit" value="Submit" onclick="return answer();">
+<input type="submit" value="Submit" id="submit" onclick="return answer();">
 <input type="submit" id="newquiz" value="Another bird"
  onclick="return newquiz();">
 <input id="chooseImages" type="checkbox"checked="checked" >Images
