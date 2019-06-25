@@ -1,0 +1,34 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Risorama</title>
+
+<link rel="stylesheet" href="leaflet/leaflet.css" />
+<!--[if lte IE 8]>
+<link rel="stylesheet" href="leaflet/leaflet.ie.css" />
+<![endif]-->
+
+<style>
+#mapcanvas { width: 95%; height: 95%; }
+</style>
+
+<!-- The Leaflet library -->
+<script src="leaflet/leaflet.js"></script>
+
+<!-- Code for the map we'll be showing -->
+<script src="riseorama.js"></script>
+</head>
+
+</body>
+
+<div id="mapcanvas">Map goes here</div>
+
+<script type="text/javascript">
+  document.getElementsByTagName('body')[0].onload = init_map; // body.onload
+</script>
+
+</body>
+</html>
+
