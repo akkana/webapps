@@ -5,8 +5,12 @@ var map;
 
 var targetPoint;
 
-// Temporary static list of bearings, for testing:
-var bearings = [ 118., 125., 270. ];
+var body = "moon";
+var riseset = "rise";
+
+// Default (non-selected) line color:
+var linecolor = 'blue';
+var selectedlinecolor = 'red';
 
 // Max distance in km to draw a bearing line:
 var maxdist = 125;
@@ -19,11 +23,19 @@ var currentLines = [];
 function radians(deg) { return deg * Math.PI / 180.; }
 function degrees(rad) { return rad * 180. / Math.PI; }
 
-bearingPolyline = L.Polyline.extend({
+risesetPolyline = L.Polyline.extend({
     options: {
-        bearing: null    // default value, override this
+        date: null,
+        bearing: null,
+        phase: null
     }
 });
+
+var polylineOptions = {
+    color: linecolor,
+    weight: 6,
+    opacity: 0.9
+};
 
 /*
  * Given a centerpoint and bearing, return [lat, lon] endpoint.
@@ -47,17 +59,57 @@ function bearing2latlon(latlon, bearing) {
 }
 
 function onLineClick(e) {
-    console.log("click on line with bearing: " + this.options.bearing);
-    this.setStyle({ color: 'red' });
+    // "this" is the polyline clicked on
+    console.log("click on line with date: " + this.options.date
+                + ', phase ' + this.options.phase
+                + ', bearing ' + this.options.bearing );
+
+    // Set all lines back to the default
+    for (line in currentLines)
+        currentLines[line].setStyle({ color: linecolor });
+    // then set this one to the selected color:
+    this.setStyle({ color: selectedlinecolor });
+
+    popupContent = this.options.date + "<br>" + body + riseset;
+    if (this.options.phase > 0)
+        popupContent += "<br>Phase: " + parseInt(this.options.phase);
+
+    var popup = L.popup()
+        .setLatLng(e.latlng)
+        .setContent(popupContent)
+        .openOn(map);
+
     L.DomEvent.stopPropagation(e);
 }
 
+function draw_lines_from_JSON(responseJSON) {
+    console.log("Would draw from JSON: " + JSON.stringify(responseJSON));
+    for (res in responseJSON) {
+        // These objects should have date, az, and phase.
+        var ev = responseJSON[res];
+
+        az = 360. - parseFloat(ev['az']);
+
+        endpt = bearing2latlon(targetPoint.getLatLng(), az);
+        plinepts = [ targetPoint.getLatLng(), endpt ];
+
+        polylineOptions.bearing = az;
+        polylineOptions.date = ev['date'];
+        polylineOptions.phase = ev['phase'];
+
+        polyline = new risesetPolyline(plinepts, polylineOptions);
+
+        map.addLayer(polyline);
+        polyline.on('click', onLineClick);
+        currentLines.push(polyline);
+    }
+}
+
 function onMapClick(e) {
-    //alert("You clicked the map at " + e.latlng + ", type " + typeof e.latlng);
+    console.log("Clicked the map at " + e.latlng);
 
     // Remove the current point:
-    if (targetPoint)
-        map.removeLayer(targetPoint);
+    if (targetPoint)        map.removeLayer(targetPoint);
 
     // Remove its lines too:
     for (line in currentLines) {
@@ -70,23 +122,18 @@ function onMapClick(e) {
     // Set a new point:
     targetPoint = L.marker(e.latlng).addTo(map);
 
-    var polylineOptions = {
-        color: 'blue',
-        weight: 6,
-        opacity: 0.9
+    // Get the rise or set data for this point from the CGI
+    cgiurl = 'rise_set_az.cgi?lat=' + e.latlng.lat
+        + '&lon=' + e.latlng.lng + '&phase=100';
+    console.log("CGI URL: " + cgiurl);
+    var req = new window.XMLHttpRequest();
+    req.open('GET', cgiurl, true);    // async = true
+    req.onreadystatechange = function() {
+        if (req.readyState != 4) return;
+        if (req.status == 200)
+            draw_lines_from_JSON(JSON.parse(req.responseText));
     };
-
-    // Draw lines for everything in the variable bearings.
-    for (bearing in bearings) {
-        polylineOptions.bearing = bearings[bearing];
-        endpt = bearing2latlon(e.latlng, bearings[bearing]);
-        plinepts = [ e.latlng, endpt ];
-        polyline = new bearingPolyline(plinepts, polylineOptions);
-        map.addLayer(polyline);
-        polyline.on('click', onLineClick);
-        currentLines.push(polyline);
-        console.log("Adding polyline with bearing " + polyline.options.bearing);
-    }
+    req.send(null);
 }
 
 function init_map() {
