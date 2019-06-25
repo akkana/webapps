@@ -6,5 +6,4 @@ To deploy: copy or link the the riseorama directory to your web directory,
 then download Leaflet into riseorama/leaflet, including leaflet.js,
 leaflet.ie.css and the stylesheet leaflet.css.
 
-The astronomical calculations are not hooked up yet.
-The plan is tox use a Python backend using PyEphem.
+The astronomical calculations use a Python backend using PyEphem.
