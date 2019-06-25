@@ -33,7 +33,7 @@ risesetPolyline = L.Polyline.extend({
 
 var polylineOptions = {
     color: linecolor,
-    weight: 6,
+    weight: 5,
     opacity: 0.9
 };
 
@@ -61,7 +61,7 @@ function bearing2latlon(latlon, bearing) {
 function onLineClick(e) {
     // "this" is the polyline clicked on
     console.log("click on line with date: " + this.options.date
-                + ', phase ' + this.options.phase
+                + ', phase ' + this.options.phase + '%'
                 + ', bearing ' + this.options.bearing );
 
     // Set all lines back to the default
@@ -71,8 +71,8 @@ function onLineClick(e) {
     this.setStyle({ color: selectedlinecolor });
 
     popupContent = this.options.date + "<br>" + body + riseset;
-    if (this.options.phase > 0)
-        popupContent += "<br>Phase: " + parseInt(this.options.phase);
+    if (this.options.phase > 0 && body != 'sun')
+        popupContent += "<br>Phase: " + parseInt(this.options.phase) + '%';
 
     var popup = L.popup()
         .setLatLng(e.latlng)
@@ -83,7 +83,7 @@ function onLineClick(e) {
 }
 
 function draw_lines_from_JSON(responseJSON) {
-    console.log("Would draw from JSON: " + JSON.stringify(responseJSON));
+    //console.log("Would draw from JSON: " + JSON.stringify(responseJSON));
     for (res in responseJSON) {
         // These objects should have date, az, and phase.
         var ev = responseJSON[res];
@@ -113,8 +113,8 @@ function onMapClick(e) {
 
     // Remove its lines too:
     for (line in currentLines) {
-        console.log("Removing line with bearing: "
-                    + currentLines[line].options.bearing);
+        //console.log("Removing line with bearing: "
+        //            + currentLines[line].options.bearing);
         map.removeLayer(currentLines[line]);
     }
     currentLines = []
@@ -122,10 +122,18 @@ function onMapClick(e) {
     // Set a new point:
     targetPoint = L.marker(e.latlng).addTo(map);
 
-    // Get the rise or set data for this point from the CGI
+    // First check the toggle button states:
+    body = document.querySelector('input[name="bodybtn"]:checked').value;
+    action = document.querySelector('input[name="actionbtn"]:checked').value;
+
+    // Now build up the CGI URL.
     cgiurl = 'rise_set_az.cgi?lat=' + e.latlng.lat
-        + '&lon=' + e.latlng.lng + '&phase=100';
+        + '&lon=' + e.latlng.lng
+        + '&body=' + body + '&action=' + action
+        + '&phase=100';
     console.log("CGI URL: " + cgiurl);
+
+    // Get the rise or set data for this point from the CGI.
     var req = new window.XMLHttpRequest();
     req.open('GET', cgiurl, true);    // async = true
     req.onreadystatechange = function() {
@@ -141,6 +149,9 @@ function init_map() {
 
     map.on('click', onMapClick);
 
+    //
+    // Add the menu to choose different basemaps:
+    //
     var Stamen_Terrain = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.{ext}', {
         attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         subdomains: 'abcd',
@@ -163,33 +174,12 @@ function init_map() {
             attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
         });
 
-/* http://leaflet-extras.github.io/leaflet-providers/preview/ lists some maps.
-   These need an API key:
-var Thunderforest_OpenCycleMap = L.tileLayer('https://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey={apikey}', {
-	attribution: '&copy; <a href="http://www.thunderforest.com/">Thunderforest</a>, &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-	apikey: '<your apikey>',
-	maxZoom: 22
-});
-var HERE_hybridDay = L.tileLayer('https://{s}.{base}.maps.cit.api.here.com/maptile/2.1/{type}/{mapID}/hybrid.day/{z}/{x}/{y}/{size}/{format}?app_id={app_id}&app_code={app_code}&lg={language}', {
-	attribution: 'Map &copy; 1987-2014 <a href="http://developer.here.com">HERE</a>',
-	subdomains: '1234',
-	mapID: 'newest',
-	app_id: '<your app_id>',
-	app_code: '<your app_code>',
-	base: 'aerial',
-	maxZoom: 20,
-	type: 'maptile',
-	language: 'eng',
-	format: 'png8',
-	size: '256'
-});
-*/
-
     var baseMaps = {
         'Stamen Terrain' : Stamen_Terrain,
         'OpenStreetMap' : OSM,
         'ESRI World Imagery' : Esri_WorldImagery,
     };
-}
+    var overlayMaps = { };
+    L.control.layers(baseMaps, overlayMaps).addTo(map);}
 
 

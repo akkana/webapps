@@ -11,7 +11,11 @@
 <![endif]-->
 
 <style>
-#mapcanvas { width: 95%; height: 95%; }
+#mapcanvas { width: 95%; height: 95%; z-index: 50; }
+#appcontrols {
+    z-index: 99; position: absolute; top: 1em; left: 25%;
+    background: #eef; opacity: .75;
+}
 </style>
 
 <!-- The Leaflet library -->
@@ -22,6 +26,17 @@
 </head>
 
 </body>
+
+<div id="appcontrols">
+<b>Body:</b>
+  <input type=radio name="bodybtn" value="moon" checked>Moon
+  <input type=radio name="bodybtn" value="sun">Sun
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<b>Action</b>
+  <input type=radio name="actionbtn" value="rise" checked>Rise
+  <input type=radio name="actionbtn" value="set">Set
+
+</div>
 
 <div id="mapcanvas">Map goes here</div>
 

@@ -16,7 +16,7 @@ import json
 PHASESLOP = 5
 
 
-def find_target_point_rise_set(target_obs, body, rise, start, end, phase):
+def find_target_point_rise_set(target_obs, body, action, start, end, phase):
     '''
     Given a target location, phase, start/end dates,
     find all rise and set bearings through that location.
@@ -31,7 +31,7 @@ def find_target_point_rise_set(target_obs, body, rise, start, end, phase):
 
     observer.date = start
     while observer.date < end:
-        if rise:
+        if action == 'rise':
             observer.date = observer.next_rising(body)
         else:
             observer.date = observer.next_setting(body)
@@ -40,14 +40,16 @@ def find_target_point_rise_set(target_obs, body, rise, start, end, phase):
         if phase > 0 and abs(body.phase - phase) > PHASESLOP:
             continue
 
-        vals.append({ 'date':  observer.date,
-                      'az':    body.az * 180. / ephem.pi,
-                      'phase': body.phase })
+        vals.append({ 'date':   observer.date,
+                      'az':     body.az * 180. / ephem.pi,
+                      'action': action,
+                      'body':   body.name,
+                      'phase':  body.phase })
 
     return vals
 
 
-def find_target_az_rise_set(observer, body, rise, start, end, targetaz,
+def find_target_az_rise_set(observer, body, action, start, end, targetaz,
                             phase, slop):
     '''
     Given an observer location and a target azimuth, phase, start/end dates,
@@ -63,7 +65,7 @@ def find_target_az_rise_set(observer, body, rise, start, end, targetaz,
 
     observer.date = start
     while observer.date < end:
-        if rise:
+        if action == 'rise':
             observer.date = observer.next_rising(body)
         else:
             observer.date = observer.next_setting(body)
@@ -124,23 +126,25 @@ if __name__ == '__main__':
     # rise_set_az.cgi?lat=35.9&lon=137.4&body=moon&action=rise&phase=100&ele=6500
     # lat, lon in decimal degrees, phase in percent, ele in feet
     form = cgi.FieldStorage()
-    form = {
-        'phase': '100',
-        'lat':   '35.856779',
-        'lon':   '-106.147884'
-    }
+    # form = {
+    #     'phase':  '100',
+    #     'lat':    '35.856779',
+    #     'lon':    '-106.147884',
+    #     'action': 'set',
+    # }
+
     if 'lat' in form and 'lon' in form:
         observer = ephem.Observer()
-        observer.lat = ephem.degrees(form['lat'])
-        observer.lon = ephem.degrees(form['lon'])
+        observer.lat = ephem.degrees(form['lat'].value)
+        observer.lon = ephem.degrees(form['lon'].value)
 
         if 'ele' in form:
-            observer.elevation = int(form['ele'])
+            observer.elevation = int(form['ele'].value)
 
         if 'body' in form:
-            if form['body'].lower() == 'sun':
-                body = ephem.Moon()
-            elif form['body'].lower() == 'moon':
+            if form['body'].value.lower() == 'sun':
+                body = ephem.Sun()
+            elif form['body'].value.lower() == 'moon':
                 body = ephem.Moon()
             else:
                 sys.exit(1)
@@ -148,21 +152,21 @@ if __name__ == '__main__':
             body = ephem.Moon()
 
         if 'action' in form:
-            action = form['action'].lower()
+            action = form['action'].value.lower()
         else:
             action = 'rise'
 
         if 'phase' in form:
-            phase = int(form['phase'])
+            phase = int(form['phase'].value)
         else:
             phase = 0
 
         if 'start' in form:
-            start = datetime.datetime.strptime(form['start'], '%Y-%m-%d')
+            start = datetime.datetime.strptime(form['start'].value, '%Y-%m-%d')
         else:
             start = datetime.datetime.now()
         if 'end' in form:
-            end = datetime.datetime.strptime(form['end'], '%Y-%m-%d')
+            end = datetime.datetime.strptime(form['end'].value, '%Y-%m-%d')
         else:
             end = start.replace(month=12, day=31, hour=23)
 
