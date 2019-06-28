@@ -43,6 +43,9 @@ function initpage() {
 }
 
 function updateDateTimeFields(d) {
+  console.log("updateDateTimeFields " + d);
+  console.log("tzoffset: " + d.getTimezoneOffset()/60);
+  console.log("datetime2str thinks " + datetime2str(d));
   document.getElementById("datetimeinput").value = datetime2str(d);
 }
 
@@ -156,9 +159,12 @@ function parseDateTime(dateTimeString) {
   var timeString = dateArray[4];
   var hour, min, sec, tzoffset;
 
+  console.log("Parsing date " + timeString);
+
   // H:M:S +TZ
   var timeArray = /(\d{1,2}):(\d{1,2}):(\d{1,2}) ([\+-]\d)/.exec(timeString);
   if (timeArray) {
+    console.log("1", timeArray);
     hour = +timeArray[1];
     min = +timeArray[2];
     sec = +timeArray[3];
@@ -167,6 +173,7 @@ function parseDateTime(dateTimeString) {
     // H:M:S
     timeArray = /(\d{1,2}):(\d{1,2}):(\d{1,2})/.exec(timeString);
     if (timeArray) {
+      console.log("2", timeArray);
       hour = +timeArray[1];
       min = +timeArray[2];
       sec = +timeArray[3];
@@ -175,6 +182,7 @@ function parseDateTime(dateTimeString) {
       // H:M +TZ
       timeArray = /(\d{1,2}):(\d{1,2}) \+(\d)/.exec(timeString);
       if (timeArray) {
+        console.log("3", timeArray);
         hour = +timeArray[1];
         min = +timeArray[2];
         sec = 0;
@@ -182,6 +190,7 @@ function parseDateTime(dateTimeString) {
       } else {
         // H:M
         timeArray = /(\d{1,2}):(\d{1,2})/.exec(timeString);
+        console.log("4", timeArray);
         if (timeArray) {
           hour = +timeArray[1];
           min = +timeArray[2];
@@ -191,7 +200,7 @@ function parseDateTime(dateTimeString) {
       }
     }
   }
-  if (!hour)
+  if (!timeArray)
     return null;
 
   var d;
@@ -200,7 +209,7 @@ function parseDateTime(dateTimeString) {
         +dateArray[1],
         +dateArray[2]-1, // Careful, month starts at 0!
         +dateArray[3],
-        hour + tzoffset, min, sec
+        hour - tzoffset, min, sec
     ));
   else
     // If no timezone offset specified, new Date() will assume localtime.
@@ -217,6 +226,7 @@ function parseDateTime(dateTimeString) {
 function useNewDate()
 {
   // parse date and time from the two fields:
+  console.log("datetimeinput value is " + document.getElementById("datetimeinput").value);
   var d = parseDateTime(document.getElementById("datetimeinput").value);
 
   if (!d) {
@@ -225,6 +235,7 @@ function useNewDate()
     return;
   }
 
+  console.log("useNewDate: " + d);
   drawJupiter(jup, d);
   predictUpcoming();
 }
@@ -285,6 +296,7 @@ function toggleAnimation() {
 var busy;
 
 function drawJupiter(jup, date) {
+  console.log("drawJupiter for date " + date);
   busy = document.getElementById("recalculating")
   busy.style.visibility = "visible";
 
@@ -337,7 +349,8 @@ function drawJupiter(jup, date) {
   // the system 2 longitude of the spot drifts around,
   // so this needs to be updated regularly.
   // http://jupos.privat.t-online.de/ is a good resource.
-  var coord = jup.getRedSpotXY(224);
+  // Last updated 2018-07-09
+  var coord = jup.getRedSpotXY(289);
   var img = document.getElementById("grs");
   var label = document.getElementById("grslabel");
 
@@ -428,6 +441,7 @@ function drawJupiter(jup, date) {
   }
 
   busy.style.visibility = "hidden";
+  console.log("jup.getDate() says " + jup.getDate());
   updateDateTimeFields(jup.getDate());
 }
 

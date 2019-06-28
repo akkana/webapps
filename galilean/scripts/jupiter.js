@@ -273,7 +273,7 @@ function Jupiter()
     this.getMoonXYData = getMoonXYData
 
     //
-    // The Great Red Spot, currently at longitude 61 in system II
+    // The Great Red Spot, assuming its system II longitude is  spot_in_deg
     //
     function getRedSpotXY(spot_in_deg)
     {
@@ -406,10 +406,16 @@ function date2str(d) {
 }
 
 function time2str(d) {
-    return "" + leading0(d.getHours()) + ":" + leading0(d.getMinutes())
-        + ":" + leading0(d.getSeconds())
-        // For now, assume timezone offset is in hours.
-        + " +" + (d.getTimezoneOffset()/60);
+    var s = "" + leading0(d.getHours()) + ":" + leading0(d.getMinutes())
+        + ":" + leading0(d.getSeconds());
+    // For now, assume timezone offset is in hours.
+    // getTimezoneOffset() has a reverse sign from what users expect to see.
+    var tzoffset = d.getTimezoneOffset()/60;
+    if (tzoffset <= 0)
+        s += " +" + -tzoffset;
+    else
+        s += " -" + tzoffset;
+    return s;
 }
 
 //
