@@ -1,0 +1,34 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FeedViewer</title>
+</head>
+
+<body onload="onPageLoad();">
+
+<h1>FeedRead</h1>
+
+<p>
+<input type=button id="listall" value="List all"
+ onclick="listDb();">
+<input type=button id="fetchDaily" value="Fetch Daily Feeds"
+ onclick="fetchDaily();">
+<input type=button id="display1" value="Display file 1"
+ onclick="displayFile('/feeds/08-15-Thu/A_Word_A_Day/0.html');">
+<input type=button id="display2" value="Display file 2"
+ onclick="displayFile('/feeds/08-15-Thu/BBC_News_Science/1.html');">
+
+<p>
+Here is some content:
+
+<div id="maincontent">
+This should change to content fetched from the feed.
+</div>
+
+<script src="pageactions.js"></script>
+<script src="feeddb.js"></script>
+
+</body>
+</html>
