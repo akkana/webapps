@@ -44,14 +44,15 @@ function clickHandler(event)
 
     if (event.clientY > BOTTOM && (event.clientX < LEFT
                                    || event.clientX > RIGHT)) {
-        console.log("Scroll down");
-        document.getElementById("maincontent").contentWindow.scrollBy(0, screenHeight/2)
-        // window.scrollBy(0, screenHeight/2);
+        //console.log("Scroll down");
+        document.getElementById("maincontent").contentWindow
+            .scrollBy(0, screenHeight * .9)
     }
     else if (event.clientY < TOP && (event.clientX < LEFT
                                      || event.clientX > RIGHT)) {
-        console.log("Scroll up");
-        document.getElementById("maincontent").contentWindow.scrollBy(0, -screenHeight/2)
+        //console.log("Scroll up");
+        document.getElementById("maincontent").contentWindow
+            .scrollBy(0, -screenHeight * .9)
     }
 }
 

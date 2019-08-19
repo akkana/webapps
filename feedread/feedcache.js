@@ -98,9 +98,6 @@ async function fetchDaily() {
         deleteStatus = await cache.delete(manifestURL);
         console.log("status of deleting " + manifestURL + ": " + deleteStatus);
 
-        console.log("After deleting MANIFEST, the caches look like:");
-        await showCached();
-
         // Read the manifest and parse it into an array, manifestList.
         const status = await readManifest();
         console.log("Read the manifest");

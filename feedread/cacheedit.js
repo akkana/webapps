@@ -48,7 +48,8 @@ async function showCached() {
         url = keyList[key].url;
         outstr += "<tr>\n";
         if (url.endsWith('/')) {
-            outstr += '<td><input type=button value="Delete" onclick="deleteDayFeed(\'' + url + '\');">\n<th>';
+            outstr += '<td><input type=button value="Delete" onclick="deleteDayFeed(\''
+                + url + '\');">\n<th>';
             outstr += url;
         }
         else {
@@ -61,6 +62,5 @@ async function showCached() {
 
     output = document.getElementById("output");
     output.innerHTML = outstr;
-    console.log(outstr);
 }
 
