@@ -141,9 +141,10 @@ async function fetchDaily() {
     }
 }
 
-// Return a sorted list of all the top-level pages available.
-// Don't try to format them into HTML.
-async function TOC() {
+//
+// Return an array of all the URLs in the cache, in no particular order.
+//
+async function listCachedPages() {
     if (! CACHENAME) {
         console.log("CACHENAME is null, can't show TOC!");
         return null;
@@ -151,6 +152,15 @@ async function TOC() {
 
     var cache = await caches.open(CACHENAME);
     var cachedFiles = await cache.keys();
+    return cachedFiles;
+}
+
+//
+// Return a sorted array of all the top-level pages available.
+//
+async function TOC() {
+    var cachedFiles = await listCachedPages();
+
     tocPages = [];
     for (var key in cachedFiles) {
         // Skip directories and the manifest:
@@ -167,43 +177,9 @@ async function TOC() {
     return tocPages;
 }
 
-
-function clearCaches() {
-    caches.keys().then(function(keyList) {
-        console.log(keyList.length + " files are cached:");
-        for (f in keyList) {
-            console.log("    deleting all of cache " + keyList[f]);
-            caches.delete(keyList[f]);
-        }
-    });
-}
-
-function showCached() {
-    caches.open(CACHENAME).then(function(cache) {
-        cache.keys().then(function(keyList) {
-            for (key in keyList) {
-                // keyList[key] is a Request. Show its URL.
-                console.log("cached: " + keyList[key].url);
-            }
-        });
-    });
-}
-
-
-// Request persistent storage.
-// navigator.storage.persist() actually requests permanent storage permission.
-// You'll also see navigator.storage.persisted() but that just reports
-// whether we already have permission, without actually requesting it.
-if (navigator.storage && navigator.storage.persist)
-    navigator.storage.persist().then(granted => {
-        if (granted)
-            console.log("Persistent storage granted");
-        else
-            console.log("No persistent storage permission");
-    });
-
 /*
-// Service worker for cache, falling back to network.
+// Service worker: cache, falling back to network.
+// This doesn't seem to ever get called.
 console.log("Adding service worker:");
 self.addEventListener('fetch', function(event) {
     console.log("fetch listener, " + event.request);

@@ -17,18 +17,35 @@
 <header id="buttonbox">
 <input type=button id="fetchDaily" value="Fetch Daily Feeds"
  onclick="fetchDaily();">
-<input type=button id="toc" value="TOC" onclick="TOC();">
-<input type=button id="showCached" value="Show Cached" onclick="showCached();">
+<input type=button id="toc" value="TOC" onclick="TOCpage();">
 </header>
 
-<iframe id="maincontent" src="/feedread/initial.html" width=100% height=100%></iframe>
+<iframe id="maincontent" src="/feedread/initial.html"
+ onload="iframe_onload();"
+ width=100% height=100%></iframe>
 
 <div id="footer">:-)</footer>
 
-<div id="scrolldiv_ul" class="scrolldiv"></div>
+<!-- <div id="scrolldiv_ul" class="scrolldiv"></div> -->
 <div id="scrolldiv_ur" class="scrolldiv"></div>
 <div id="scrolldiv_ll" class="scrolldiv"></div>
 <div id="scrolldiv_lr" class="scrolldiv"></div>
+
+<script>
+// Request persistent storage.
+// navigator.storage.persist() actually requests permanent storage permission.
+// You'll also see navigator.storage.persisted() mentioned, but that just
+// reports whether we already have permission, without actually requesting it.
+if (navigator.storage && navigator.storage.persist)
+    navigator.storage.persist().then(granted => {
+        if (granted)
+            console.log("Persistent storage granted");
+        else {
+            console.log("No persistent storage permission");
+            alert("No persistent storage permission!");
+        }
+    });
+</script>
 
 </body>
 </html>
