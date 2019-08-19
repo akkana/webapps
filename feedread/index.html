@@ -3,32 +3,32 @@
 <head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FeedViewer</title>
+<title>FeedRead</title>
+<link rel="stylesheet" type="text/css" href="pageui.css">
+<link rel="stylesheet" type="text/css" title="Feeds" href="/feeds/feeds.css">
+
+<script src="pageactions.js"></script>
+<script src="feedcache.js"></script>
+
 </head>
 
 <body onload="onPageLoad();">
 
-<h1>FeedRead</h1>
-
-<p>
-<input type=button id="listall" value="List all"
- onclick="listDb();">
+<header id="buttonbox">
 <input type=button id="fetchDaily" value="Fetch Daily Feeds"
  onclick="fetchDaily();">
-<input type=button id="display1" value="Display file 1"
- onclick="displayFile('/feeds/08-15-Thu/A_Word_A_Day/0.html');">
-<input type=button id="display2" value="Display file 2"
- onclick="displayFile('/feeds/08-15-Thu/BBC_News_Science/1.html');">
+<input type=button id="toc" value="TOC" onclick="TOC();">
+<input type=button id="showCached" value="Show Cached" onclick="showCached();">
+</header>
 
-<p>
-Here is some content:
+<iframe id="maincontent" src="/feedread/initial.html" width=100% height=100%></iframe>
 
-<div id="maincontent">
-This should change to content fetched from the feed.
-</div>
+<div id="footer">:-)</footer>
 
-<script src="pageactions.js"></script>
-<script src="feeddb.js"></script>
+<div id="scrolldiv_ul" class="scrolldiv"></div>
+<div id="scrolldiv_ur" class="scrolldiv"></div>
+<div id="scrolldiv_ll" class="scrolldiv"></div>
+<div id="scrolldiv_lr" class="scrolldiv"></div>
 
 </body>
 </html>

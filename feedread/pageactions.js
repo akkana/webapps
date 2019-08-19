@@ -45,18 +45,35 @@ function clickHandler(event)
     if (event.clientY > BOTTOM && (event.clientX < LEFT
                                    || event.clientX > RIGHT)) {
         console.log("Scroll down");
-        window.scrollBy(0, screenHeight/2);
+        document.getElementById("maincontent").contentWindow.scrollBy(0, screenHeight/2)
+        // window.scrollBy(0, screenHeight/2);
     }
     else if (event.clientY < TOP && (event.clientX < LEFT
                                      || event.clientX > RIGHT)) {
         console.log("Scroll up");
-        window.scrollBy(0, -screenHeight/2);
+        document.getElementById("maincontent").contentWindow.scrollBy(0, -screenHeight/2)
     }
 }
 
+function TOCPage() {
+    var tocPages = TOC();
+
+    // Format as HTML:
+}
+
 function onPageLoad() {
-    document.onmousedown = clickHandler;
-    console.log("Calling readScreenSize()");
     readScreenSize();
+
+    //var maincontent = document.getElementById("maincontent");
+    //console.log("maincontent:", maincontent);
+    // Clickhandler works on document but doens't seem to work on maincontent,
+    // whether it's a div around the iframe or the iframe itself.
+    //maincontent.onmousedown = clickHandler;
+    //maincontent.addEventListener('click', clickHandler, false);
+    var scrolldivs = document.getElementsByClassName("scrolldiv");
+    for (var i in scrolldivs) {
+        console.log(i, "scrolldiv");
+        scrolldivs[i].onmousedown = clickHandler;
+    }
 }
 
