@@ -78,6 +78,8 @@ async function readManifest() {
     return manifestList;
 }
 
+// Fetch the MANIFEST file for today's daily feeds,
+// and then fetch and cache all the files referred to there.
 async function fetchDaily() {
     if (!todayStr)
         todayStr = formatDate(new Date());
@@ -113,17 +115,24 @@ async function fetchDaily() {
 
         newURLs = [];
         for (f in manifestList) {
-            if (! manifestList[f])
+            if (! manifestList[f])    // skip blank lines
                 continue;
+            if (manifestList[f] == ".EOF." || manifestList[f] == "MANIFEST")
+                continue;
+
             // Is it already cached?
             newurl = todayURL + manifestList[f];
             console.log("*   " + newurl);
             matchResponse = await cache.match(newurl);
-            if (!matchResponse)
-                console.log("    not in the cache");
+            if (!matchResponse) {
+                console.log("    not in the cache; will add");
+                newURLs.push(newurl);
+            }
             else
                 console.log("    already cached");
         }
+        console.log("Requesting to add", newURLs.length, "to the cache");
+        await cache.addAll(newURLs);
         return 0;
     }
     catch (err) {
@@ -146,7 +155,6 @@ async function TOC() {
     for (var key in cachedFiles) {
         // Skip directories and the manifest:
         var url = cachedFiles[key].url;
-        console.log("x ", url);
         if (url.endsWith('/') || url == "MANIFEST")
             continue
 
@@ -155,6 +163,7 @@ async function TOC() {
             tocPages.push(url);
         }
     }
+    tocPages.sort();
     return tocPages;
 }
 

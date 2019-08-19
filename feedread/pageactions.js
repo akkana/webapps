@@ -55,12 +55,58 @@ function clickHandler(event)
     }
 }
 
-function TOCPage() {
-    var tocPages = TOC();
+async function TOCpage() {
+    var tocPages = await TOC();
 
     // Format as HTML:
+    htmlsrc = `<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="stylesheet" type="text/css" title="Feeds" href="/feeds/feeds.css">
+
+<title>Feeds</title>
+</head>
+
+<body>
+`;
+
+    var curDay = null;
+    for (var i in tocPages) {
+        if (tocPages[i].endsWith("index.html")) {
+            parts = tocPages[i].split('/');
+            var feedname = parts[parts.length-2];
+            var day = parts[parts.length-3];
+            if (curDay != day) {
+                curDay = day;
+                htmlsrc += "<h3>" + day + "</h3>\n";
+            }
+            htmlsrc += '<a href="' + tocPages[i] + '">'
+                        + feedname + '</a><br />\n';
+        }
+    }
+
+    iframe = document.getElementById("maincontent");
+    iframedoc = iframe.contentDocument || iframe.contentWindow.document;
+    iframedoc.body.innerHTML = htmlsrc;
 }
 
+
+function iframe_onload() {
+    iframe = document.getElementById("maincontent");
+    iframedoc = iframe.contentDocument || iframe.contentWindow.document;
+    console.log("location:", iframedoc.location);
+    if (iframedoc.location.href.endsWith("feedread/initial.html")) {
+        console.log("location is initial.html: redirecting to TOC");
+        TOCpage();
+    }
+}
+
+//
+// Called on initial page load.
+//
 function onPageLoad() {
     readScreenSize();
 
@@ -75,5 +121,16 @@ function onPageLoad() {
         console.log(i, "scrolldiv");
         scrolldivs[i].onmousedown = clickHandler;
     }
+
+    // This seems to have to be specified in the HTML.
+    // I haven't found a way to set it from javascript.
+    // None of these work, even though pages all over the web say they should.
+    // Fortunately, onload= in the HTML does work.
+    //iframe = document.getElementById("maincontent");
+    //iframe.onload = iframe_onload;
+    //iframe.attachEvent('load', iframe_onload, false);
+    //iframe.addEventListener('load', iframe_onload, false)
 }
+
+document.onHistoryGo = function() { console.log("onHistoryGo"); }
 

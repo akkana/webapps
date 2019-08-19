@@ -49,6 +49,10 @@ body {
   border: 0px;
 }
 
+/* The tap-to-scroll areas on the four corners of the screen.
+ * We can't trap events on an iframe or even the div enclosing
+ * the iframe, but we can put divs on top that can capture events.
+ */
 .scrolldiv {
   background: #fe0;
   width: 25%;
@@ -56,7 +60,7 @@ body {
   opacity: 0.1;
   z-index: 100;
 }
-#scrolldiv_ul { position: absolute; left: 0;  top: 2.5em; }
-#scrolldiv_ur { position: absolute; right: 0; top: 2.5em; }
-#scrolldiv_ll { position: absolute; left: 0;  bottom: 0; }
-#scrolldiv_lr { position: absolute; right: 0; bottom: 0; }
+#scrolldiv_ul { position: absolute; left: 0;    top: 2.5em; }
+#scrolldiv_ur { position: absolute; right: 1em; top: 2.5em; }
+#scrolldiv_ll { position: absolute; left: 0;    bottom: 0; }
+#scrolldiv_lr { position: absolute; right: 1em; bottom: 0; }
