@@ -1,6 +1,6 @@
 {
-  "name": "Feed Reader for FeedMe RSS",
-  "short_name": "FeedReader",
+  "name": "Feed/RSS Reader",
+  "short_name": "FeedRead",
   "icons": [{
       "src": "images/icons/icon-48x48.png",
       "sizes": "48x48",
@@ -22,8 +22,9 @@
       "sizes": "256x256",
       "type": "image/png"
   }],
-  "start_url": "/feedreader/index.html",
+  "start_url": "/feedread/index.html",
   "display": "standalone",
+  "scope": "/feedread/",
   "background_color": "black",
-  "theme_color": "blue"
+  "theme_color": "orange"
 }

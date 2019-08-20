@@ -58,6 +58,37 @@ function clickHandler(event)
     }
 }
 
+// Toggle the menu by clicking on the menu button
+function toggleMenu() {
+    document.getElementById("dropdown").classList.toggle("show");
+}
+
+// Ensure the menu is closed.
+function popdownMenu() {
+    document.getElementById("dropdown").classList.remove("show");
+}
+
+// Close the dropdown menu if the user clicks outside of it.
+// This doesn't work reliably, because clicks over the iframe don't register
+// in window.onclick.
+/*
+window.onclick = function(event) {
+    if (!event.target.matches('.dropbtn')) {
+        console.log("event target isn't a drop button");
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        var i;
+        for (i = 0; i < dropdowns.length; i++) {
+            var openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+            }
+        }
+    }
+    else
+        console.log("Event target is a dropbutton!", event.target);
+}
+*/
+
 //
 // What level of content is currently shown?
 // Returns 0 for the table of contents, 1 for a feed index page,
@@ -196,15 +227,31 @@ function iframe_onload() {
 }
 
 //
+// Adjust the text size.
+//
+function textSize(direction) {
+    var doc = contentDoc();
+    //console.log("current:", doc.body.style.fontSize);
+    if (!doc.body.style.fontSize) {
+        console.log("No existing, setting size to 1.0em");
+        doc.body.style.fontSize = "1.0em";
+    }
+    var newSize = parseFloat(doc.body.style.fontSize)
+        + (direction * 0.2) + "em";
+    doc.body.style.fontSize = newSize;
+    //console.log("new text size:", newSize);
+}
+
+//
 // Called on initial page load.
 //
 function onPageLoad() {
     readScreenSize();
 
-    //var maincontent = document.getElementById("maincontent");
-    //console.log("maincontent:", maincontent);
-    // Clickhandler works on document but doens't seem to work on maincontent,
-    // whether it's a div around the iframe or the iframe itself.
+
+    // Clickhandler doesn't work over the iframe,
+    // whether on a div around the iframe or the iframe itself.
+    // But it can work on a div that's showing on top of the iframe.
     //maincontent.onmousedown = clickHandler;
     //maincontent.addEventListener('click', clickHandler, false);
     var scrolldivs = document.getElementsByClassName("scrolldiv");

@@ -8,7 +8,10 @@ body {
   grid-template-columns: 1fr;
   /* grid-row-gap: 1px; */
 
-  /* I don't understand why this subtraction is needed: */
+  /* I don't understand why this subtraction is needed.
+   * There doesn't seem to be a way to reliably fill the vertical space
+   * without overflowing and adding a scrollbar.
+ : */
   height: calc(100vh - 15px);
 
   padding: 0px;
@@ -66,9 +69,53 @@ body {
 #scrolldiv_lr { position: absolute; right: 1em; bottom: 0; }
 
 /* Space the five buttons evenly */
-input[type=button] {
+#buttonbox input[type=button] {
     padding: 0;
     margin: 0;
-    width: 18.5%;
+    width: 20%;
     xxxborder: 0;
 }
+#buttonbox { float: right; min-width: 85%; }
+
+/* ******** The dropdown menu ********** */
+
+#menuBtn { float: left; }
+
+/* Dropdown button on hover & focus
+ * enabling this causes the button to get much smaller on click,
+ * and the corners to go sqare. No idea why.
+.dropbtn:hover, .dropbtn:focus {
+  background-color: #fff;
+}
+*/
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  /* position: relative; */
+  float: left;
+  position: absolute; left: 1em; top: 1em;*/
+  display: inline-block;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute; left: .1em; top: 1.6em;
+  background-color: #557;
+  min-width: 15em;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 90;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  padding: 7px 8px;
+  text-decoration: none;
+  display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover { background-color: #888; }
+
+/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+.show { display:block; }
