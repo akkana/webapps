@@ -16,24 +16,20 @@
 
 <header id="header">
 
-<span id="buttonbox">
-<input type=button id="backBtn" value="<<" onclick="goBack();">
-<input type=button id="tocBtn" value="Feeds" onclick="TOCpage();">
-<input type=button id="deleteBtn" value="Del" onclick="deleteCurFeed();">
-<!-- <input type=button id="fetchDailyBtn" value="Fetch" onclick="fetchDaily();"> -->
-<input type=button id="forwardBtn" value=">>" onclick="goForward();">
-</span>
-
-<!-- <input type=button id="menuBtn" value="&#x2630;" onclick="toggleMenu();"> -->
-
 <!-- the pop-up menu -->
-
 <button onclick="toggleMenu()" id="menuBtn" class="dropbtn">&#x2630;</button>
 <div id="dropdown" class="dropdown-content">
     <a href="#" onclick="fetchDaily(); popdownMenu();">Fetch Feeds</a>
-    <a href="#" onclick="textSize(1); popdownMenu();">Bigger text</a>
+    <a href="#" onclick="textSize(1);  popdownMenu();">Bigger text</a>
     <a href="#" onclick="textSize(-1); popdownMenu();">Smaller text</a>
 </div>
+
+<span id="buttonbox">
+<input type=button id="backBtn"    value="<<"    onclick="goBack();">
+<input type=button id="tocBtn"     value="Feeds" onclick="TOCpage();">
+<input type=button id="deleteBtn"  value="Del"   onclick="deleteCurFeed();">
+<input type=button id="forwardBtn" value=">>"    onclick="goForward();">
+</span>
 
 </header>
 
@@ -43,7 +39,9 @@
 
 <div id="footer">:-)</footer>
 
-<!-- <div id="scrolldiv_ul" class="scrolldiv"></div> -->
+<!-- Disable upper left scrolldiv because it makes it hard to click on links.
+<div id="scrolldiv_ul" class="scrolldiv"></div>
+-->
 <div id="scrolldiv_ur" class="scrolldiv"></div>
 <div id="scrolldiv_ll" class="scrolldiv"></div>
 <div id="scrolldiv_lr" class="scrolldiv"></div>

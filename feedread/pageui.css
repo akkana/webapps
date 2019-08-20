@@ -68,14 +68,17 @@ body {
 #scrolldiv_ll { position: absolute; left: 0;    bottom: 0; }
 #scrolldiv_lr { position: absolute; right: 1em; bottom: 0; }
 
-/* Space the five buttons evenly */
+/* Space the buttons evenly */
 #buttonbox input[type=button] {
     padding: 0;
     margin: 0;
-    width: 20%;
+    wwwidth: 25%;
     xxxborder: 0;
 }
-#buttonbox { float: right; min-width: 85%; }
+#buttonbox { float: right;
+             mmmin-width: 85%;
+             wwwidth: 100%;
+           }
 
 /* ******** The dropdown menu ********** */
 

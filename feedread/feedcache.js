@@ -93,6 +93,7 @@ appFiles = [ appHome + "index.html",
              appHome + "pageui.css",
              appHome + "cache.html",
              appHome + "cacheedit.js",
+             appHome + "feeds/feeds.css",
              appHome + "initial.html"
            ];
 
