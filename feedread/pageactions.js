@@ -2,6 +2,8 @@
 
 // In the HTML: <body onload="onPageLoad();">
 
+const TOCPAGE = "feedread/initial.html";
+
 // Tapping in the corners will generate a page up or down.
 // How close does it need to be? (Percent of screen width/height)
 var X_CORNER = .2;
@@ -56,6 +58,87 @@ function clickHandler(event)
     }
 }
 
+//
+// What level of content is currently shown?
+// Returns 0 for the table of contents, 1 for a feed index page,
+// 2 for anything else.
+//
+function contentLevel() {
+    var loc = contentDoc().location.href;
+    if (loc.endsWith(TOCPAGE))
+        return 0;
+    if (loc.endsWith("index.html"))
+        return 1;
+    return 2;
+}
+
+//
+// Get the current feed, if any. Will return null if on the TOC page.
+//
+function getCurFeed() {
+    var loc = contentDoc().location.href;
+    if (loc.endsWith(TOCPAGE))
+        return null;
+    var locparts = loc.split('/');
+    return locparts[locparts.length -2];
+}
+
+function contentDoc() {
+    var iframe = document.getElementById("maincontent");
+    return iframe.contentDocument || iframe.contentWindow.document;
+}
+
+//
+//
+function goBack(event) {
+    console.log("goBack");
+
+    /*
+     * window.history.back() doesn't always do the right thing when going
+     * back to the original TOC page. We could intercept it here and make
+     * sure it's going to the right place; but then the browser sees it
+     * as a forward, not a back, and the user can't use the Forward
+     * button any more.
+    if (contentLevel() == 1) {
+        TOCpage();
+        return;
+    }
+    */
+
+    window.history.back();
+}
+
+//
+// goForward can't do anything smart; we can't even tell whether it
+// should be enabled, because that's explicitly disallowed from JS.
+//
+function goForward(event) {
+    console.log("goForward");
+    window.history.forward();
+}
+
+/*
+function basename(path) {
+    return path.replace(/.*\//, '');
+}
+*/
+
+function dirname(path) {
+    console.log("path", path, typeof path);
+    return path.match(/.*\//);
+}
+
+async function deleteCurFeed() {
+    var loc = contentDoc().location.href;
+    if (loc.endsWith(TOCPAGE))
+        return null;
+    loc = dirname(loc);
+
+    await deleteMatching(loc);
+
+    TOCpage();
+}
+
 async function TOCpage() {
     var tocPages = await TOC();
 
@@ -89,20 +172,27 @@ async function TOCpage() {
         }
     }
 
-    iframe = document.getElementById("maincontent");
-    iframedoc = iframe.contentDocument || iframe.contentWindow.document;
-    iframedoc.body.innerHTML = htmlsrc;
+    contentDoc().body.innerHTML = htmlsrc;
+}
+
+//
+// Enable/disable (true/false) UI buttons
+//
+function setBtnSensitive(btnname, active) {
+    // The DOM does it backward:
+    document.getElementById(btnname).disabled = !active
 }
 
 
 function iframe_onload() {
-    iframe = document.getElementById("maincontent");
-    iframedoc = iframe.contentDocument || iframe.contentWindow.document;
+    iframedoc = contentDoc();
     console.log("location:", iframedoc.location);
-    if (iframedoc.location.href.endsWith("feedread/initial.html")) {
-        console.log("location is initial.html: redirecting to TOC");
+    if (iframedoc.location.href.endsWith(TOCPAGE)) {
         TOCpage();
+        setBtnSensitive("deleteBtn", false);
     }
+    else
+        setBtnSensitive("deleteBtn", true);
 }
 
 //
@@ -133,5 +223,4 @@ function onPageLoad() {
     //iframe.addEventListener('load', iframe_onload, false)
 }
 
-document.onHistoryGo = function() { console.log("onHistoryGo"); }
 

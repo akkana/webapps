@@ -54,7 +54,7 @@ body {
  * the iframe, but we can put divs on top that can capture events.
  */
 .scrolldiv {
-  background: #fe0;
+  background: white;
   width: 25%;
   height: 25%;
   opacity: 0.1;
@@ -64,3 +64,11 @@ body {
 #scrolldiv_ur { position: absolute; right: 1em; top: 2.5em; }
 #scrolldiv_ll { position: absolute; left: 0;    bottom: 0; }
 #scrolldiv_lr { position: absolute; right: 1em; bottom: 0; }
+
+/* Space the five buttons evenly */
+input[type=button] {
+    padding: 0;
+    margin: 0;
+    width: 18.5%;
+    xxxborder: 0;
+}

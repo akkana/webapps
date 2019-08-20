@@ -15,9 +15,11 @@
 <body onload="onPageLoad();">
 
 <header id="buttonbox">
-<input type=button id="fetchDaily" value="Fetch Daily Feeds"
- onclick="fetchDaily();">
-<input type=button id="toc" value="TOC" onclick="TOCpage();">
+<input type=button id="backBtn" value="<<" onclick="goBack();">
+<input type=button id="tocBtn" value="Feeds" onclick="TOCpage();">
+<input type=button id="deleteBtn" value="Del" onclick="deleteCurFeed();">
+<input type=button id="fetchDailyBtn" value="Fetch"  onclick="fetchDaily();">
+<input type=button id="forwardBtn" value=">>" onclick="goForward();">
 </header>
 
 <iframe id="maincontent" src="/feedread/initial.html"

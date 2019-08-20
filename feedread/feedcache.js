@@ -4,11 +4,18 @@
 // Configurable variables:
 
 // The top level of the feed dir:
-var feedTop = '/feeds';
+const feedTop = '/feedread/feeds';
+
+// The home directory from which this app was run
+const appHome = dirname(document.location.href);
 
 ////////////////////// End configuration
 
-const CACHENAME = "feed-read-cache";
+// Tried to make this a const but that led to an undeclared error later:
+// ReferenceError: can't access lexical declaration `CACHENAME' before initialization
+// Javascript is so weird.
+var CACHENAME = "feed-cache";
+var APPCACHENAME = "feedread-app";
 
 
 // Current date in format mm-dd-day
@@ -78,6 +85,17 @@ async function readManifest() {
     return manifestList;
 }
 
+// Files used in this app. fetchDaily will also try to update the app
+// if there's anything newer.
+appFiles = [ appHome + "index.html",
+             appHome + "feedcache.js",
+             appHome + "pageactions.js",
+             appHome + "pageui.css",
+             appHome + "cache.html",
+             appHome + "cacheedit.js",
+             appHome + "initial.html"
+           ];
+
 // Fetch the MANIFEST file for today's daily feeds,
 // and then fetch and cache all the files referred to there.
 async function fetchDaily() {
@@ -119,17 +137,24 @@ async function fetchDaily() {
 
             // Is it already cached?
             newurl = todayURL + manifestList[f];
-            console.log("*   " + newurl);
             matchResponse = await cache.match(newurl);
             if (!matchResponse) {
-                console.log("    not in the cache; will add");
+                console.log(" ", newurl, "not in the cache; will add");
                 newURLs.push(newurl);
             }
             else
-                console.log("    already cached");
+                console.log(" ", newurl, "already cached");
         }
-        console.log("Requesting to add", newURLs.length, "to the cache");
+
+        console.log("adding", newURLs.length, "URLs to the cache");
         await cache.addAll(newURLs);
+
+        // Cache the files comprising the app, too, but in a different cache
+        // so they don't show up when we're iterating over feeds.
+        console.log("Updating the app too");
+        const appcache = await caches.open(APPCACHENAME);
+        await appcache.addAll(appFiles);
+
         return 0;
     }
     catch (err) {
@@ -142,11 +167,6 @@ async function fetchDaily() {
 // Return an array of all the URLs in the cache, in no particular order.
 //
 async function listCachedPages() {
-    if (! CACHENAME) {
-        console.log("CACHENAME is null, can't show TOC!");
-        return null;
-    }
-
     var cache = await caches.open(CACHENAME);
     var cachedFiles = await cache.keys();
     return cachedFiles;
@@ -174,16 +194,34 @@ async function TOC() {
     return tocPages;
 }
 
-/*
+//
+// Delete from the cache all pages that start with pat.
+//
+async function deleteMatching(pat) {
+    console.log("deleteMatching", pat);
+    var cache = await caches.open(CACHENAME);
+    var cachedFiles = await cache.keys();
+    for (f in cachedFiles) {
+        //console.log("Checking", cachedFiles[f].url);
+        if (cachedFiles[f].url.startsWith(pat)) {
+            console.log("Deleting", cachedFiles[f].url);
+            // No particular need to await for the delete
+            cache.delete(cachedFiles[f]);
+        }
+        //else
+        //    console.log("No match:", cachedFiles[f].url);
+    }
+}
+
 // Service worker: cache, falling back to network.
 // This doesn't seem to ever get called.
-console.log("Adding service worker:");
+console.log("Adding service worker");
 self.addEventListener('fetch', function(event) {
-    console.log("fetch listener, " + event.request);
+    console.log("** fetch listener, " + event.request.url);
     event.respondWith(
         caches.match(event.request).then(function(response) {
             return response || fetch(event.request);
         })
     );
 });
-*/
+
