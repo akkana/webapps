@@ -19,7 +19,7 @@ var APPCACHENAME = "feedread-app";
 
 
 // Current date in format mm-dd-day
-var days = ["Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat"];
+var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 function formatDate(d) {
     var d = new Date();
     var date = d.getDate();
@@ -100,6 +100,8 @@ appFiles = [ appHome + "index.html",
 // Fetch the MANIFEST file for today's daily feeds,
 // and then fetch and cache all the files referred to there.
 async function fetchDaily() {
+    setStatus("Fetching feeds ...")
+
     if (!todayStr)
         todayStr = formatDate(new Date());
 
@@ -155,6 +157,7 @@ async function fetchDaily() {
         console.log("Updating the app too");
         const appcache = await caches.open(APPCACHENAME);
         await appcache.addAll(appFiles);
+        setStatus("Fetched feeds")
 
         return 0;
     }

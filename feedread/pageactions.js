@@ -170,7 +170,18 @@ async function deleteCurFeed() {
     TOCpage();
 }
 
+function setStatus(s) {
+    statusline = document.getElementById("statusline");
+    statusline.innerHTML = s;
+    if (s)
+        statusline.style.opacity = '.7';
+    else
+        statusline.style.opacity = '0';
+}
+
 async function TOCpage() {
+    setStatus("");
+
     var tocPages = await TOC();
 
     // Format as HTML:
@@ -217,7 +228,6 @@ function setBtnSensitive(btnname, active) {
 
 function iframe_onload() {
     iframedoc = contentDoc();
-    console.log("location:", iframedoc.location);
     if (iframedoc.location.href.endsWith(TOCPAGE)) {
         TOCpage();
         setBtnSensitive("deleteBtn", false);
@@ -254,10 +264,10 @@ function onPageLoad() {
     // But it can work on a div that's showing on top of the iframe.
     //maincontent.onmousedown = clickHandler;
     //maincontent.addEventListener('click', clickHandler, false);
-    var scrolldivs = document.getElementsByClassName("scrolldiv");
-    for (var i in scrolldivs) {
-        console.log(i, "scrolldiv");
-        scrolldivs[i].onmousedown = clickHandler;
+    var scrollareas = document.getElementsByClassName("scrollarea");
+    for (var i in scrollareas) {
+        console.log("scrollarea", i, scrollareas[i]);
+        scrollareas[i].onmousedown = clickHandler;
     }
 
     // This seems to have to be specified in the HTML.

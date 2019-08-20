@@ -2,9 +2,8 @@ body {
   display: grid;
   grid-template-areas:
     "header"
-    "maincontent"
-    "footer";
-  grid-template-rows: 2.5em 1fr 1.1em;
+    "maincontent";
+  grid-template-rows: 2.5em 1fr;
   grid-template-columns: 1fr;
   /* grid-row-gap: 1px; */
 
@@ -17,6 +16,7 @@ body {
   padding: 0px;
   margin: 0px;
   border: 0px;
+  background: black;
   color: white;
 }
 
@@ -27,9 +27,11 @@ body {
   padding: .4em;
 }
 
-#footer {
-  grid-area: footer;
+#statusline {
+  position: absolute; right: .3em; bottom: .2em;
+  height: 1.5em;
   background-color: #322;
+  opacity: 0;
 }
 
 #maincontent {
@@ -56,20 +58,20 @@ body {
  * We can't trap events on an iframe or even the div enclosing
  * the iframe, but we can put divs on top that can capture events.
  */
-.scrolldiv {
+.scrollarea {
   background: white;
-  width: 25%;
-  height: 25%;
+  width: 35%;
+  height: 15%;
   opacity: 0.1;
   z-index: 100;
 }
-#scrolldiv_ul { position: absolute; left: 0;    top: 2.5em; }
-#scrolldiv_ur { position: absolute; right: 1em; top: 2.5em; }
-#scrolldiv_ll { position: absolute; left: 0;    bottom: 0; }
-#scrolldiv_lr { position: absolute; right: 1em; bottom: 0; }
+#scrollarea_ul { position: absolute; left: 0;    top: 2.5em; }
+#scrollarea_ur { position: absolute; right: 1em; top: 2.5em; }
+#scrollarea_ll { position: absolute; left: 0;    bottom: 0; }
+#scrollarea_lr { position: absolute; right: 1em; bottom: 0; }
 
 /* Space the buttons evenly */
-#buttonbox input[type=button] {
+#buttonbox input[type=button]
     padding: 0;
     margin: 0;
     wwwidth: 25%;
@@ -105,7 +107,7 @@ body {
   display: none;
   position: absolute; left: .1em; top: 1.6em;
   background-color: #557;
-  min-width: 15em;
+  min-width: 12em;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 90;
 }
@@ -115,10 +117,13 @@ body {
   padding: 7px 8px;
   text-decoration: none;
   display: block;
+  border: 1px black outset;
+  color: white;
+  background: #666;
 }
 
 /* Change color of dropdown links on hover */
-.dropdown-content a:hover { background-color: #888; }
+.dropdown-content a:hover { background: #633; }
 
 /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
 .show { display:block; }
