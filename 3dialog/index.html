@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dialog with 3 buttons</title>
+<script src="3dialog.js"></script>
+<style>
+#greyOut {
+    background-color: rgba(0, 0, 0, 0.3);
+    position: absolute; top: 0px; left: 0px;
+    width: 100%; height: 100%;
+    z-index: 100;
+}
+
+#alertBox {
+    position: fixed;
+    width: 300px;
+    min-height: 100px;
+    padding: .5em;
+    border: 1px solid #666;
+    margin-top: 2em;
+    background-color: white;
+    background-repeat: no-repeat;
+    background-position: 20px 30px;
+}
+
+#alertBox h1 {
+    margin: 0;
+    padding: 4px;
+    color: white;
+    background-color: #089;
+    font-size: 1.2em;
+}
+
+#alertBox #buttonBox {
+    display: block;
+    position: relative;
+    border: 3px #eff inset;
+    background-color: #eee;
+    border-radius: 8px;
+    padding: .8em;
+}
+
+#alertBox #buttonBox .button {
+    position: relative;
+    margin: 5px 5px;
+    padding: 7px;
+    border: 2px #eee outset;
+    border-radius: 8px;
+    text-align: center;
+    color: black;
+    background-color: #7dc;
+    text-decoration: none;
+
+    /* Button width and min-width are ignored. Why? */
+    width: 50px;
+    min-width: 50px;
+}
+
+#alertBox #buttonBox .button:hover {
+    background-color: #dff;
+}
+
+#alertBox #buttonBox .button:active {
+    background-color: white;
+}
+
+
+</style>
+<script>
+function showResult(val) {
+    document.getElementById("result").innerHTML = val;
+}
+</script>
+</head>
+
+<body>
+
+<h1>Example of a Custom Dialog with Three Buttons</h1>
+
+<p>
+<a href="#" onclick="createCustomDialog('3 alert', 'Which choice?', ['Zero', 'One', 'Two'], showResult);">Show dialog</a>
+
+<div id="result">
+</div>
+
+</body>
+</html>
