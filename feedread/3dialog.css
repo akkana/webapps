@@ -1,0 +1,67 @@
+/* Styles for the custom alert dialog */
+
+#greyOut {
+    background-color: rgba(0, 0, 0, 0.4);
+    position: absolute; top: 0px; left: 0px;
+    width: 100%; height: 100%;
+    z-index: 100;
+}
+
+#alertBox {
+    position: fixed;
+    width: 60%;
+    min-height: 100px;
+    padding: .5em;
+    border: 1px solid #aaa;
+    margin-top: 2em;
+    background-color: #466;
+    background-repeat: no-repeat;
+    background-position: 20px 30px;
+}
+
+#alertBox h1 {
+    margin: 0;
+    padding: 4px;
+    color: white;
+    background-color: #022;
+    font-size: 1.2em;
+}
+
+#alertBox #buttonBox {
+    display: block;
+    position: relative;
+    border: 3px #eee inset;
+    background-color: #688;
+    border-radius: 8px;
+    padding: .8em;
+}
+
+#alertBox #buttonBox .button {
+    position: relative;
+    margin: 5px 5px;
+    padding: 7px;
+    border: 2px #eee outset;
+    border-radius: 8px;
+    text-align: center;
+    color: white !important;
+    font-weight: bold;
+    background-color: #477;
+    text-decoration: none;
+
+    /* Button width and min-width are ignored. Why? */
+    width: 50px;
+    min-width: 50px;
+}
+
+/* This doesn't do anything: attempt to make the text not yellow. */
+#alertBox #buttonBox .button:link {
+    background-color: #388 !important;
+}
+
+#alertBox #buttonBox .button:hover {
+    background-color: #5aa !important;
+}
+
+#alertBox #buttonBox .button:active {
+    background-color: #7ee !important;
+}

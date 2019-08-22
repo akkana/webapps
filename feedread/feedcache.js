@@ -4,7 +4,7 @@
 // Configurable variables:
 
 // The top level of the feed dir:
-const feedTop = '/feedread/feeds';
+const feedTop = '/feedread/feeds/';
 
 // The home directory from which this app was run
 const appHome = dirname(document.location.href);
@@ -16,7 +16,6 @@ const appHome = dirname(document.location.href);
 // Javascript is so weird.
 var CACHENAME = "feed-cache";
 var APPCACHENAME = "feedread-app";
-
 
 // Current date in format mm-dd-day
 var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -85,27 +84,17 @@ async function readManifest() {
     return manifestList;
 }
 
-// Files used in this app. fetchDaily will also try to update the app
-// if there's anything newer.
-appFiles = [ appHome + "index.html",
-             appHome + "feedcache.js",
-             appHome + "pageactions.js",
-             appHome + "pageui.css",
-             appHome + "cache.html",
-             appHome + "cacheedit.js",
-             appHome + "feeds/feeds.css",
-             appHome + "initial.html"
-           ];
-
 // Fetch the MANIFEST file for today's daily feeds,
 // and then fetch and cache all the files referred to there.
 async function fetchDaily() {
     setStatus("Fetching feeds ...")
 
+    navigator.onLine = true;
+
     if (!todayStr)
         todayStr = formatDate(new Date());
 
-    var todayURL = feedTop + '/' + todayStr + '/';
+    var todayURL = feedTop + todayStr + '/';
     manifestURL = todayURL + 'MANIFEST';
 
     try {
@@ -131,6 +120,9 @@ async function fetchDaily() {
                     + manifestList.length + " lines");
         await cache.add(manifestURL);
 
+        // Fetch a new copy of feeds.css.
+        await cache.add(feedTop + "feeds.css");
+
         newURLs = [];
         for (f in manifestList) {
             if (! manifestList[f])    // skip blank lines
@@ -154,10 +146,20 @@ async function fetchDaily() {
 
         // Cache the files comprising the app, too, but in a different cache
         // so they don't show up when we're iterating over feeds.
-        console.log("Updating the app too");
-        const appcache = await caches.open(APPCACHENAME);
-        await appcache.addAll(appFiles);
+        //console.log("Updating the app too");
+
+        // Eventually the app files should be cached too.
+        // But don't do that while testing: it makes it hard to
+        // try new versions, and even shift-reload doesn't reload.
+        // Besides, this caching should maybe happen in the
+        // serviceworker install or activate event.
+        //const appcache = await caches.open(APPCACHENAME);
+        //await appcache.addAll(appFiles);
+
         setStatus("Fetched feeds")
+        if (contentDoc().location.href.endsWith(TOCPAGE))
+            TOCpage();
+        //navigator.onLine = false;
 
         return 0;
     }
@@ -217,15 +219,16 @@ async function deleteMatching(pat) {
     }
 }
 
-// Service worker: cache, falling back to network.
-// This doesn't seem to ever get called.
-console.log("Adding service worker");
-self.addEventListener('fetch', function(event) {
-    console.log("** fetch listener, " + event.request.url);
-    event.respondWith(
-        caches.match(event.request).then(function(response) {
-            return response || fetch(event.request);
-        })
-    );
-});
-
+//
+// Register a service worker
+//
+/*
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+        .then((reg) => {
+          console.log('Service worker registered.', reg);
+        });
+  });
+}
+*/

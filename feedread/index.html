@@ -4,11 +4,13 @@
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FeedRead</title>
+<link rel="stylesheet" type="text/css" title="Feeds" href="/feedread/feeds/feeds.css">
 <link rel="stylesheet" type="text/css" href="pageui.css">
-<link rel="stylesheet" type="text/css" title="Feeds" href="/feeds/feedread/feeds.css">
+<link rel="stylesheet" type="text/css" href="3dialog.css">
 
 <script src="pageactions.js"></script>
 <script src="feedcache.js"></script>
+<script src="3dialog.js"></script>
 
 </head>
 
@@ -57,7 +59,7 @@ if (navigator.storage && navigator.storage.persist)
             console.log("Persistent storage granted");
         else {
             console.log("No persistent storage permission");
-            alert("No persistent storage permission!");
+            // alert("No persistent storage permission!");
         }
     });
 </script>

@@ -36,11 +36,11 @@ async function deleteDayFeed(urlpat) {
 }
 
 //
-// Show everything in the cache.
+// Show everything in a specific cache.
 //
-async function showCached() {
-    outstr = "<table>\n";
-    cache = await caches.open(CACHENAME);
+async function showNamedCache(cachename) {
+    outstr = "<h1>" + cachename + "</h2>\n<table>\n";
+    cache = await caches.open(cachename);
     keyList = await cache.keys();
     keyList.sort();
     for (key in keyList) {
@@ -61,6 +61,16 @@ async function showCached() {
     outstr += "</table>\n";
 
     output = document.getElementById("output");
-    output.innerHTML = outstr;
+    return outstr;
 }
 
+//
+// Show everything in both caches.
+//
+async function showCached() {
+    console.log("Showing", CACHENAME);
+    var outstr = await showNamedCache(CACHENAME);
+    console.log("Showing", APPCACHENAME);
+    outstr += await showNamedCache(APPCACHENAME);
+    output.innerHTML = outstr;
+}
