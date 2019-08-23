@@ -231,55 +231,62 @@ function handleOutsideLink(url, ans) {
         return;
     }
     if (ans == 0) {
-        console.log("Save link for later -- if only I could!");
+        console.log("Save link for later -- if only I could!", url);
         return;
     }
     if (ans == 1) {
-        console.log("Visit link -- eventually I'll figure this out");
+        console.log("Trying to open in a new window:", url);
+        // Open in a new window/tab
+        console.log("opening in _blank");
+        window.open(url, "_blank");
         return;
     }
 }
 
 function click_in_content(e) {
     console.log("Click in iframe content!");
-    console.log("Closest a:", e.target.closest('a'));
-    // Should be able to use e.target.matches('a'), but that doesn't work reliably.
+
+    // Should be able to use e.target.matches('a'), but that doesn't work
+    // reliably if there's anything inside the link.
+    // Other alternatives include e.target.matches('a, a > *')
     var target = e.target.closest('a');
-/*
-<qswz> e.target.closest('a')
-<qswz> to cope with <a href=..><img />
-<qswz> or simila
-<ljharb>  akk: the event handler should be on the document, not on individual links
-<qswz> or e.target.matches('a, a > *')
-<ljharb>  akk: then you don't have to wait for the iframe content to load, beyond the document
-*/
     if (!target) {
         console.log("Click wasn't over a link, but a ", target);
         return true;
     }
 
-    console.log("Click over an a tag", target);
-    //if (!navigator.onLine) {
+    console.log("Click over an <a> tag", target);
 
     /*
-      Turns out you can't use await and then still use preventDefault.
+      Detect external links, not part of the feed, and prompt the user.
+
+      This is done by checking the origin, not checking to see if
+      it's already in the cache, because the cache requires async,
+      and you can't use async/await and then still use preventDefault.
       Here's how that was explained to me:
-      When an `await` is reached, the function pauses and
-      immediately returns a promise.
-      If the caller of your function doesn't know to wait on a returned
-      promise, then it'll just carry on with whatever it was doing.
-      The only direct solution is to already have the required data
-      around before the event happens, so you can access it synchronously.
+
+      When an `await` is reached, the function pauses
+      and immediately returns a promise.
+      If the caller of the function (in this case, the user clicking
+      on a link) doesn't know to wait on a returned promise, then
+      it'll just carry on with whatever it was doing. The only direct
+      solution is to already have the required data around before the
+      event happens, so you can access it synchronously -- e.g.
+      making a list of all cached files at fetchDaily time.
+
       Instead of that, let's just assume (hope) that anything with the
-      same origin as the current page is likely cached,
-      and anything else needs to prompt the user.
+      same origin as the current page is likely cached, and anything
+      else needs to prompt the user.
+
+      XXX Might be able to make this depend on (!navigator.onLine)
     */
     var target_origin = new URL(target.href).origin;
     var my_origin = new URL(document.location).origin;
     if (target_origin != my_origin) {
         console.log("Different origin,", target_origin, "vs", my_origin);
         createCustomDialog("External link",
-                           "What do you want to do with <i>" + target.href + "</i>?",
+                           "What do you want to do with <i>"
+                               + target.href + "</i>?",
                            ["Save", "Visit", "Cancel"],
                            function(ans) {
                                handleOutsideLink(target.href, ans);

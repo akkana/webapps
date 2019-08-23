@@ -118,8 +118,12 @@ body {
   text-decoration: none;
   display: block;
   border: 1px black outset;
-  color: white;
+  color: white !important;
   background: #666;
+}
+
+.dropdown-content a:link, .dropdown-content a:visited {
+    color: white !important;
 }
 
 /* Change color of dropdown links on hover */
