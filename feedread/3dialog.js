@@ -55,6 +55,9 @@ function createCustomDialog(title, txt, btnArray, callback) {
         // and gives a trick to solve it by defining intermediate functions
         // that use another variable of the same name, overriding the loop var.
         //
+        // XXX Would fat arrow => solve this problem? They postdate Crockford.
+        // https://www.sitepoint.com/es6-arrow-functions-new-fat-concise-syntax-javascript/
+        //
         if (callback) {
             console.log("Registering callback for", i);
             btn.onclick = function(i) {
