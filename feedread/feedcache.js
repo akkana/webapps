@@ -6,9 +6,6 @@
 // The top level of the feed dir:
 const feedTop = '/feedread/feeds/';
 
-// The home directory from which this app was run
-const appHome = dirname(document.location.href);
-
 ////////////////////// End configuration
 
 // Tried to make this a const but that led to an undeclared error later:
@@ -16,6 +13,19 @@ const appHome = dirname(document.location.href);
 // Javascript is so weird.
 var CACHENAME = "feed-cache";
 var APPCACHENAME = "feedread-app";
+
+/*
+function basename(path) {
+    return path.replace(/.*\//, '');
+}
+*/
+
+function dirname(path) {
+    return path.match(/.*\//);
+}
+
+// The home directory from which this app was run
+const appHome = dirname(document.location.href);
 
 // Current date in format mm-dd-day
 var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];

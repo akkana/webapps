@@ -12,6 +12,7 @@ th { text-align: left; }
 <script src="pageactions.js"></script>
 <script src="feedcache.js"></script>
 <script src="cacheedit.js"></script>
+<script src="prefsdb.js"></script>
 
 </head>
 
@@ -20,7 +21,8 @@ th { text-align: left; }
 <h1>FeedRead Cache</h1>
 
 <input type=button id="showCached" value="Show Cached" onclick="showCached();">
-. . . . . . . . . . . . . 
+<input type=button id="showPrefs" value="Show Prefs" onclick="listDB('prefs');">
+. . . . . . . . . . . . .
 <input type=button id="clear" value="Clear all cache" onclick="clearCaches();">
 
 

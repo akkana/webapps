@@ -1,31 +1,23 @@
 // IndexedDB
 // https://hacks.mozilla.org/2012/02/storing-images-and-files-in-indexeddb/
 
-////////////////////////////////////////
-// Configurable variables:
-
-// The top level of the feed dir:
-var feedTop = '/feeds';
-
-////////////////////// End configuration
-
 var db;
 
 var DB_NAME         = "feedReadDB";
 var PREF_STORE_NAME = "prefs";
 
-function listPrefs() {
-    console.log("Trying to list DB");
-    var tx = db.transaction([PREF_STORE_NAME], "readonly");
-    var store = tx.objectStore(DB_STORE_NAME);
+function listDB(store) {
+    console.log("Trying to list DB", store);
+    var tx = db.transaction([store], "readonly");
+    var store = tx.objectStore(store);
     var req = store.count();
 
     // Requests are executed in the order in which they were made against the
     // transaction, and their results are returned in the same order.
     // Thus the count text below will be displayed before the actual pub list.
     req.onsuccess = function(evt) {
-        console.log('There are ' + evt.target.result +
-                    'record(s) in the prefs store.');
+        console.log('There are ', evt.target.result,
+                    'record(s) in the", store, "store.');
     };
     req.onerror = function(evt) {
         console.error("error reading prefs:", this.error);
@@ -64,6 +56,8 @@ function set_pref(key, val) {
 
     // Put the val into the dabase as a blob and give it a key:
     var put = tx.objectStore(PREF_STORE_NAME).put(val, key);
+
+    console.log("Set pref", key, "to", val);
 }
 
 /*
@@ -98,8 +92,10 @@ function openDb() {
 
     req.onupgradeneeded = function (evt) {
         console.log("openDb.onupgradeneeded");
-        var store = evt.currentTarget.result.createObjectStore(
-            DB_STORE_NAME, { keyPath: 'id', autoIncrement: true });
+        var store = evt.currentTarget.result.createObjectStore(PREF_STORE_NAME)
+
+        //var store = evt.currentTarget.result.createObjectStore(
+        //    PREF_STORE_NAME, { keyPath: 'id', autoIncrement: true });
 
         // Might need some createIndex calls here?
         // Worry about that if the db version ever needs to be bumped.

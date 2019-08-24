@@ -148,16 +148,6 @@ function goForward(event) {
     window.history.forward();
 }
 
-/*
-function basename(path) {
-    return path.replace(/.*\//, '');
-}
-*/
-
-function dirname(path) {
-    return path.match(/.*\//);
-}
-
 async function deleteCurFeed() {
     var loc = contentDoc().location.href;
     if (loc.endsWith(TOCPAGE))
@@ -309,6 +299,8 @@ function iframe_onload() {
         setBtnSensitive("deleteBtn", true);
 
     iframedoc.addEventListener('click', click_in_content);
+
+    set_pref('curPage', iframedoc.location.href);
 }
 
 //
