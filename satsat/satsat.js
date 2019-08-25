@@ -96,11 +96,11 @@ var IapGam;
 
 /********************************************************************
  *                                                                  *
- *   Orbit Calculations                                             *
+ *   Orbit and Moon Calculations                                    *
  *                                                                  *
  ********************************************************************
  */
-function SaturnOrbit(JD)
+function SaturnCalcs(JD)
 {
     var i;
     var lE, lP, rE, rP, dt, ii, f, f1;

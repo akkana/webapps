@@ -7,6 +7,8 @@ var ctx;
 const skyC = "black";
 const planetC = "white";
 
+const canvas = document.getElementById("satCanvas");
+
 //
 // Initial function called on page load.
 //
@@ -41,141 +43,14 @@ function useNewDate()
   DrawSaturn(d);
 }
 
-// Parse a date and time in form YYYY-MM-DD HH:MM:SS +TZ.
-// Return UTC time, already corrected for timezone.
-// If no timezone, assume the time is UTC.
-function parseDateTime(dateTimeString) {
-  // The date regexp is easy, YYYY-MM-DD
-  var re_date = /(\d{4})-(\d{1,2})-(\d{1,2}) *([0-9].*)$/;
-  var dateArray = re_date.exec(dateTimeString);
-
-  // The time array is more complicated because it has optional parts.
-  // It could be H:M, H:M:S, H:M +TZ or H:M:S +TZ.
-  // If +TZ is missing, we'll assume localtime.
-  // It's hard to do this as one regexp; if the last group is missing
-  // then JS mysteriously makes the FIRST array item NaN.
-  // There's no easy way of distinguishing which of the two
-  // optional fields was present.
-  // Using separate regexps is easier.
-  // XXX This doesn't allow for -tzoffset. Is that ever used?
-  var timeString = dateArray[4];
-  var hour, min, sec, tzoffset;
-
-  console.log("Parsing date " + timeString);
-
-  // H:M:S +TZ
-  var timeArray = /(\d{1,2}):(\d{1,2}):(\d{1,2}) ([\+-]\d)/.exec(timeString);
-  if (timeArray) {
-    console.log("1", timeArray);
-    hour = +timeArray[1];
-    min = +timeArray[2];
-    sec = +timeArray[3];
-    tzoffset = +timeArray[4];
-  } else {
-    // H:M:S
-    timeArray = /(\d{1,2}):(\d{1,2}):(\d{1,2})/.exec(timeString);
-    if (timeArray) {
-      console.log("2", timeArray);
-      hour = +timeArray[1];
-      min = +timeArray[2];
-      sec = +timeArray[3];
-      tzoffset = null;
-    } else {
-      // H:M +TZ
-      timeArray = /(\d{1,2}):(\d{1,2}) \+(\d)/.exec(timeString);
-      if (timeArray) {
-        console.log("3", timeArray);
-        hour = +timeArray[1];
-        min = +timeArray[2];
-        sec = 0;
-        tzoffset = +timeArray[4];
-      } else {
-        // H:M
-        timeArray = /(\d{1,2}):(\d{1,2})/.exec(timeString);
-        console.log("4", timeArray);
-        if (timeArray) {
-          hour = +timeArray[1];
-          min = +timeArray[2];
-          sec = 0;
-          tzoffset = null;
-        }
-      }
-    }
-  }
-  if (!timeArray)
-    return null;
-
-  var d;
-  if (tzoffset)
-    return new Date(Date.UTC(
-        +dateArray[1],
-        +dateArray[2]-1, // Careful, month starts at 0!
-        +dateArray[3],
-        hour - tzoffset, min, sec
-    ));
-  else
-    // If no timezone offset specified, new Date() will assume localtime.
-    return new Date(
-        +dateArray[1],
-        +dateArray[2]-1, // Careful, month starts at 0!
-        +dateArray[3],
-        hour, min, sec
-    );
-}
-
-function daysBetween(d1, d2) {
-    return ((d2.getTime() - d1.getTime())) / (24.*60.*60.*1000.);
-}
-
-function getJulianDate(d) {
-    return (daysBetween(new Date("Jan 1 0:00 PST 1970"), d)
-            + 2440587.83333333333);
-}
-
+//
+// Update the fields in the calendar picker
+//
 function updateDateTimeFields(d) {
   console.log("updateDateTimeFields " + d);
   console.log("tzoffset: " + d.getTimezoneOffset()/60);
   console.log("datetime2str thinks " + datetime2str(d));
   document.getElementById("datetimeinput").value = datetime2str(d);
-}
-
-function datetime2str(d) {
-    return date2str(d) + " " + time2str(d);
-}
-
-function date2str(d) {
-    /*
-    alert("date2str " + d);
-    alert("Year " + d.getFullYear());
-    alert("Date " + d.get());
-    alert("Month " + d.getMonth());
-    alert("Monthint " + (+d.getMonth()+1));
-    alert("leading0 " + leading0(+d.getMonth()+1));
-    */
-    return "" + d.getFullYear() + '-' + leading0(+d.getMonth()+1) + '-'
-        + leading0(d.getDate());
-}
-
-function time2str(d) {
-    var s = "" + leading0(d.getHours()) + ":" + leading0(d.getMinutes())
-        + ":" + leading0(d.getSeconds());
-    // For now, assume timezone offset is in hours.
-    // getTimezoneOffset() has a reverse sign from what users expect to see.
-    var tzoffset = d.getTimezoneOffset()/60;
-    if (tzoffset <= 0)
-        s += " +" + -tzoffset;
-    else
-        s += " -" + tzoffset;
-    return s;
-}
-
-// OMG the list of things Javascript doesn't have built in!
-// Quickie function to add leading zeroes for 2-digit numbers.
-function leading0(n) {
-  if (n < 10)
-    return '0' + n;
-  else
-    return n;
 }
 
 //
@@ -195,7 +70,7 @@ function Line(x1, y1, x2, y2) {
 }
 
 function DrawString(x, y, s, l) {
-    ctx.font = "25px Sans";
+    ctx.font = "14px Sans";
     ctx.fillText(s, x, y);
     console.log("Drawing text", s, "at", x, y);
 }
@@ -222,11 +97,15 @@ function DrawMoon(xc, yc, i) {
     const moonrad = 2;
     ChangeColor(planetC);
     ctx.fillRect(xc-moonrad, yc-moonrad, moonrad*2, moonrad*2);
+
+    DrawString(xc, canvas.height-5, i, null);
 }
 
+//
+// Finally, the function that calls SaturnOrbit and then draws it all.
+//
 function DrawSaturn(d)
 {
-    const canvas = document.getElementById("satCanvas");
     if (!canvas) {
         console.log("No canvas to draw on!");
     }
@@ -235,18 +114,37 @@ function DrawSaturn(d)
     julianDate = getJulianDate(d);
     console.log(d, "Julian date:", julianDate);
 
-    SaturnOrbit(julianDate);
+    SaturnCalcs(julianDate);
 
     var Xmax = canvas.width;
     var Ymax = canvas.height;
 
-    // XXX FILL THESE IN XXX
+    // XXX Should adjust scale according to canvas.width
     // Scale is such that the planet will be drawn at RS * Scale pixels
     // where RS is Saturn's radius in km, 60330.
     var Scale = 0.00017;    // Make Saturn about 10 px
-    //var Scale = 0.00040;
-    var flipNS = false;
-    var flipEW = false;
+
+    // Are we reversing?
+    orientationSel = document.getElementById("orientation");
+    orientation = orientationSel.options[orientationSel.selectedIndex].value;
+    var flipNS;
+    var flipEW;
+    if (orientation == "NupWright") {
+        flipEW = false;
+        flipNS = false;
+    }
+    else if (orientation == "NupEright") {
+        flipEW = true;
+        flipNS = false;
+    }
+    else if (orientation == "SupEright") {
+        flipEW = true;
+        flipNS = true;
+    }
+    else if (orientation == "SupWright") {
+        flipEW = false;
+        flipNS = true;
+    }
 
     var i;
     //var A1, A2;

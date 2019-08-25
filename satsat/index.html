@@ -40,7 +40,7 @@ the current position of Saturn's moons.
 </b>
 </noscript>
 
-<canvas id="satCanvas" width="1000" height="100"></canvas>
+<canvas id="satCanvas" width="1000" height="200"></canvas>
 
 <table class="valign-row"><tr>
 <td><input type="text" id="datetimeinput" />
@@ -126,6 +126,9 @@ then there was a Java applet, and now JavaScript is the thing.
 <!-- Supposedly it's now better to manage javascript at the end of the body,
   -- rather than in the head.
   -->
+
+  <!-- General date/time utilities: -->
+  <script type="text/javascript" src="datetimes.js"></script>
 
   <!-- The code for calculating Jovian moon and GRS positions: -->
   <script type="text/javascript" src="satsat.js"></script>
