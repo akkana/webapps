@@ -111,7 +111,6 @@ function Line(x1, y1, x2, y2) {
 }
 
 function DrawString(x, y, s, l) {
-    ctx.font = "14px Sans";
     ctx.fillText(s, x, y);
 }
 
@@ -129,9 +128,9 @@ function Oval(xc, yc, r, a1, a2, aspect, fill) {
 
 function Message(s) {
     console.log("Message:", s);
-    //ctx.textAlign = "end";
-    //DrawString(5, canvas.width-5, s);
-    DrawString(50, 50, s, null);
+    ctx.textAlign = "end";
+    ChangeColor("#ddf");
+    DrawString(canvas.width - 10, 20, s, null);
 }
 
 function DrawMoon(xc, yc, i) {
@@ -259,11 +258,6 @@ function DrawSaturn()
     var ringAspect = Math.sin(Inclination);    /* Aspect Ratio */
 
     tempY = Inclination / D2R;
-    if (Inclination != 0)
-    {
-        Message("Inclination: " + Math.floor(tempY)
-                + "." + Math.floor(Inclination*10./D2R - tempY*10.));
-    }
 
     // Label the cardinal directions:
     ChangeColor(planetC);
@@ -275,6 +269,10 @@ function DrawSaturn()
     // Clear the canvas
     ChangeColor(skyC);
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.font = "bold 17px Sans";
+    Message("Inclination: " + Math.floor(tempY)
+            + "." + Math.floor(Inclination*10./D2R - tempY*10.) + "\u00B0");
 
     ChangeColor(planetC);
 
@@ -306,6 +304,7 @@ function DrawSaturn()
     }
 
     /******************* DRAW MOONS (Earth View) *************************/
+    ctx.font = "14px Sans";
     for (i=0; i < NumMoons-1; ++i)
     {
         /* Orbital Paths */
