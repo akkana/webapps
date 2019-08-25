@@ -1,0 +1,143 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+  <title>Saturn's Satellites</title>
+
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+  <meta content="utf-8" http-equiv="encoding">
+  <link rel="stylesheet" type="text/css" href="satsat.css">
+  <link rel="stylesheet" type="text/css" href="datetimepicker.css">
+
+  <!-- various progressive-web-appy stuff -->
+  <link rel="manifest" href="manifest.json">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="canonical" href="http://shallowsky.com/galilean/">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Add to home screen for Safari on iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Galilean">
+  <link rel="apple-touch-icon" href="images/icons/icon-152x152.png">
+  <meta name="msapplication-TileImage" content="images/icons/icon-144x144.png">
+  <meta name="msapplication-TileColor" content="#2F3BA2">
+
+</head>
+
+<body> <!-- onload="initpage();"> -->
+<div id="intro" class="chatty">
+<h1>Saturn's Satellites</h1>
+<p>
+The positions of Saturn's five brightest moons.
+</div>
+
+<noscript>
+<p>
+<b>
+The moon positions are set using Javascript, which is disabled
+in your browser. You'll need to turn it back on if you want to see
+the current position of Saturn's moons.
+</b>
+</noscript>
+
+<canvas id="satCanvas" width="1000" height="100"></canvas>
+
+<table class="valign-row"><tr>
+<td><input type="text" id="datetimeinput" />
+<!-- Set the size a lot smaller than the actual number of characters --
+  -- we need: a lot of them are colons, slashes or 1,
+  -- and the size will be set by ems.
+  -->
+<td><input type="image" class="calendarbtn" src="datetimeimages/cal.gif"
+ onclick="javascript:NewCssCal('datetimeinput','yyyyMMdd','dropdown',true,'24',false,null,useNewDate)" />
+
+<td>
+<input type="button" name="now" id="now" value="Now"
+ onClick="drawJupiter(jup, new Date()); predictUpcoming(); return true">
+
+<td>
+<input class="recalcbtn" type="image" src="images/reload.png"
+ onClick="useNewDate(); return true">
+</table>
+
+<!-- In theory, cal-container sets up a relative item
+     and then calBorder can be positioned absolutely inside that.
+     It sorta works, anyway ...
+     http://stackoverflow.com/questions/6040005/relatively-position-an-element-without-it-taking-up-space-in-document-flow
+ -->
+<p>
+<span id="cal-container">
+<span id="calBorder"></span>
+</span>
+
+<p>
+<input type="button" id="prevDay" name="prevDay" value="-day" onClick="addHours(-24);">
+<input type="button" id="prevHour" name="prevHour" value="-hour" onClick="addHours(-1);">
+<input type="button" id="prevMins" name="prevMins" value="-5 min" onClick="addHours(-1/12);">
+<input type="button" id="nextMins" name="nextMins" value="+5 min" onClick="addHours(1/12);">
+<input type="button" id="nextHour" name="nextHour" value="+hour" onClick="addHours(1);">
+<input type="button" id="nextDay" name="nextDay" value="+day" onClick="addHours(24);">
+<p>
+<input type="button" id="animate" name="animate" value="Animate"
+       onClick="toggleAnimation();">
+<input type="button" name="faster" value="faster" onClick="animateFaster(20);">
+<input type="button" name="slower" value="slower" onClick="animateFaster(-20);">
+<span id="animDelay">(100 msec)</span>
+
+<p>
+Orientation:
+<select name='orientation' id='orientation' onChange="useNewDate();">
+<option value="NupWright" selected>N up, W right (normal)
+<option value="NupEright">N up, E right (reversed)
+<option value="SupEright">S up, E right (upside down)
+<option value="SupWright">S up, W right (upside down reversed)
+</select>
+</div>
+<hr>
+
+<h3>About SatSat:</h3>
+
+<!--
+<p>
+SatSat is a "progressive web app", meaning that you should be able
+to install it on the home screen of Android or iOS phones and tablets.
+It doesn't collect data or need any funky permissions, and shouldn't
+need to use the network at all once you have the images downloaded.
+-->
+
+<p>
+Times are approximate.
+This uses a somewhat kludgey method that gradually drifts and should be
+updated every few years. Positions last updated: 2003
+(in 2019, I'm still getting the basic app working; I'll worry about
+updating the moon positions once I get that far.)
+
+<div class="chatty">
+<p>
+This is based on original code in BASIC by Dan Bruton, astro@tamu.edu.
+I originally translated it to C for Linux and for PalmOS devices,
+then there was a Java applet, and now JavaScript is the thing.
+</div>
+
+<hr>
+<a href="../galilean/">Galilean Moons of Jupiter</a> |
+<a href="/">Shallow Sky home</a>
+
+<!-- Supposedly it's now better to manage javascript at the end of the body,
+  -- rather than in the head.
+  -->
+
+  <!-- The code for calculating Jovian moon and GRS positions: -->
+  <script type="text/javascript" src="satsat.js"></script>
+
+  <!-- The code for drawing the result: -->
+  <script type="text/javascript" src="drawsaturn.js"></script>
+
+  <!-- Date/time widget -->
+  <script type="text/javascript" src="datetimepicker_css.js"></script>
+
+  <!-- DeltaHeavy in #javascript says this is better than body onload -->
+  <script>document.addEventListener('DOMContentLoaded', initpage);</script>
+
+</body>
+</html>

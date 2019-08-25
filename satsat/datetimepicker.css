@@ -1,0 +1,28 @@
+/* Styles pulled out of datetimepicker_css.js */
+
+.calTD { text-align:center;cursor:pointer;background-color: yellow; }
+.MonthYearColor { background-color: #cc0033; color: white; }
+
+.WeekHeadColor { background-color: #18861B; width: 30px; color: white; }
+
+.WeekDayColor { background-color: #FFEDA6; }
+.SaturdayColor { background-color: #C0F64F; }
+.SundayColor { background-color: #C0F64F; }
+.FontColor { background-color: blue; }
+.TodayColor { background-color: #ffbd35; }
+.SelDateColor { background-color: #8DD53C; }
+.YrSelColor { background-color: #cc0033; }
+.MthSelColor { background-color: #cc0033; }
+.HoverColor { background-color: #E0FF38; }
+.DisableColor { background-color: #999966; }
+
+.HourSelector { text-align: right; }
+.MinuteSelector { text-align: left; }
+.SecondSelector { text-align: left; }
+
+#calBorder { background: #bbb; color: black; }
+#calBorder table { background: #bbb; color: black; }
+#calBorder input[type=button] { background: #eee; color: black; }
+#calBorder input[type=text]   { background: #eee; color: black; }
+#calBorder select { background: #ddd; color: black; }
+#calBorder select option { background: #ddd; color: black; }
