@@ -9,28 +9,6 @@ function initpage() {
 
   var date = null;
 
-  /*
-    COMMENTED OUT FOR NOW. OUR DATE FIELD FORMAT IS CHANGING ANYWAY.
-    // Did the user specify a date in the URL?
-    var url = new String(document.location);
-    var idx = url.indexOf("?");
-    if (idx > 0) {
-    idx = url.indexOf("date=", idx);
-    if (idx > 0) {
-      date = new Date(decodeURIComponent(url.substr(idx + 5)));
-      // Discussion of the three decoding options in javascript:
-      // http://unixpapa.com/js/querystring.html
-      // http://stackoverflow.com/questions/747641/what-is-the-difference-between-decodeuricomponent-and-decodeuri
-      }
-    }
-
-  if (!date) {
-    //date = new Date();
-    date = parseDateTime("2017-05-17");
-    updateDate(date);
-  }
-  */
-
   // Call the code that calculates the positions, defined in jupiter.js.
   jup = new Jupiter();
 
