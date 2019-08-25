@@ -2,6 +2,8 @@
 // Code for drawing Saturn and its moons, calculated in satsat.js.
 //
 
+var curDate = new Date();
+
 var ctx;
 
 const skyC = "black";
@@ -13,34 +15,73 @@ const canvas = document.getElementById("satCanvas");
 // Initial function called on page load.
 //
 function initpage() {
-  var date = null;
+    curDate;
 
-  if (!date)
-    date = new Date();
+    updateDateTimeFields(curDate);
 
-  updateDateTimeFields(date);
+    console.log("**initpage");
 
-  useNewDate();
+    useNewDate(curDate);
+}
+
+//
+// Get the date/time from the datetimepicker
+//
+function getPickerDate() {
+    return parseDateTime(document.getElementById("datetimeinput").value);
+}
+
+//
+// Set both curDate and the picker date.
+// Does NOT call CalcAndDrawSaturn.
+//
+function setCurDate(d) {
+    if (!d)
+        curDate = new Date();
+    else
+        curDate = d;
+    document.getElementById("datetimeinput").value = datetime2str(curDate);
 }
 
 //
 // Update Saturn to whatever date is in the date field of the page.
 //
-function useNewDate()
+function useNewDate(d)
 {
-  // parse date and time from the two fields:
-  console.log("datetimeinput value is "
-              + document.getElementById("datetimeinput").value);
-  var d = parseDateTime(document.getElementById("datetimeinput").value);
+    // parse date and time from the two fields:
+    console.log("datetimeinput value is "
+                + document.getElementById("datetimeinput").value);
+    if (!d) {
+        d = getPickerDate();
 
-  if (!d) {
-    alert("Couldn't parse date/time '"
-          + document.getElementById("datetimeinput").value);
-    return;
-  }
+        if (!d) {
+            alert("Couldn't parse date/time '"
+                  + document.getElementById("datetimeinput").value);
+            return;
+        }
+    }
 
-  console.log("useNewDate: " + d);
-  DrawSaturn(d);
+    console.log("useNewDate: " + d);
+    CalcAndDrawSaturn(d);
+}
+
+//
+// Reset the time to now, and redraw.
+//
+function reset2now() {
+    //selectDate(document.getElementById("datetimeinput"), new Date())
+    setCurDate(new Date());
+    useNewDate(curDate);
+}
+
+// Add or subtract hours (or days) from jupiter's current time.
+// Update the date field and the graphics.
+function addHours(hrs) {
+    var d = curDate;
+    d.setTime(d.getTime() + 60 * 60 * hrs * 1000);
+    setCurDate(d);
+
+    CalcAndDrawSaturn(curDate);
 }
 
 //
@@ -72,17 +113,13 @@ function Line(x1, y1, x2, y2) {
 function DrawString(x, y, s, l) {
     ctx.font = "14px Sans";
     ctx.fillText(s, x, y);
-    console.log("Drawing text", s, "at", x, y);
 }
 
 function Oval(xc, yc, r, a1, a2, aspect, fill) {
-    console.log("Oval", xc, yc, r, a1, a2, aspect, fill);
     // int ra = r * aspect;
     // XDrawArc(display, win, gc, xc-r, yc-ra, 2*r, 2*ra, 0, FULLCIRCLE);
     //                            x, y, width, height, angle1, angle2
     ctx.beginPath();
-    console.log("aspect", aspect);
-    console.log("ellipse", xc, yc, r, r * Math.abs(aspect), 0, 0, TWOPI);
     ctx.ellipse(xc, yc, r, r * Math.abs(aspect), 0, 0, TWOPI);
     if (fill)
         ctx.fill();
@@ -90,31 +127,97 @@ function Oval(xc, yc, r, a1, a2, aspect, fill) {
         ctx.stroke();
 }
 
-function Message(s) { console.log(s); }
+function Message(s) {
+    console.log("Message:", s);
+    //ctx.textAlign = "end";
+    //DrawString(5, canvas.width-5, s);
+    DrawString(50, 50, s, null);
+}
 
 function DrawMoon(xc, yc, i) {
-    console.log("Drawing a moon at", xc, yc);
-    const moonrad = 2;
+    const moonrad = 2;     // "radius" (though square) of a moon
     ChangeColor(planetC);
     ctx.fillRect(xc-moonrad, yc-moonrad, moonrad*2, moonrad*2);
 
-    DrawString(xc, canvas.height-5, i, null);
+    ChangeColor("yellow");
+    DrawString(xc, canvas.height-5, i+1, null);
+
+    ctx.textAlign = "left";
+    if (yc < canvas.height/2) {
+        textx = xc + 3;
+        texty = yc - 3;
+    } else {
+        textx = xc + 3;
+        texty = yc + 13;
+    }
+    ChangeColor("black");
+    DrawString(textx+1, texty+1, satMoons[i].name, null);
+    ChangeColor("yellow");
+    DrawString(textx, texty, satMoons[i].name, null);
 }
+
+// Nutty canvas elements have two sizes: the actual canvas size doesn't
+// necessarily correspond to the display size. Ensure they match:
+function resizeCanvasToDisplaySize(canvas) {
+    // look up the size the canvas is being displayed
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+
+    // If it'resolution doesn't match, change it
+    if (canvas.width !== width || canvas.height !== height) {
+        console.log("**** Resizing canvas from", canvas.width, canvas.height,
+                    "to", width, height);
+        canvas.width = width;
+        canvas.height = height;
+        return true;
+    }
+
+   return false;
+}
+
+//
+// Detect canvas resizes
+//
+
+function setResizeHandler(callback, timeout) {
+    var timer_id = undefined;
+    window.addEventListener("resize", function() {
+        if(timer_id != undefined) {
+            clearTimeout(timer_id);
+            timer_id = undefined;
+        }
+        timer_id = setTimeout(function() {
+            timer_id = undefined;
+            callback();
+        }, timeout);
+    });
+}
+setResizeHandler(DrawSaturn, 1500);
 
 //
 // Finally, the function that calls SaturnOrbit and then draws it all.
 //
-function DrawSaturn(d)
+function CalcAndDrawSaturn(d)
 {
     if (!canvas) {
         console.log("No canvas to draw on!");
     }
-    ctx = canvas.getContext('2d');
+
+    if (!d)
+        d = new Date();
 
     julianDate = getJulianDate(d);
-    console.log(d, "Julian date:", julianDate);
 
     SaturnCalcs(julianDate);
+
+    DrawSaturn();
+}
+
+function DrawSaturn()
+{
+    resizeCanvasToDisplaySize(canvas);
+
+    ctx = canvas.getContext('2d');
 
     var Xmax = canvas.width;
     var Ymax = canvas.height;
@@ -153,7 +256,6 @@ function DrawSaturn(d)
     var XC = Xmax / 2;
     var YC = Ymax / 2;
 
-    console.log("in DrawSaturn, Inclination =", Inclination);
     var ringAspect = Math.sin(Inclination);    /* Aspect Ratio */
 
     tempY = Inclination / D2R;
@@ -190,8 +292,6 @@ function DrawSaturn(d)
     else
     {
         /* Draw rings */
-        console.log("Drawing rings:")
-        console.log("Calling Oval", XC, YC, RS4 * Scale + 1, null, null, ringAspect, 1);
         Oval(XC, YC, RS4 * Scale + 1, null, null, ringAspect, 1);
         ChangeColor(skyC);
         Oval(XC, YC, RS3 * Scale - 1, null, null, ringAspect, 1);
@@ -202,13 +302,11 @@ function DrawSaturn(d)
         ChangeColor(planetC);
 
         /* Draw planet */
-        console.log("Drawing planet:")
         Oval(XC, YC, RS * Scale, null, null, .9, 1);
     }
 
     /******************* DRAW MOONS (Earth View) *************************/
-    console.log("Drawing moons:")
-    for (i=0; i < NumMoons; ++i)
+    for (i=0; i < NumMoons-1; ++i)
     {
         /* Orbital Paths */
         //if (satMoons[i].sma * Scale * ringAspect < Ymax / 4 && DrawOrbits)
@@ -229,9 +327,50 @@ function DrawSaturn(d)
         if (Y <= (Ymax / 2 - 10) && Y >= 0)
         {
             /* Draw Iapetus */
-            DrawMoon(flipEW ? Xmax-X : X, flipNS ? Ymax-Y : Y, 8);
+            DrawMoon(flipEW ? Xmax-X : X, flipNS ? Ymax-Y : Y, 7);
          }
     }
 }
 
+//
+// Animation:
+//
+var animating = false;
+var animateTime = 100;  // default msec delay between steps
+var stepMinutes = 10;   // default time to advance in each step
 
+function animateStep() {
+    if (! animating) {
+        return;
+    }
+    curDate.setTime(curDate.getTime() + stepMinutes * 60 * 1000);
+    CalcAndDrawSaturn(curDate);
+    setTimeout("animateStep();", animateTime);
+}
+
+function animateFaster(amt) {
+    animateTime -= amt;
+    if (animateTime < 1)
+        animateTime = 1;
+    // If we got down to 1 millisecond, then when we slow down again
+    // we'll have silly times like 21 milliseconds showing.
+    // Round them off.
+    else if (animateTime > 10 && (animateTime % 10) == 1)
+        animateTime -= animateTime % 10;
+
+    var animspan = document.getElementById("animDelay");
+    animspan.innerHTML = "(" + animateTime + " msec)";
+}
+
+function toggleAnimation() {
+    animating = !animating;
+    console.log("Toggling animation to", animating);
+    btn = document.getElementById("animate");
+    if (animating) {
+        btn.value = "Stop";
+        animateStep();
+    }
+    else {
+        btn.value = "Animate";
+    }
+}

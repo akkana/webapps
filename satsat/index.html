@@ -6,18 +6,18 @@
 
   <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
   <meta content="utf-8" http-equiv="encoding">
-  <link rel="stylesheet" type="text/css" href="satsat.css">
+  <link rel="stylesheet" type="text/css" href="satstyles.css">
   <link rel="stylesheet" type="text/css" href="datetimepicker.css">
 
   <!-- various progressive-web-appy stuff -->
   <link rel="manifest" href="manifest.json">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <link rel="canonical" href="http://shallowsky.com/galilean/">
+  <link rel="canonical" href="http://shallowsky.com/satsat/">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Add to home screen for Safari on iOS -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Galilean">
+  <meta name="apple-mobile-web-app-title" content="SatSat">
   <link rel="apple-touch-icon" href="images/icons/icon-152x152.png">
   <meta name="msapplication-TileImage" content="images/icons/icon-144x144.png">
   <meta name="msapplication-TileColor" content="#2F3BA2">
@@ -28,7 +28,7 @@
 <div id="intro" class="chatty">
 <h1>Saturn's Satellites</h1>
 <p>
-The positions of Saturn's five brightest moons.
+The positions of Saturn's eight brightest moons.
 </div>
 
 <noscript>
@@ -40,7 +40,7 @@ the current position of Saturn's moons.
 </b>
 </noscript>
 
-<canvas id="satCanvas" width="1000" height="200"></canvas>
+<canvas id="satCanvas"></canvas>
 
 <table class="valign-row"><tr>
 <td><input type="text" id="datetimeinput" />
@@ -53,10 +53,10 @@ the current position of Saturn's moons.
 
 <td>
 <input type="button" name="now" id="now" value="Now"
- onClick="drawJupiter(jup, new Date()); predictUpcoming(); return true">
+ onClick="reset2now(); return true">
 
 <td>
-<input class="recalcbtn" type="image" src="images/reload.png"
+<input class="recalcbtn" type="image" src="datetimeimages/reload.png"
  onClick="useNewDate(); return true">
 </table>
 
@@ -86,7 +86,7 @@ the current position of Saturn's moons.
 
 <p>
 Orientation:
-<select name='orientation' id='orientation' onChange="useNewDate();">
+<select name='orientation' id='orientation' onChange="useNewDate(curDate);">
 <option value="NupWright" selected>N up, W right (normal)
 <option value="NupEright">N up, E right (reversed)
 <option value="SupEright">S up, E right (upside down)
@@ -114,9 +114,9 @@ updating the moon positions once I get that far.)
 
 <div class="chatty">
 <p>
-This is based on original code in BASIC by Dan Bruton, astro@tamu.edu.
-I originally translated it to C for Linux and for PalmOS devices,
-then there was a Java applet, and now JavaScript is the thing.
+Based on original code in BASIC by Dan Bruton, astro@tamu.edu;
+translated to C by Akkana Peck for Linux and PalmOS devices,
+and then a Java applet, and now it's JavaScript.
 </div>
 
 <hr>
@@ -137,7 +137,7 @@ then there was a Java applet, and now JavaScript is the thing.
   <script type="text/javascript" src="drawsaturn.js"></script>
 
   <!-- Date/time widget -->
-  <script type="text/javascript" src="datetimepicker_css.js"></script>
+  <script type="text/javascript" src="datetimepicker.js"></script>
 
   <!-- DeltaHeavy in #javascript says this is better than body onload -->
   <script>document.addEventListener('DOMContentLoaded', initpage);</script>

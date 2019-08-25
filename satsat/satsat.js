@@ -110,13 +110,10 @@ function SaturnCalcs(JD)
 
     /******************* FIND MOON ORBITAL ANGLES ************************/
     var NN = JD - JDE;   /* NN = Number of days since epoch */
-    console.log("earth.orbitalRate", earth.orbitalRate);
     var ME = ((earth.orbitalRate * NN) + LEE - LEP); /* Mean Anom, Earth */
     var MP = ((saturn.orbitalRate * NN) + LpE - LpP);/* Mean Anom, Saturn */
     var VE = ME;
     var VP = MP;   /* True Anomolies - Solve Kepler's Equation */
-    console.log("NN, ME, MP, VE, VP", NN, ME, MP, VE, VP);
-    console.log("eccentricities", earth.ecc, saturn.ecc);
     for (i=0; i < 3; ++i)
     {
         VE = VE - (VE - (earth.ecc * Math.sin(VE)) - ME) / (1 - (earth.ecc * Math.cos(VE)));
@@ -151,14 +148,12 @@ function SaturnCalcs(JD)
     //printf("Light time: %lf days (%lf AU)\n", DT/173.83, DT);
     f = JD - JDEmoons - (dt / 173.83);
     f1 = ii + MP - VP;
-    console.log("f, f1", f, f1);
 
     /* calc. angle from inferior geocentric conjuction measured westward */
     for (i=0; i < NumMoons; ++i)
     {
         satMoons[i].u = (satMoons[i].u0 + (f * TWOPI / satMoons[i].period) + f1) / TWOPI;
         satMoons[i].u = (satMoons[i].u - Math.floor(satMoons[i].u)) * TWOPI;
-        console.log("moon", i, "is at u", satMoons[i].u);
     }
 
     /********************* FIND SATURN'S COORDINATES *********************
@@ -177,14 +172,11 @@ function SaturnCalcs(JD)
     dec = Math.asin(Math.sin(beta) * Math.cos(Obl) + Math.cos(beta) * Math.sin(Obl) * Math.sin(lamb));
     //printf("Saturn's coordinates are (%f h, %f deg)\n",
     //       RA * 12. / Math.PI, DEC * 180 / Math.PI);
-    console.log("Saturn's coordinates are",
-                RA * 12. / Math.PI, dec * 180 / Math.PI);
 
     /***************** FIND INCLINATION OF RINGS *************************
      * Use dot product of Earth-Saturn vector and Saturn's rotation axis
      */
     tva = (90 - 83.51) * D2R; /* Theta coordinate of Saturn's axis */
-    console.log("tva", tva, "= (90 - 83.51) *", D2R);
     pva = 40.27 * D2R;        /* Phi coordinate of Saturn's axis */
     tvc = PI2 - dec;
     pvc = RA;
@@ -192,7 +184,6 @@ function SaturnCalcs(JD)
            + Math.sin(tva) * Math.sin(pva) * Math.sin(tvc) * Math.sin(pvc)
            + Math.cos(tva) * Math.cos(tvc);
     Inclination = Math.acos(dot1);
-    console.log("Inclination", Inclination, "acos(", dot1, ")");
     if (Inclination > 0) Inclination = PI2 - Inclination;
     else Inclination = -PI2 - Inclination;
 

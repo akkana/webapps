@@ -403,7 +403,7 @@ Calendar.prototype.FormatDate = function (pDate)
     if (PrecedeZero === true)
     {
         if ((pDate < 10) && String(pDate).length===1) //length checking added in version 2.2
-        {           
+        {
             pDate = "0" + pDate;
         }
         if (MonthDigit < 10)
@@ -455,7 +455,7 @@ function GenCell(pValue, pHighLight, pColor, pClickable)
 
     if (pColor === undefined)
         pColor = CalBgColor;
-    
+
     if (pClickable !== undefined){
         PClickable = pClickable;
     }
@@ -584,9 +584,9 @@ function RenderCssCal(bNewCal)
         calHeight += 30;
     }
 
-    //******************End Month and Year selector in dropdown list*********************
+    //********** End Month and Year selector in dropdown list *************
 
-    //******************Month and Year selector in arrow*********************************
+    //********** Month and Year selector in arrow *************************
 
     else if (Cal.Scroller === "ARROW")
     {
@@ -612,16 +612,16 @@ function RenderCssCal(bNewCal)
 
     vCalHeader += "</tr></table></td></tr>";
 
-    //******************End Month and Year selector in arrow******************************
+    // ********* End Month and Year selector in arrow *******************
 
-    //Calendar header shows Month and Year
+    // Calendar header shows Month and Year
     if (ShowMonthYear && Cal.Scroller === "DROPDOWN")
     {
         vCalHeader += "<tr><td colspan='7' class='calR MonthYearColor'>" + Cal.GetMonthName(ShowLongMonth) + " " + Cal.Year + "</td></tr>";
         calHeight += 19;
     }
 
-    //Week day header
+    // Week day header
 
     vCalHeader += "<tr><td colspan=\"7\"><table style='border-spacing:1px;border-collapse:separate;'><tr>";
     if (MondayFirstDay === true)
@@ -684,7 +684,7 @@ function RenderCssCal(bNewCal)
         //if End Year + Current Year = Cal.Year. Disable.
         else if (Cal.Year > (dtToday.getFullYear()+EndYear))
         {
-            strCell = GenCell(j, false, "DisableColor", false); 
+            strCell = GenCell(j, false, "DisableColor", false);
         }
         else if ((j === dtToday.getDate()) && (Cal.Month === dtToday.getMonth()) && (Cal.Year === dtToday.getFullYear()))
         {
@@ -1168,7 +1168,7 @@ function NewCssCal(pCtrl, pFormat, pScroller, pShowTime, pTimeMode, pShowSeconds
             Cal.Year = parseInt(strYear, 10);
         }
         //end parse year
-        
+
         //parse Date
         if ((parseInt(strDate, 10) <= Cal.GetMonDays()) && (parseInt(strDate, 10) >= 1)) {
             Cal.Date = strDate;
