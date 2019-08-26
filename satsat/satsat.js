@@ -57,36 +57,51 @@ var Ohm = 113.4888341 * D2R; /* Varitude of Saturn`s Ascending Node */
 var IncS = 2.4893741 * D2R;  /* Inclination of Saturn`s Orbit */
 var LEE = 98.83354 * D2R;    /* Varitude of Earth at Epoch */
 var LEP = 102.596403 * D2R;  /* Varitude of Earth's Perihelion */
-var Obl = 23.43928 * D2R; /* obliquity of the ecliptic */
+var Obl = 23.43928 * D2R  ;  /* obliquity of the ecliptic */
 
 /*
  * Kludge alert!
- * This table needs to be reset every year or so.
- * Reset the U0 values, the Angle from inferior geocentric conjuction
- * measured westward avar the orbit at epoch.
- * Pick a time at which you want accuracy to be highest
+ * This table needs to be reset every so often.
+ * Reset the U0 values, the angle from inferior geocentric conjuction
+ * measured westward ovar the orbit at epoch.
+ *
+ * One way to do this:
+ * run XEphem, set your chosen date, click Update
+ * (that also gives you an easy way to get the Julian Date).
+ * View->Saturn, View->Top View.
+ * XEphem doesn't show Iapetus.
+ * Take a screenshot, then load it into GIMP and use the Measure tool
+ * and add/subtract angles as needed to get the angle clockwise from "down"
+ * to the moon. Tip: extend your measure line through and past each moon;
+ * that makes it easier to see without the cursor getting in the way.
+ *
+ * Choose a time a little before when you want accuracy to be highest
  * (probably opposition or a month or two later),
  * calculate the Julian time, and estimate the moon positions
  * for that time.
- * You'd think there would be closed-form solutions for Saturn's moons,
- * and there probably are, in the American Ephemeris and Nautical Almanac,
- * but nobody publishes simpler ones.
+ * (Times after the target time may or may not work.)
  */
-//var JDEmoons = 2452275.5;    /* Jan 1.0 2002 */
-var JDEmoons = 2452640.5;    /* Jan 1.0 2003 */
+
+var JDEmoons = 2458484.5;    // Jan 1.0 2019
 var satMoons = [
-
-/*    Name           SMA   E     Period  mag*10   U0      U */
-/*    ----           ---   -     ------  -----  ------    - */
-    { "name": "Mimas",     "sma": 185600,  "period": .9425049, "mag10": 130, "u0": 185 * D2R },
-    { "name": "Enceladus", "sma": 238100,  "period": 1.3703731, "mag10": 118, "u0": 230 * D2R },
-    { "name": "Tethys",    "sma": 294700,  "period": 1.8880926, "mag10": 103, "u0": 160 * D2R },
-    { "name": "Dione",     "sma": 377500,  "period": 2.7375218, "mag10": 102, "u0": 132 * D2R },
-    { "name": "Rhea",      "sma": 527200,  "period": 4.519163,  "mag10": 98, "u0":  97 * D2R },
-    { "name": "Titan",     "sma": 1221600, "period": 15.9669028, "mag10": 84, "u0": 137 * D2R },
-    { "name": "Hyperion",  "sma": 1483000, "period": 21.3174647, "mag10": 143, "u0": 335 * D2R },
-    { "name": "Iapetus",   "sma": 3560100, "period": 79.9208313, "mag10": 112, "u0": 290 * D2R }
-
+//    Name           SMA   E     Period  mag*10   U0      U
+//    ----           ---   -     ------  -----  ------    -
+    { "name": "Mimas",     "sma": 185600,  "period": .9425049, "mag10": 130,
+      "u0": 306 * D2R },
+    { "name": "Enceladus", "sma": 238100,  "period": 1.3703731, "mag10": 118,
+      "u0":  20 * D2R },
+    { "name": "Tethys",    "sma": 294700,  "period": 1.8880926, "mag10": 103,
+      "u0": 198 * D2R },
+    { "name": "Dione",     "sma": 377500,  "period": 2.7375218, "mag10": 102,
+      "u0":  23 * D2R },
+    { "name": "Rhea",      "sma": 527200,  "period": 4.519163,  "mag10": 98,
+      "u0": 120 * D2R },
+    { "name": "Titan",     "sma": 1221600, "period": 15.9669028, "mag10": 84,
+      "u0": 101 * D2R },
+    { "name": "Hyperion",  "sma": 1483000, "period": 21.3174647, "mag10": 143,
+      "u0":  32 * D2R },
+    { "name": "Iapetus",   "sma": 3560100, "period": 79.9208313, "mag10": 112,
+      "u0": 290 * D2R }
 ];
 
 /* Inclination of Rings and other items */

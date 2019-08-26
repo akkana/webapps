@@ -133,13 +133,20 @@ function Message(s) {
     DrawString(canvas.width - 10, 20, s, null);
 }
 
-function DrawMoon(xc, yc, i) {
+function DrawMoon(xc, yc, which) {
     const moonrad = 2;     // "radius" (though square) of a moon
+
+    // Draw with a slight shadow in case it gets drawn over the planet.
+    ChangeColor("black");
+    ctx.fillRect(xc-moonrad+1, yc-moonrad+1, moonrad*2, moonrad*2);
     ChangeColor(planetC);
     ctx.fillRect(xc-moonrad, yc-moonrad, moonrad*2, moonrad*2);
 
+    if (which == 7)
+        console.log("Drawing Iapetus at", xc, yc);
+
     ChangeColor("yellow");
-    DrawString(xc, canvas.height-5, i+1, null);
+    DrawString(xc, canvas.height-5, which+1, null);
 
     ctx.textAlign = "left";
     if (yc < canvas.height/2) {
@@ -149,10 +156,11 @@ function DrawMoon(xc, yc, i) {
         textx = xc + 3;
         texty = yc + 13;
     }
+    // Draw with a slight shadow in case it gets drawn over the planet.
     ChangeColor("black");
-    DrawString(textx+1, texty+1, satMoons[i].name, null);
+    DrawString(textx+1, texty+1, satMoons[which].name, null);
     ChangeColor("yellow");
-    DrawString(textx, texty, satMoons[i].name, null);
+    DrawString(textx, texty, satMoons[which].name, null);
 }
 
 // Nutty canvas elements have two sizes: the actual canvas size doesn't
@@ -316,6 +324,9 @@ function DrawSaturn()
     }
 
     /********************* Iapetus' Orbit (Earth View) *******************/
+    /* ****************
+       XXX Iapetus temporarily commented out until I find a way to get its u0
+       ****************/
     iapetus = satMoons[7]
     tempX = -1 * (iapetus.sma * Math.sin(iapetus.u) * Scale);
     tempY = Math.floor((iapetus.sma * Math.cos(iapetus.u) * Math.sin(IapInci) * Scale));
@@ -325,9 +336,17 @@ function DrawSaturn()
     {
         if (Y <= (Ymax / 2 - 10) && Y >= 0)
         {
-            /* Draw Iapetus */
+            // Draw Iapetus
             DrawMoon(flipEW ? Xmax-X : X, flipNS ? Ymax-Y : Y, 7);
-         }
+        }
+        else {
+            console.log("Iapetus Y out of bounds: would be at",
+                        flipEW ? Xmax-X : X, flipNS ? Ymax-Y : Y);
+        }
+    }
+    else {
+        console.log("Iapetus X out of bounds: would be at",
+                    flipEW ? Xmax-X : X, flipNS ? Ymax-Y : Y);
     }
 }
 
