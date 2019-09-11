@@ -59,10 +59,11 @@ body {
  * the iframe, but we can put divs on top that can capture events.
  */
 .scrollarea {
-  background: white;
-  width: 35%;
+  background: #eef;
+  width: 55%;
   height: 15%;
-  opacity: 0.1;
+  opacity: 0.2;
+  pointer-events: all;
   z-index: 100;
 }
 #scrollarea_ul { position: absolute; left: 0;    top: 2.5em; }

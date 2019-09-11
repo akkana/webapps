@@ -41,17 +41,18 @@ function clickHandler(event)
     // IE doesn't see the event argument passed in, so get it this way:
     if (window.event) event = window.event;
 
-    console.log("click: " + event.clientX + " / " + screenWidth
-                + ", " + event.clientY + " / " + screenHeight);
+    var elm = event.srcElement.id;
 
-    if (event.clientY > BOTTOM && (event.clientX < LEFT
-                                   || event.clientX > RIGHT)) {
+    console.log("click: " + elm);
+    // console.log(event.clientX, " / ", screenWidth,
+    //             ", ", event.clientY, " / ", screenHeight);
+
+    if (elm.startsWith("scrollarea_l")) {
         //console.log("Scroll down");
         document.getElementById("maincontent").contentWindow
             .scrollBy(0, screenHeight * .9)
     }
-    else if (event.clientY < TOP && (event.clientX < LEFT
-                                     || event.clientX > RIGHT)) {
+    else if (elm.startsWith("scrollarea_u")) {
         //console.log("Scroll up");
         document.getElementById("maincontent").contentWindow
             .scrollBy(0, -screenHeight * .9)
