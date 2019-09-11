@@ -180,7 +180,7 @@ async function TOCpage() {
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<link rel="stylesheet" type="text/css" title="Feeds" href="/feeds/feeds.css">
+<link rel="stylesheet" type="text/css" title="Feeds" href="/feedread/feeds/feeds.css">
 
 <title>Feeds</title>
 </head>
@@ -190,17 +190,18 @@ async function TOCpage() {
 
     var curDay = null;
     for (var i in tocPages) {
-        if (tocPages[i].endsWith("index.html")) {
-            parts = tocPages[i].split('/');
-            var feedname = parts[parts.length-2];
-            var day = parts[parts.length-3];
-            if (curDay != day) {
-                curDay = day;
-                htmlsrc += "<h3>" + day + "</h3>\n";
-            }
-            htmlsrc += '<a href="' + tocPages[i] + '">'
-                        + feedname + '</a><br />\n';
+        if (! tocPages[i].endsWith("index.html"))
+            continue;
+
+        parts = tocPages[i].split('/');
+        var feedname = parts[parts.length-2];
+        var day = parts[parts.length-3];
+        if (curDay != day) {
+            curDay = day;
+            htmlsrc += "<h3>" + day + "</h3>\n";
         }
+        htmlsrc += '<a href="' + tocPages[i] + '">'
+            + feedname + '</a><br />\n';
     }
 
     contentDoc().body.innerHTML = htmlsrc;

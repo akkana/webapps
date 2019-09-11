@@ -1,10 +1,12 @@
 // Custom dialog with three buttons
 
-if(document.getElementById) {
+/*
+if (document.getElementById) {
     window.alert = function(txt) {
         createCustomAlert(txt);
     }
 }
+*/
 
 function createCustomDialog(title, txt, btnArray, callback) {
 
