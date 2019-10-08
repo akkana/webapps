@@ -24,7 +24,7 @@ function dirname(path) {
     return path.match(/.*\//);
 }
 
-// The home directory from which this app was run
+// The server directory from which this app was run
 const appHome = dirname(document.location.href);
 
 // Current date in format mm-dd-day
@@ -137,7 +137,7 @@ async function fetchDaily(dayStr) {
 
             // Is it already cached?
             newurl = dayURL + manifestList[f];
-            matchResponse = await cache.match(newurl);
+            var matchResponse = await cache.match(newurl);
             if (!matchResponse) {
                 console.log(" ", newurl, "not in the cache; will add");
                 newURLs.push(newurl);
@@ -232,13 +232,16 @@ async function dirListing(url) {
 }
 
 //
-// Mirror everything on the server, in case our cache expires or whatever.
+// Mirror everything on the server down to the client,
+//  in case our cache expires or whatever.
 //
-async function mirrorAll() {
+async function mirrorServerToClient() {
     var listing = await dirListing(feedTop);
 
     for (f in listing) {
         if (! listing[f].endsWith('/'))
+            continue;
+        if (listing[f].startsWith('Parent'))
             continue;
         // It's a directory. Make sure it starts with a number.
         if (parseInt(listing[f]) == NaN)
@@ -255,6 +258,99 @@ async function mirrorAll() {
     //navigator.onLine = false;
 
     return 0;
+}
+
+// Send the server a list of directories it has that no longer exist
+// in the cache here, which need to be deleted on the server.
+async function mirrorClientToServer() {
+    // First make a list of all the feed (second-level) dirs on the server,
+    // e.g. 08-22-Thu/A_Word_A_Day
+    //var dirsOnServer = [];
+
+    setStatus("Finding files to delete from server...");
+
+    var serverDays = await dirListing(feedTop);
+    //console.log("serverDays:", serverDays);
+
+    var cache = await caches.open(CACHENAME);
+    var deleteDirs = [];
+
+    for (d in serverDays) {
+        if (! serverDays[d].endsWith('/'))
+            continue;
+        if (serverDays[d].startsWith('Parent'))
+            continue;
+        var serverDayURL = feedTop + serverDays[d];
+        var serverDayFeeds = await dirListing(serverDayURL);
+        for (f in serverDayFeeds) {
+            if (! serverDayFeeds[f].endsWith('/'))
+                continue;
+            if (serverDayFeeds[f].startsWith('Parent'))
+                continue;
+
+            // Is it in the local cache?
+            var matchurl = serverDayURL + serverDayFeeds[f];
+            var matchResponse = await cache.match(matchurl);
+            if (! matchResponse) {
+                //console.log("****", matchurl, "on server but NOT in cache");
+                deleteDirs.push(serverDays[d] + serverDayFeeds[f]);
+            }
+        }
+    }
+    console.log("Delete dirs:", deleteDirs);
+    setStatus("Syncing changes to server...");
+
+    // Send the list as a POST request to the server.
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (this.readyState != 4) return;
+
+        if (this.status == 200) {
+            var resptxt = this.responseText;
+
+            if (resptxt.startsWith("OK"))
+                setStatus("Server is in sync");
+            else
+                setStatus("Problem syncing: " + resptxt);
+        }
+
+        // end of state change: it can be after some time (async)
+    };
+    xhr.open("POST", "delfeeds.cgi", true);
+        // The 3rd argument is whether it's async
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify({
+        'deleteDirs': deleteDirs,
+        'feedDir':    feedTop
+    }));
+
+    // What feed dirs are on the server that aren't in cache?
+
+    /*
+    // Now find all the second-level dirs locally that aren't on the server.
+    var deleteDirs = [];
+    var cacheTOC = await TOC();
+    console.log("cache TOC:", cacheTOC);
+    // This is a list of full URLs like
+    // http://servername/cachetop/08-22-Thu/A_Word_A_Day/
+
+    // Find what's in the cache that's not on the server.
+    for (ct in cacheTOC) {
+        // Is cacheTOC[ct] in dirsOnServer?
+        // cacheTOC[ct] is something like
+        // http://servername/feedTop/08-22-Thu/A_Word_A_Day/index.html
+        // while dirsOnServer has things like
+        // feedTop/08-22-Thu/A_Word_A_Day/
+        // So clean up cacheTOC[ct]
+        var cacheparts = cacheTOC[ct].split('/');
+        var cmpPath = feedTop + cacheparts[cacheparts.length-3]
+            + '/' + cacheparts[cacheparts.length-2] + '/';
+        if (! dirsOnServer.includes(cmpPath))
+            console.log('*****', cmpPath, "is NOT on server");
+        else
+            console.log(cmpPath, "is on the server");
+    }
+    */
 }
 
 //

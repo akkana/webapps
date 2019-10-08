@@ -23,7 +23,8 @@
 <button onclick="toggleMenu()" id="menuBtn" class="dropbtn">&#x2630;</button>
 <div id="dropdown" class="dropdown-content">
     <a href="#" onclick="fetchDaily(); popdownMenu(); return false;">Fetch Feeds</a>
-    <a href="#" onclick="mirrorAll(); popdownMenu(); return false;">Mirror All</a>
+    <a href="#" onclick="mirrorServerToClient(); popdownMenu(); return false;">Mirror All</a>
+    <a href="#" onclick="mirrorClientToServer(); popdownMenu(); return false;">Delete from Server</a>
     <a href="#" onclick="textSize(1);  popdownMenu();">Bigger text</a>
     <a href="#" onclick="textSize(-1); popdownMenu();">Smaller text</a>
 </div>
