@@ -40,16 +40,6 @@ function formatDate(d) {
 }
 
 
-// Fetch all the feeds generated today.
-// Start with $feedTop/mm-dd-day/MANIFEST
-// and then fetch all the files referenced there.
-
-// Variables used by fetchDaily: should no longer need to be global.
-//var todayStr = null;
-//var manifestURL = null;
-//var manifestList = null;
-
-
 // Read the manifest (which should already be in the cache)
 // and return (a promise of) the manifest list.
 async function readManifest(manurl) {
@@ -63,22 +53,50 @@ async function readManifest(manurl) {
     var myHeaders = new Headers();
     myHeaders.append('pragma', 'no-cache');
     myHeaders.append('cache-control', 'no-cache');
-    var myRequest = new Request(manurl);
-    var myInit = {
+    var req = new Request(manurl);
+    var params = {
         method: 'GET',
         headers: myHeaders,
     };
-    response = await fetch(myRequest, myInit);
+    console.log("outer request for", manurl)
+    response = await fetch(req, params);
 
-    // response = await fetch(manurl);
-    if (!response.ok) {
-        err = new Error("Couldn't fetch " + manurl + ": status "
-                        + response.status + " " + response.statusText);
-        err.code = response.status;
-        throw(err);
+    var responseTxt;
+    if (response.ok) {
+        responseTxt = await response.text();
     }
-    var txt = await response.text();
-    var manList = txt.split(/\r?\n/);
+    else {
+        // No MANIFEST file. Try to generate one using genmanifest.cgi.
+        console.log("No", manurl, "-- trying genmanifest.cgi")
+
+        var requrl = 'genmanifest.cgi?feedURL='
+            + encodeURIComponent(dirname(manurl));
+        console.log("Generating MANIFEST from", requrl);
+        req = new Request(requrl);
+        /*
+        const data = {
+            'feedURL': manURLparts[manURLparts.length-1]
+        }
+        */
+        params = {
+            headers: myHeaders,
+            //body: data,
+            method: 'GET'
+        };
+        console.log("inner request for", req)
+        response = await fetch(req, params);
+
+        var responseTxt;
+        if (! response.ok) {
+            err = new Error("Couldn't fetch " + manurl + ": status "
+                            + response.status + " " + response.statusText);
+            err.code = response.status;
+            throw(err);
+        }
+        responseTxt = await response.text();
+    }
+
+    var manList = responseTxt.split(/\r?\n/);
 
     // This split adds a bogus final empty entry. Remove it.
     // Note, this won't do anything about empty lines in the
@@ -88,8 +106,9 @@ async function readManifest(manurl) {
     return manList;
 }
 
+
 //
-// Fetch the MANIFEST file for one day's daily feeds,
+// Fetch the MANIFEST for one day's daily feeds,
 // and then fetch and cache all the files referred to there.
 //
 async function fetchDaily(dayStr) {
@@ -182,12 +201,12 @@ async function dirListing(url) {
     var myHeaders = new Headers();
     myHeaders.append('pragma', 'no-cache');
     myHeaders.append('cache-control', 'no-cache');
-    var myRequest = new Request(url);
+    var req = new Request(url);
     var myInit = {
         method: 'GET',
         headers: myHeaders,
     };
-    response = await fetch(myRequest, myInit);
+    response = await fetch(req, myInit);
 
     if (!response.ok) {
         err = new Error("Couldn't fetch " + manurl + ": status "
@@ -297,6 +316,9 @@ async function mirrorClientToServer() {
             }
         }
     }
+    // XXX Detect day dirs that now have nothing in them,
+    // XXX and delete those too!
+
     console.log("Delete dirs:", deleteDirs);
     setStatus("Syncing changes to server...");
 
