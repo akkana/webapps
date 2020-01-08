@@ -1,0 +1,234 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+/* Without the next line, the body will be positioned considerably down
+ * from the top of the HTML.
+ */
+* { margin: 0; border: 0; padding: 0; }
+
+/* Try to avoid scrollbars */
+html, body { height: 99%; }
+
+body {
+  background-color: black; color: black;
+  /* outline: green solid thin; */
+}
+
+a, a.visited { color: #fa3; }
+
+/* Can't allow paragraphs to have a margin, because that mysteriously
+ * makes the body move way down below the top of the html.
+ * Padding seems to do that less, at least.
+ */
+p { padding-bottom: .75em; }
+
+#quotecontent {
+  /* More trying to avoid scrollbars */
+  width: 90%; height: 90%;
+  padding: 40px;
+  /* outline: red solid thin; */
+  margin: auto;
+  font-face: Times New Roman;
+  font-style: italic;
+}
+</style>
+
+<script src="jquery-min.js"></script>
+</head>
+
+<body>
+
+<div id="quotecontent">
+  <span id="quotespan">
+    la la la
+  </span>
+</div>
+
+<div id="imagecontent">
+<table class="nopadding" width=100% height=100%><tr><td align=center valign=center>
+<img id="bigimage">
+</td></tr>
+</table>
+</div>
+
+<script>
+// https://stackoverflow.com/questions/24376897/fit-text-perfectly-inside-a-div-height-and-width-without-affecting-the-size-of
+$.fn.resizeText = function (options) {
+
+    var settings = $.extend({ maxfont: 200, minfont: 4 }, options);
+
+    var style = $('<style>').html('.nodelays ' +
+    '{ ' +
+        '-moz-transition: none !important; ' +
+        '-webkit-transition: none !important;' +
+        '-o-transition: none !important; ' +
+        'transition: none !important;' +
+    '}');
+
+    function shrink(el, fontsize, minfontsize)
+    {
+        if (fontsize < minfontsize) return;
+        el.style.fontSize = fontsize + 'px';
+        if (el.scrollHeight > el.offsetHeight) shrink(el, fontsize - 1, minfontsize);
+    }
+
+    $('head').append(style);
+
+    $(this).each(function(index, el)
+    {
+        var element = $(el);
+        element.addClass('nodelays');
+        shrink(el, settings.maxfont, settings.minfont);
+        element.removeClass('nodelays');
+    });
+
+    style.remove();
+}
+
+// The function to compute the font size is very slow.
+// So the default color is set to black, and once resizeText() has run,
+// it's okay to set the color to yellow to make it visible.
+$(document).ready(function() {
+  $(quotecontent).resizeText();
+  $(quotecontent).css('color', 'yellow');
+});
+</script>
+
+<script>
+/*
+ * The quote list. Personalize for your own kiosk application.
+ * This is a list of quotes for the 100th anniversary of the League of
+ * Women Voters, plus images (which are not included in this repository).
+ */
+var quotelist = [
+    "<p>\n100 years ago. In 1920, the 19<sup>th</sup> Amendment guaranteed women across the country the right to vote. \n</p>\n<p>\nMany years before that, in 1776, Abigail Adams sent John Adams off to Boston and the drafting of the Declaration of Independence reminding him not to forget \u201cthe ladies.\u201d  But, John Adams and Thomas Jefferson declared their independence from the British with the words \u201call MEN are created equal.\u201d  They did not include women.  The new laws for the new country declared women had no independence from men.  No property rights, no right to vote, no right to enter a legal contract, and they were entirely under the control of their husbands.\n</p>\n",
+    "<p>\n100 years ago, in 1920, the 19<sup>th</sup> Amendment to the U.S. Constitution was passed, guaranteeing women the right to vote.  No state law could stop them.\n</p>\n<p>\nThis was important because 144 years before that, when New Jersey became a federal state after the American Revolution, unmarried and widowed women could vote if they had $250 worth of cash or property.  But that lasted only 31 years until legislators changed the law to exclude them.\n</p>\n<p>\nIn case you\u2019re wondering why only unmarried and widowed women with money or property were initially included, it\u2019s because married women could not own property under the common law.  Whatever they owned became their husband\u2019s property when they married.\n</p>\n",
+    "<p>\n100 years ago, the 19th Amendment guaranteed women the right to vote, but the women in Wyoming had already been voting. Wyoming entered the U.S. as a Territory in 1869 and had given women full voting rights from the beginning.\n</p>\n<p>\n20 years later, when Wyoming was applying for statehood, its new constitution affirmed the right of women to vote.  When Congress threatened to deny the Territory statehood unless it removed the provision allowing women to vote, Wyoming refused, and Congress gave in.\n</p>\n<p>\nWyoming became the first state in the nation to grant women full voting rights when it became the country\u2019s 44th state in 1890.\n</p>\n",
+    "<p>\nWhen the 19<sup>th</sup> Amendment to the Constitution became law, 100 years ago, women across the country were finally given the right to vote.  Sadly, many of the women who spent much of their lives fighting for this day had died before it arrived.\n</p>\n<p>\nWhen they started their efforts, in the America of 1800\u2019s, it was a man\u2019s world.  When a woman married, her property and wealth and wages were no longer hers; they belonged to her husband.  Ministers, priests and rabbis all declared that women should obey their husbands, and fathers determined how much schooling a daughter should have.  Women were often forbidden to speak in public.\n</p>\n<p>\nAmerican women were subject to rules and laws they had no voice in creating.    The 19<sup>th</sup> Amendment changed that.  With the vote, American women now had a voice.\n</p>\n",
+    "<p>\nOne hundred years ago, in 1920, the 19<sup>th</sup> Amendment became law and women gained the right to vote.  In Illinois, the legislature had given many women this right 7 years earlier in 1913, and in the spring of 1914 more than 150,000 Chicago women registered to vote. \n</p>\n<p>\nOh, my.  What must the political power brokers in Chicago have been thinking!\n</p>\n<p>\nThen, Chicago hosted a meeting in 1920 where the National American Woman Suffrage Association formally DISBANDED and was replaced with THE LEAGUE OF WOMEN VOTERS.  \n</p>\n<p>\nThe LEAGUE, of course, still exists today.  Happy 100<sup>th</sup> Birthday to the League of Women Voters.\n</p>\n",
+    "<p>\nThis year marks the 100<sup>th</sup> Anniversary of the Ratification of the 19<sup>th</sup> Amendment, when women across the country gained the right to vote.\n</p>\n<p>\nWomen and men, black and white, fought for it AND AGAINST IT.\n</p>\n<p>\nAGAINST IT? Oh, yes.  At one point, the woman\u2019s group leading the opposition numbered 350,000 members.*\n</p>\n<p>\nWe have always been a nation of many voices, many opinions.  But because of the passage of the 19<sup>th</sup> Amendment in 1920, women\u2019s voices can now participate in our democracy.\n</p>\n<p>\n(*source:  Teri Finneman 2019, Covering a Countermovement on the Verge of Defeat: The Press and the 1917 Social Movement Against Woman Suffrage, American Journalism 36:1, 124-143.)\n</p>\n",
+    "<p>\nIt took many years to convince Congress and 36 States that women deserved the right to vote.  WWI played a part in changing their minds.\n</p>\n<p>\nWhen many men went off to war, women at home took over jobs in transportation, construction and war production.\n</p>\n<p>\nThe Navy and Marine inducted 13,000 women to serve on active duty stateside to free men to go overseas.  The women had the same rank, responsibilities and benefits as the men they replaced, including identical pay.*\n</p>\n<p>\nAfter the War, it was more difficult to continue the argument that women were too fragile for the world outside the home, and politics and government were for men only.\n</p>\n<p>\n(*source: tps:/history.delaware.gov)\n</p>\n",
+    "<p>\nWyoming is nicknamed the \u201cEquality State,\u201d a name well-earned when it granted full voting rights to the women of the Wyoming Territory in 1879 before it was even a state.  The United States Constitution left the question of voting rights for women up to the individual territories and states, and Wyoming was clearly the leader of the Women\u2019s Vote.\n</p>\n<p>\nWhen Wyoming applied for Statehood in 1889, Congress tried but failed to make Wyoming repeal its voting rights for women in order to become a state.  Wyoming was firm.  Equality for all, or no statehood.  Wyoming became the 44<sup>th</sup> state and their women could vote.\n</p>\n<p>\nWomen could vote and sit as judges and on juries.  Studies show they were more likely than men to find someone guilty and they also gave tougher prison sentences.  \n</p>\n<p>\n   (source:  National Geographic)\n</p>\n",
+    "<p>\nThis year we celebrate the 100-year Anniversary of the 19<sup>th</sup> Amendment to the Constitution which gave women across the country the right to vote.  Women in some states had been voting before 1920 because it was up to the states to grant or to deny them the vote.\n</p>\n<p>\nIn 1909, a poster was produced by the Suffragists in California showing which states allowed women to vote and which ones didn\u2019t.  Women could vote in all elections in 4 states, and in some elections in 25 states.  BUT, as the poster declared, IN 1909 CALIFORNIA WOMEN HAVE NO VOTES.\n</p>\n<p>\nFOR THE LONG WORK DAY\n</p>\n<p>\nFOR THE TAXES WE PAY\n</p>\n<p>\nFOR THE LAWS WE OBEY\n</p>\n<p>\nWE WANT SOMETHING TO SAY\n</p>\n",
+    "<p>\n100 years ago, the 19<sup>th</sup> Amendment became law and women gained the right to vote.  It had taken over 70 years for this effort to succeed.\n</p>\n<p>\nOn one side, you had a group of committed women and men who thought it only fair that women should be able to vote for the government that regulated and taxed them.  On the other side, you had years of tradition teaching women their place was at home, to be silent in public, and to listen to husbands and preachers who quoted authority proving female inferiority.\n</p>\n<p>\nFighting tradition is hard.  Many WOMEN even fought the 19<sup>th</sup> Amendment because they thought it was against tradition.  \n</p>\n",
+    "<p>\n100 years ago, the 19<sup>th</sup> Amendment to the U.S. Constitution was ratified and became the law of the land.  The 19<sup>th</sup> Amendment prohibits the states and the federal government from denying the right to vote to citizens of the United States on the basis of sex.  \n</p>\n<p>\nIt was a long and rocky road to this successful conclusion.  The amendment was originally introduced in Congress in 1878 by Senator Aaron Sargent of California.  It took 42 years for this to become part of the Constitution.\n</p>\n",
+    "<p>\n100 years ago, the 19th Amendment guaranteed women the right to vote, but the women in Wyoming had already been voting. Wyoming entered the U.S. as a Territory in 1869 and had given women full voting rights from the beginning.\n</p>\n<p>\n20 years later, when Wyoming was applying for statehood, its new constitution affirmed the right of women to vote.  When Congress threatened to deny the Territory statehood unless it removed the provision allowing women to vote, Wyoming refused, and Congress gave in.\n</p>\n<p>\nWyoming became the first state in the nation to grant women full voting rights when it became the country\u2019s 44th state in 1890.\n</p>\n",
+    "<p>\n100 years ago, in 1920, women won the guaranteed right to vote with the passage of the 19<sup>th</sup> Amendment to the Constitution.  It didn\u2019t happen overnight.\n</p>\n<p>\nThe idea had been proposed in state legislatures since before the Civil War, but it had been largely ignored.  It was first introduced as a Constitutional Amendment in 1878.  \n</p>\n<p>\nFirst proposed in 1878.  Finally passed in 1920.  42 years.  \n</p>\n<p>\nNo, it didn\u2019t happen overnight.\n</p>\n",
+    "<p>\nWomen finally gained the right to vote with the passage of the 19<sup>th</sup> Amendment 100 years ago.  But, earlier than that, in the 1840\u2019s, a group of women gathered AT A CONVENTION to discuss women\u2019s rights.  Together, they resolved a woman should be able to keep and control funds she raised, and she should also be able to divorce an abusive husband.   This was at a time when married women had no right to property or even their own wages.  But, the most controversial demand made at that convention was Women Should Have the Right to Vote.  NOT EVERYONE agreed.\n</p>\n",
+    "<p>\n100 years ago, women\u2019s suffrage \u2013 the right to vote in an election \u2013 became a reality with the 19th Amendment to the Constitution.  The women who campaigned for this right to vote were called \u201cSuffragists.\u201d  \n</p>\n<p>\nOne of their earliest efforts was a Declaration written in 1848 by Elizabeth Cady Stanton which sounds pretty familiar at the very beginning:  <em>We hold these truths to be self-evident:  that all men and women are created equal\u2026\u201d</em>  The difference is that \u201cwomen\u201d has been added.  It concludes with the demand that women have immediate admission to all the rights and privileges which belong to them as citizens of the United States.\n</p>\n<p>\nNewspapers and journals at the time called this idea \u201cridiculous,\u201d but suffragists\u2019 meetings began being held in state after state to continue the discussion.  With time, what was once called \u201cridiculous\u201d became the 19<sup>th</sup> Amendment to the Constitution.\n</p>\n",
+    "<p>\n100 years ago, the 19<sup>th</sup> Amendment to the Constitution passed and women across the country finally won the right to vote.  They\u2019d been fighting for it for over 70 years.\n</p>\n<p>\nSometimes when we want change, we want it now and we feel like giving up when it doesn\u2019t come quickly.  But think about starting to work for a change <strong>70 years ago</strong>.  What was even happening in the world back then? 70 years ago, China became a Communist country under Chairman Mao, and RCA began broadcasting color television in the US.  That sounds like ancient history.  <strong>YES</strong>, the fight for the Women\u2019s Vote was a <strong>LONG</strong> fight.\n</p>\n",
+    "<p>\n100 years ago, the 19<sup>th</sup> Amendment to the U.S. Constitution was ratified by the required \u00be of all the States, which was 36 states at the time.  The 19<sup>th</sup> amendment prohibits the states and the federal government from denying the right to vote to citizens of the United States on the basis of sex.  This allowed women across the country to vote and to have a voice in how they were governed.\n</p>\n<p>\nThe Amendment was adopted on August 18, 1920.  \n</p>\n<p>\nThe first state to ratify was Illinois.  The last (#36) was Tennessee.  New Mexico was #32.\n</p>\n",
+    "<p>\nThis year we\u2019re celebrating the 100th anniversary of the passage of the 19th Amendment to the Constitution which guaranteed women across the country the right to vote.  But, since the states had been able to set their own individual qualifications for voting rights, a lot had always depended upon where you lived.  For instance, women in Wyoming were able to vote when it first became a Territory, 50 years before the 19th Amendment.  Women in the Utah, Washington, and Montana Territories were early voters as well.\n</p>\n<p>\nBut, the women in New Mexico, in contrast, had to wait until passage of the 19th Amendment before their state recognized their guaranteed right to vote.\n</p>\n",
+    "<p>\n100 years ago, the 19<sup>th</sup> Amendment was passed, giving women the right to vote.  A Santa Fe woman, Nina Otero Warren, worked hard to see this happen.\n</p>\n<p>\nNina was born in the 1800\u2019s to a wealthy Spanish American family.  One of her close relatives became the Governor of the Territory of New Mexico.  She had the best education a wealthy girl could have, first with private tutors and then attending a boarding school.  But, because she was a girl, her education stopped at age 13.\n</p>\n<p>\nShe was expected to marry young and take care of her home and family.  Working for a political cause was unthinkable.  Nina had other ideas.  Living in Santa Fe at the time, she was instrumental in involving influential Spanish American women and men in the suffrage issue which was critical to New Mexico\u2019s legislature ratifying the 19<sup>th</sup> Amendment \u2013 the 32<sup>nd</sup> state to do so.\n</p>\n",
+    "<p>\nOne hundred years ago, the 19<sup>th</sup> Amendment guaranteed women across the country the right to vote for the first time.  BEFORE then, SOME women could vote, and SOME couldn\u2019t.  It all depended upon where they lived.  \n</p>\n<p>\nThe Constitution had previously left it up to the Territories and States to determine the voting rights of its citizens.  So, in 1870 for instance, if a woman lived in Wyoming, she could vote.  If she lived in California, she couldn\u2019t. She would have to wait until 1911 for that right in California.  Women in New Mexico had to wait until 1920, 50 years after the women in Wyoming.\n</p>\n",
+    "<p>\n100 years ago, with the passage of the 19th Amendment to the Constitution, women across the country were recognized as citizens and guaranteed the right to vote.  This power at the ballot box had generally been a white, male privilege although states restricted the right to vote early on to only property-owning and tax-paying men.  In 1789, these restrictions resulted in only 6% of the population being eligible to vote.\n</p>\n<p>\nThe last state to abolish the requirement that a white male own property in order to vote was North Carolina in 1856.  But, the tax-paying requirement remained in Pennsylvania and Rhode Island until the 20th century.\n</p>\n",
+    "<p>\nOne hundred years ago, the 19<sup>th</sup> Amendment guaranteed women across the country the right to vote for the first time.  Men had had this privilege for many years.  Well, some men.  When the founding fathers were deciding who should be able to vote and make decisions affecting the government, they decided that only white men, actually only white men who owned property and paid taxes would be able to vote.  As a result, in the very beginning of our country\u2019s government, only 6% of the population could vote.\n</p>\n",
+    "<p>\nMore than 100 years ago, women hoped they would be given the right to vote when Congress was drafting the Amendments after the Civil War which gave the vote to former slaves.  But, women, white and black, were specifically excluded in the language of these amendments.  Of course, the black male\u2019s right to vote was restricted as soon as the states resumed control after Reconstruction.  Starting in the 1890\u2019s, poll taxes, literacy tests and the Ku Klux Klan kept black participation low at the voting booth.  And, it wouldn\u2019t be until 1920 and the passage of the 19<sup>th</sup> Amendment that women would get the vote.\n</p>\n",
+    "<p>\nOne hundred years ago, in 1920, the 19<sup>th</sup> Amendment became law and women across the country gained the right to vote in elections.  Before this, the States controlled who could vote and who couldn\u2019t.  For example, in 1913, 7 years before the 19<sup>th</sup> Amendment, Illinois gave women citizens the right to vote in local and national elections.  BUT, a federal law at the time said that a woman\u2019s citizenship was tied to her husband\u2019s citizenship, and THUS many women in Illinois still could not vote.  They had to wait until 1920.\n</p>\n",
+    "<p>\n<strong>IF YOU\u2019RE A US CITIZEN, YOU CAN VOTE.  WELL, MAYBE.</strong>\n</p>\n<p>\nWe\u2019re celebrating the 100<sup>th</sup> anniversary of the passage of the 19<sup>th</sup> Amendment this year.  It was an important milestone in our history.  Women across the country were finally allowed to vote.\n</p>\n<p>\nHaving a vote means having a voice, having a say, being able to influence the government which affects your life.  It\u2019s extremely important. \n</p>\n<p>\nToday, the Voting Rights Act of 1965 which strengthened the voting rights of minorities in every state has been weakened, and states are passing new voting requirements to make it harder for minorities to vote.  US Senator Udall, NM, has introduced the <strong>Native American Voting Rights Act of 2019</strong> to address many of the voting barriers facing this population.\n</p>\n<p>\n\u201cNative Americans have unequal opportunities to register to vote because of the absence of in-person registration opportunities on reservations. Election officials do not accept tribal identification cards under strict voter ID laws, or they reject registration applications from Native Americans lacking a physical address. Those who are able to register are confronted by great distances to off-reservation voting locations, often in places like sheriff\u2019s offices where they do not feel welcome.\n</p>\n<p>\nThe few polling places located on reservations may be closed for pretextual reasons. In places where mail-in voting occurs, Native voters may not have the financial means to pay the poll tax in the form of postage to return their ballot, or may be unable to access ballot drop-off sites located several hours away off-reservation. Limited-English proficient Native voters frequently are denied access to voting information that voters receive in English, especially before Election Day.\u201d *\n</p>\n<p>\n*(source:  press release from LWVUS and other civil rights organizations, March 11, 2019)\n</p>\n",
+    "<p>\n<strong>US </strong>citizens can vote, yes?  Not always.  We\u2019re celebrating the 100<sup>th</sup> anniversary of the passage of the 19<sup>th</sup> Amendment this year because it gave women the right to vote.  \n</p>\n<p>\nBut, the privilege to vote in 1920 was not extended to Native Americans, male or female.  They were not given citizenship until 1924, and even then they had to fight for the vote on a state-by-state basis.  The last states to grant them the right were Utah and New Mexico in 1962.\n</p>\n<p>\nIn several other states, the right to vote was a sham anyway because it was made difficult or impossible due to poll taxes, literacy tests and intimidation.\n</p>\n",
+    "<p>\n100 years ago, the 19<sup>th</sup> Amendment was ratified in 1920 giving the vote to all US citizens regardless of SEX.  Women could now vote after years and years of fighting for this privilege.\n</p>\n<p>\nBut, not ALL women fought for it.  Quite a few fought against the movement to win the vote.  Who were these women?\n</p>\n<p>\nAccording to an NPR report, the women who fought against the effort to win the vote \"were generally women of wealth, privilege, social status and even political power\u2026. In short, they were women who were doing, comparatively, quite well under the existing system, with incentives to hang onto a system that privileged them.\"\n</p>\n<p>\nIn the North, they \"were generally urban, often the daughters and-or wives of well-to-do men of business, banking or politics. They were also quite likely to be involved in philanthropic or 'reform' work that hewed to traditional gender norms.\"\n</p>\n<p>\nSouthern anti-suffrage leaders\u2026\"were generally planter class, and so their resistance was also tied more explicitly to worries about disruption of the racial order.\"\n</p>\n<p>\nBottom line:  the women who did not want all women to have the right to vote were often women who didn\u2019t want things to change because they liked things just the way they were.\n</p>\n<p>\n(source: <a href=\"https://twitter.com/NPRHistoryDept\" target=\"_blank\">@NPRHistoryDept</a>;&nbsp;lead me by writing&nbsp;<a href=\"mailto:lweeks@npr.org\" target=\"_blank\">lweeks@npr.org</a>)\n</p>\n",
+    "<p>\n100 years ago, in 1920, the 19<sup>th</sup> Amendment gave the right to vote to women across the country regardless of the state they lived in.  This effort started with a declaration by a dedicated group of women in 1848 at a convention in NY, so you could say it took over 70 years.\n</p>\n<p>\nWhy so long?\n</p>\n<p>\nThere were some powerful interests opposed to women gaining the franchise.  For instance, the liquor producers and saloon owners were afraid women would vote against their industry if they had the vote.  Women had long led the temperance efforts in the country to try to control alcohol sales.\n</p>\n\n",
+    "slideshow/1893_woman_suffrage_colorado.jpg",
+    "slideshow/19th_Amendment_High_Resolution_Image.jpg",
+    "slideshow/A._A._Jones,_NM_Senator,_Suffrage_Committee_Chair,_Championed_19th_Amendment.png",
+    "slideshow/Adelina_Otero-Warren.jpg",
+    "slideshow/All_men_and_women_are_created_equal.png",
+    "slideshow/Ann_Webster,_LWV_Social_Hygience_Comm_Chair.jpg",
+    "slideshow/Carrie_Chapman_Catt_After_19th_Amendment_Ratified.jpg",
+    "slideshow/Catherine_Wallace.jpg",
+    "slideshow/Give_Mother_the_Vote.jpg",
+    "slideshow/LWV_100_Year_Logo.jpg",
+    "slideshow/LWV_suffragists8.10.19.jpg",
+    "slideshow/NM_Constitution_1912_Women_get_school_suffrage_but_it_can_be_rescinded.jpg",
+    "slideshow/Suffrage_Map_1915_The_Awakening_-all_of_the_West_except_NM.jpg",
+    "slideshow/Suffrage_Parade_1913_Inez_Milholland_Ready_to_Lead_the_Parade_March_3,_DC,_Inauguration_of_Wilson_is_next_day.jpg",
+    "slideshow/Suffrage_Parade_NM_2020.jpg",
+    "slideshow/Suffrage_map_NM_only_Western_state_without_full_suffrage.jpg",
+    "slideshow/Suffragists_Picketing_the_White_House_1918.jpg",
+    "slideshow/Sufrage_Colorado_-Women_You_Have_The_VOTE--use_it.jpg",
+    "slideshow/clip_image010.jpg",
+    "slideshow/clip_image011.jpg",
+    "slideshow/clip_image012.jpg",
+    "slideshow/clip_image013.jpg",
+    "slideshow/clip_image014.jpg",
+    "slideshow/clip_image015.jpg",
+    "slideshow/clip_image016.jpg",
+    "slideshow/clip_image017.jpg",
+    "slideshow/clip_image018.jpg",
+    "slideshow/suffragettesholdingsign.jpg",
+    "slideshow/suffragistspicketthewhitehouse1917hwvnr3udzai6tphhic2bax34ua.jpg"
+];
+
+// Size the image to fit the space available.
+// Called from onload of the img element, so the image should be loaded
+// and the natural size available.
+function resizeImage() {
+    const FILLFRAC = .95;
+
+    // Size of the image:
+    var img = document.getElementById("bigimage");
+    imgW = img.naturalWidth;
+    imgH = img.naturalHeight;
+
+    // Size of the window:
+    var winW = window.innerWidth;
+    var winH = window.innerHeight;
+
+    // Check aspect ratios:
+    if (imgW/imgH > winW/winH) {
+        // image has a wider aspect ratio than window; scale by width
+        img.style.width = winW * FILLFRAC;
+        img.style.height = imgH * winW / imgW * FILLFRAC;
+    } else {
+        // image has a narrower aspect ratio than window; scale by height
+        img.style.height = winH * FILLFRAC;
+        img.style.width = imgW * winH / imgH * FILLFRAC;
+    }
+}
+
+function newquote() {
+    var choice = quotelist[Math.floor(Math.random() * quotelist.length)];
+
+    // Is it a string or an image filename? Check the extension.
+    if (choice.match(/.(jpg|jpeg|png|gif)$/i)) {
+        console.log("new image:", choice);
+        $(quotecontent).css('display', 'none');
+        $(imagecontent).css('display', 'block');
+
+        var img = document.getElementById("bigimage");
+        if (img) {
+            img.src = choice;
+            img.onload = resizeImage;
+        }
+        //return;
+    }
+    else {
+        console.log("new quote:", choice);
+        $(quotecontent).css('display', 'block');
+        $(imagecontent).css('display', 'none');
+
+        $(quotecontent).css('color', 'black');
+        $(quotespan).html(choice);
+        $(quotecontent).resizeText();
+        $(quotecontent).css('color', 'yellow');
+    }
+
+    // Use setTimeout so that the next quote isn't scheduled until
+    // the current quote is finished laying out.
+    // resizeText() is quite slow on a Pi Zero, so using setInterval
+    // to load every N seconds sometimes results in pages loading at
+    // unexpectedly short times.
+    setTimeout(newquote, 30000);
+}
+
+newquote();
+
+</script>
+
+</body>
+</html>
