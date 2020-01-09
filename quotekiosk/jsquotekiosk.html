@@ -27,6 +27,7 @@ a, a.visited { color: #fa3; }
 p { padding-bottom: .75em; }
 
 #quotecontent {
+  position: absolute; top: 0; left: 0;
   /* More trying to avoid scrollbars */
   width: 90%; height: 90%;
   padding: 40px;
@@ -34,7 +35,23 @@ p { padding-bottom: .75em; }
   margin: auto;
   font-face: Times New Roman;
   font-style: italic;
+  transition: visibility 0s, opacity 1.5s linear;
 }
+
+#imagecontent {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  transition: visibility 0s, opacity 1.5s linear;
+}
+
+#imagecenter {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.invisible { opacity: 0; }
 </style>
 
 <script src="jquery-min.js"></script>
@@ -44,15 +61,14 @@ p { padding-bottom: .75em; }
 
 <div id="quotecontent">
   <span id="quotespan">
-    la la la
+    *
   </span>
 </div>
 
 <div id="imagecontent">
-<table class="nopadding" width=100% height=100%><tr><td align=center valign=center>
-<img id="bigimage">
-</td></tr>
-</table>
+  <div id="imagecenter">
+    <img id="bigimage">
+  </div>
 </div>
 
 <script>
@@ -100,9 +116,8 @@ $(document).ready(function() {
 
 <script>
 /*
- * The quote list. Personalize for your own kiosk application.
- * This is a list of quotes for the 100th anniversary of the League of
- * Women Voters, plus images (which are not included in this repository).
+ * The quote list. This is a list of quotes for the 100th anniversary
+ * of the League of Women Voters, plus images.
  */
 var quotelist = [
     "<p>\n100 years ago. In 1920, the 19<sup>th</sup> Amendment guaranteed women across the country the right to vote. \n</p>\n<p>\nMany years before that, in 1776, Abigail Adams sent John Adams off to Boston and the drafting of the Declaration of Independence reminding him not to forget \u201cthe ladies.\u201d  But, John Adams and Thomas Jefferson declared their independence from the British with the words \u201call MEN are created equal.\u201d  They did not include women.  The new laws for the new country declared women had no independence from men.  No property rights, no right to vote, no right to enter a legal contract, and they were entirely under the control of their husbands.\n</p>\n",
@@ -191,21 +206,33 @@ function resizeImage() {
     }
 }
 
-function newquote() {
+async function newquote() {
+    $(quotecontent).addClass("invisible");
+    $(imagecontent).addClass("invisible");
+
+    // The CSS opacity transitions work when changing from quotecontent
+    // to imagecontent or vice versa, but not when changing from
+    // imagecontent to imagecontent. Sleeping for a while here makes
+    // quotecontent to quotecontent work, but when transitioning between
+    // two images, now the fade-out works but the fade-in doesn't.
+    await new Promise(r => setTimeout(r, 1500));
+
     var choice = quotelist[Math.floor(Math.random() * quotelist.length)];
 
     // Is it a string or an image filename? Check the extension.
     if (choice.match(/.(jpg|jpeg|png|gif)$/i)) {
         console.log("new image:", choice);
 
+        // The onload doesn't work if I set it from jquery.
         var img = document.getElementById("bigimage");
-        if (img) {
-            img.src = choice;
-            img.onload = resizeImage;
-        }
+        img.src = choice;
+        img.onload = resizeImage;
 
-        $(quotecontent).css('display', 'none');
-        $(imagecontent).css('display', 'block');
+        // To make an image following another image fade in properly requires
+        // another sleep, but it can be shorter than the previous one:
+        await new Promise(r => setTimeout(r, 500));
+
+        $(imagecontent).removeClass("invisible");
     }
     else {
         console.log("new quote:", choice);
@@ -215,8 +242,7 @@ function newquote() {
         $(quotecontent).resizeText();
         $(quotecontent).css('color', 'yellow');
 
-        $(quotecontent).css('display', 'block');
-        $(imagecontent).css('display', 'none');
+        $(quotecontent).removeClass("invisible");
     }
 
     // Use setTimeout so that the next quote isn't scheduled until
