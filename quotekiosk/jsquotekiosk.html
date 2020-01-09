@@ -197,25 +197,26 @@ function newquote() {
     // Is it a string or an image filename? Check the extension.
     if (choice.match(/.(jpg|jpeg|png|gif)$/i)) {
         console.log("new image:", choice);
-        $(quotecontent).css('display', 'none');
-        $(imagecontent).css('display', 'block');
 
         var img = document.getElementById("bigimage");
         if (img) {
             img.src = choice;
             img.onload = resizeImage;
         }
-        //return;
+
+        $(quotecontent).css('display', 'none');
+        $(imagecontent).css('display', 'block');
     }
     else {
         console.log("new quote:", choice);
-        $(quotecontent).css('display', 'block');
-        $(imagecontent).css('display', 'none');
 
         $(quotecontent).css('color', 'black');
         $(quotespan).html(choice);
         $(quotecontent).resizeText();
         $(quotecontent).css('color', 'yellow');
+
+        $(quotecontent).css('display', 'block');
+        $(imagecontent).css('display', 'none');
     }
 
     // Use setTimeout so that the next quote isn't scheduled until
