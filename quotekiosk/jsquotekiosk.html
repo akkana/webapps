@@ -26,7 +26,7 @@ a, a.visited { color: #fa3; }
  */
 p { padding-bottom: .75em; }
 
-#quotecontent {
+.quotecontent {
   position: absolute; top: 0; left: 0;
   /* More trying to avoid scrollbars */
   width: 90%; height: 90%;
@@ -38,7 +38,7 @@ p { padding-bottom: .75em; }
   transition: visibility 0s, opacity 1.5s linear;
 }
 
-#imagecontent {
+.imagecontent {
   position: absolute; top: 0; left: 0;
   width: 100%; height: 100%;
   transition: visibility 0s, opacity 1.5s linear;
@@ -51,70 +51,74 @@ p { padding-bottom: .75em; }
   transform: translate(-50%, -50%);
 }
 
+.nodelays {
+  -moz-transition: none !important;
+  -webkit-transition: none !important;
+  -o-transition: none !important;
+  transition: none !important;
+}
+
 .invisible { opacity: 0; }
 </style>
 
-<script src="jquery-min.js"></script>
 </head>
 
 <body>
 
-<div id="quotecontent">
-  <span id="quotespan">
+<div id="text0" class="quotecontent">
+  <span id="quotespan0">
     *
   </span>
 </div>
 
-<div id="imagecontent">
+<div id="text1" class="quotecontent">
+  <span id="quotespan1">
+    *
+  </span>
+</div>
+
+<div id="img0" class="imagecontent">
   <div id="imagecenter">
-    <img id="bigimage">
+    <img id="bigimage0">
+  </div>
+</div>
+
+<div id="img1" class="imagecontent">
+  <div id="imagecenter">
+    <img id="bigimage1">
   </div>
 </div>
 
 <script>
-// https://stackoverflow.com/questions/24376897/fit-text-perfectly-inside-a-div-height-and-width-without-affecting-the-size-of
-$.fn.resizeText = function (options) {
+function autoSizeText(el) {
+    const MAXFONT = 200;
+    const MINFONT = 4;
+    const FRAC = .9;
 
-    var settings = $.extend({ maxfont: 200, minfont: 4 }, options);
+    var fontsize = MAXFONT;
 
-    var style = $('<style>').html('.nodelays ' +
-    '{ ' +
-        '-moz-transition: none !important; ' +
-        '-webkit-transition: none !important;' +
-        '-o-transition: none !important; ' +
-        'transition: none !important;' +
-    '}');
+    el.classList.add("nodelays");
 
-    function shrink(el, fontsize, minfontsize)
-    {
-        if (fontsize < minfontsize) return;
+    var targetHeight = el.parentElement.offsetHeight * FRAC;
+    while (fontsize >= MINFONT) {
         el.style.fontSize = fontsize + 'px';
-        if (el.scrollHeight > el.offsetHeight) shrink(el, fontsize - 1, minfontsize);
+
+        // For some reason you can't get scrollHeight for the div element,
+        // but can for the children.
+        var totalScrollHeight = 0;
+        var children = el.children;
+        for (var i = 0; i < children.length; i++) {
+            var child = children[i];
+            totalScrollHeight += child.scrollHeight;
+        }
+        if (totalScrollHeight <= targetHeight)
+            return;
+        fontsize = fontsize - 1;
     }
 
-    $('head').append(style);
-
-    $(this).each(function(index, el)
-    {
-        var element = $(el);
-        element.addClass('nodelays');
-        shrink(el, settings.maxfont, settings.minfont);
-        element.removeClass('nodelays');
-    });
-
-    style.remove();
+    el.classList.remove("nodelays");
 }
 
-// The function to compute the font size is very slow.
-// So the default color is set to black, and once resizeText() has run,
-// it's okay to set the color to yellow to make it visible.
-$(document).ready(function() {
-  $(quotecontent).resizeText();
-  $(quotecontent).css('color', 'yellow');
-});
-</script>
-
-<script>
 /*
  * The quote list. This is a list of quotes for the 100th anniversary
  * of the League of Women Voters, plus images.
@@ -179,6 +183,11 @@ var quotelist = [
     "slideshow/suffragistspicketthewhitehouse1917hwvnr3udzai6tphhic2bax34ua.jpg"
 ];
 
+// There are two image divs and two text divs, but only one of the four
+// is on top of the stack and visible at any given time.
+var stackedDivs = [ "img0", "img1", "text0", "text1" ];
+var visibleDivNum = 0;
+
 // Size the image to fit the space available.
 // Called from onload of the img element, so the image should be loaded
 // and the natural size available.
@@ -186,7 +195,7 @@ function resizeImage() {
     const FILLFRAC = .95;
 
     // Size of the image:
-    var img = document.getElementById("bigimage");
+    var img = document.getElementById("bigimage" + visibleDivNum);
     imgW = img.naturalWidth;
     imgH = img.naturalHeight;
 
@@ -207,15 +216,8 @@ function resizeImage() {
 }
 
 async function newquote() {
-    $(quotecontent).addClass("invisible");
-    $(imagecontent).addClass("invisible");
-
-    // The CSS opacity transitions work when changing from quotecontent
-    // to imagecontent or vice versa, but not when changing from
-    // imagecontent to imagecontent. Sleeping for a while here makes
-    // quotecontent to quotecontent work, but when transitioning between
-    // two images, now the fade-out works but the fade-in doesn't.
-    await new Promise(r => setTimeout(r, 1500));
+    var lastdiv = document.getElementById(stackedDivs[visibleDivNum]);
+    var nextdiv;
 
     var choice = quotelist[Math.floor(Math.random() * quotelist.length)];
 
@@ -223,27 +225,42 @@ async function newquote() {
     if (choice.match(/.(jpg|jpeg|png|gif)$/i)) {
         console.log("new image:", choice);
 
+        if (visibleDivNum < 2)    // currently showing an image
+            visibleDivNum = (visibleDivNum + 1) % 2;
+        else                      // showing text, either image div will work
+            visibleDivNum = 0;
+        nextdiv = document.getElementById(stackedDivs[visibleDivNum]);
+
         // The onload doesn't work if I set it from jquery.
-        var img = document.getElementById("bigimage");
+        var img = document.getElementById("bigimage" + visibleDivNum);
         img.src = choice;
         img.onload = resizeImage;
 
         // To make an image following another image fade in properly requires
         // another sleep, but it can be shorter than the previous one:
         await new Promise(r => setTimeout(r, 500));
-
-        $(imagecontent).removeClass("invisible");
     }
     else {
         console.log("new quote:", choice);
 
-        $(quotecontent).css('color', 'black');
-        $(quotespan).html(choice);
-        $(quotecontent).resizeText();
-        $(quotecontent).css('color', 'yellow');
+        if (visibleDivNum >= 2)    // currently showing text
+            visibleDivNum = (visibleDivNum - 1) % 2 + 2;
+        else                       // showing an image, either text div works
+            visibleDivNum = 2;
+        nextdiv = document.getElementById(stackedDivs[visibleDivNum]);
 
-        $(quotecontent).removeClass("invisible");
+        var quotespan = document.getElementById("quotespan" + (visibleDivNum-2));
+        nextdiv.style.color = 'black';
+        quotespan.innerHTML = choice;
+        autoSizeText(quotespan);
+        nextdiv.style.color = 'yellow';
     }
+
+    lastdiv.style.zIndex = "0";
+    nextdiv.style.zIndex = "1";
+
+    lastdiv.classList.add("invisible");
+    nextdiv.classList.remove("invisible");
 
     // Use setTimeout so that the next quote isn't scheduled until
     // the current quote is finished laying out.
