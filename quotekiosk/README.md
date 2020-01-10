@@ -1,4 +1,4 @@
-# jsquotekiosk.html
+# quotekiosk.html
 
 This is a kiosk for displaying a mixture of HTML quotations and images.
 
