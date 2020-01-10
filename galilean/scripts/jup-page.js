@@ -9,6 +9,28 @@ function initpage() {
 
   var date = null;
 
+  /*
+    COMMENTED OUT FOR NOW. OUR DATE FIELD FORMAT IS CHANGING ANYWAY.
+    // Did the user specify a date in the URL?
+    var url = new String(document.location);
+    var idx = url.indexOf("?");
+    if (idx > 0) {
+    idx = url.indexOf("date=", idx);
+    if (idx > 0) {
+      date = new Date(decodeURIComponent(url.substr(idx + 5)));
+      // Discussion of the three decoding options in javascript:
+      // http://unixpapa.com/js/querystring.html
+      // http://stackoverflow.com/questions/747641/what-is-the-difference-between-decodeuricomponent-and-decodeuri
+      }
+    }
+
+  if (!date) {
+    //date = new Date();
+    date = parseDateTime("2017-05-17");
+    updateDate(date);
+  }
+  */
+
   // Call the code that calculates the positions, defined in jupiter.js.
   jup = new Jupiter();
 
@@ -327,11 +349,12 @@ function drawJupiter(jup, date) {
   // the system 2 longitude of the spot drifts around,
   // so this needs to be updated regularly.
   // http://jupos.privat.t-online.de/ is a good resource.
-  // Last updated 2018-07-09
-  var coord = jup.getRedSpotXY(289);
+  // Last updated 2019-07-19
+  var coord = jup.getRedSpotXY(312);
   var img = document.getElementById("grs");
   var label = document.getElementById("grslabel");
 
+  // Is the GRS currently visible?
   if (img && !isNaN(coord.x) && !isNaN(coord.y)) {
     // XXX Need some extra code here to make width smaller if the GRS
     // XXX is near the limb and foreshortened.
@@ -344,12 +367,14 @@ function drawJupiter(jup, date) {
     } else if (sx + sw > halfwidth + jr) {
       sw = halfwidth + jr - sx;
     }
+    sw = spotWidth;
     placeImage(img, sx, coord.y * jupRadius + halfheight - spotHeight/2,
                sw, spotHeight);
     if (label) {
       placeImage(label, sx);
     }
   }
+  // else it's invisible and needs to be hidden
   else if (img) {
     img.style.visibility = "hidden";
     if (label) {
@@ -357,6 +382,29 @@ function drawJupiter(jup, date) {
     }
   }
   //else { alert("no grs image"); }
+
+  /* clip the GRS so it doesn't go outside the circle of Jupiter.
+     This CSS clip_path stuff doesn't work as documented at all,
+     and there's no obvious way to test it.
+   */
+  var grs = document.getElementById("grs");
+  var fudge = 1;
+  grsclip = "circle(" + Math.round(jupRadius*2 + 2*fudge) + "px at "
+    + Math.round(halfwidth - jupRadius - fudge) + "px "
+    + Math.round(halfheight - jupRadius - fudge) + "px)";
+  console.log("Calculated GRS clip: " + grsclip);
+  // Calculated GRS clip: circle(47px at 563px 27px)
+  grsclip = "circle(50px at 560px 25px)";
+  grs.style.clipPath = grsclip;
+
+  /*
+  testclip = "circle(" + Math.round(jupRadius) + "px at "
+    + Math.round(halfwidth - jupRadius + 200) + "px "
+    + Math.round(halfheight - jupRadius) + "px)";
+  console.log("test clip: " + testclip);
+  img.style.clip_path = testclip;
+  img.style.clipPath = "circle(10px at 0px 0px)";
+  /* #jupframe #grs { clip-path: circle(60px at 10px 10px); } */
 
   for (var whichmoon = 0; whichmoon < 4; ++whichmoon) {
     // First handle the shadow

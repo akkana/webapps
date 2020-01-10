@@ -77,20 +77,6 @@ input.recalcbtn { border: 2px outset black;
                  }
 input.recalcbtn:hover { background: #966; }
 
-/* The calendar */
-#cal-container {
-  position: relative; /* width: 0; height: 0;*/
-  z-index: 100;
-}
-#calBorder {
-  position: absolute; left: 2em; top: 0em;
-  background: white;
-  /* opacity: .8; */
-  z-index: 90;
-  border: 2px outset black;
-  box-shadow: 10px 10px 5px #888888;
-}
-
 /* Verbose text: want this on the web page but not on small devices or windows.
  * On my Galaxy S5 with default font, portrait mode has a width of about 48em
  * and a height of about 34 em, I think;
@@ -100,14 +86,8 @@ input.recalcbtn:hover { background: #966; }
 @media (max-width: 40em) {    /* portrait */
   .chatty { display: None }
   #datetimeinput { width: 13em; font-size: 1.1rem; }
-  #cal-container { position: fixed; left: .5em; top: 145px; }
 }
 @media (max-height: 30em) {   /* landscape */
   .chatty { display: None }
   #datetimeinput { width: 12em; font-size: 1.1rem; }
-  /* Would be nice to position the calendar relative to the viewport right,
-   * but right: here doesn't work, probably because it doesn't have a fixed
-   * size for the cal-container. So just fudge it from the left.
-   */
-  #cal-container { position: fixed; left: 20em; top: 0px; }
 }

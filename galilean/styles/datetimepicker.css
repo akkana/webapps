@@ -20,9 +20,43 @@
 .MinuteSelector { text-align: left; }
 .SecondSelector { text-align: left; }
 
-#calBorder { background: #bbb; color: black; }
+/* The calendar that pops up when you click the calendar button
+ * is calBorder. cal-container is a parent for calBorder that
+ * makes it possible to position the calBorder.
+ */
+#cal-container {
+  position: relative; /* width: 0; height: 0;*/
+  z-index: 100;
+}
+
+#calBorder {
+  position: absolute; top: 100%; left: 0; /* left: .5em; top: -1em; */
+  background: white;
+  /* opacity: .8; */
+  z-index: 90;
+  border: 2px outset black;
+  box-shadow: 10px 10px 5px #888888;
+  /* The calBorder shows up as a rogue pixel wherever it's positioned,
+   * which is somewhere to the left of the bottom of the calendar button,
+   * above the -day button. There doesn't seem to be a way to make it
+   * totally invisible, but setting these three colors to the same
+   * as the page background at least makes it less obvious.
+   * (Setting colors on #cal-container doesn't help.)
+   */
+  background: #556; color: #556; border-color: #556;
+  /* background: #bbb; color: black; */
+  visibility: hidden;
+}
+
 #calBorder table { background: #bbb; color: black; }
 #calBorder input[type=button] { background: #eee; color: black; }
 #calBorder input[type=text]   { background: #eee; color: black; }
 #calBorder select { background: #ddd; color: black; }
 #calBorder select option { background: #ddd; color: black; }
+
+@media (max-width: 40em) {    /* portrait */
+  #calBorder { left: -9em; } */
+}
+@media (max-height: 30em) {   /* landscape */
+  #calBorder { right: 0em; }
+}

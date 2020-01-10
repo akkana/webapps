@@ -74,8 +74,10 @@ the current position of Jupiter's moons.
   -- we need: a lot of them are colons, slashes or 1,
   -- and the size will be set by ems.
   -->
-<td><input type="image" class="calendarbtn" src="datetimeimages/cal.gif"
- onclick="javascript:NewCssCal('datetimeinput','yyyyMMdd','dropdown',true,'24',false,null,useNewDate)" />
+<td id="cal-container">
+  <input type="image" class="calendarbtn" src="datetimeimages/cal.gif"
+   onclick="javascript:NewCssCal('datetimeinput','yyyyMMdd','dropdown',true,'24',false,null,useNewDate)" />
+  <span id="calBorder"></span>
 
 <td>
 <input type="button" name="now" id="now" value="Now"
@@ -90,11 +92,11 @@ the current position of Jupiter's moons.
      and then calBorder can be positioned absolutely inside that.
      It sorta works, anyway ...
      http://stackoverflow.com/questions/6040005/relatively-position-an-element-without-it-taking-up-space-in-document-flow
- -->
 <p>
 <span id="cal-container">
 <span id="calBorder"></span>
 </span>
+ -->
 
 <p>
 <input type="button" id="prevDay" name="prevDay" value="-day" onClick="addHours(-24);">
@@ -171,7 +173,6 @@ Miguel Moreto has adapted the older Java code for an app called
 </div>
 
 <hr>
-<a href="../satsat/">Saturn's Satellites</a> |
 <a href="/">Shallow Sky home</a>
 
 <!-- Supposedly it's now better to manage javascript at the end of the body,
