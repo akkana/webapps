@@ -217,7 +217,7 @@ function resizeImage() {
     }
 }
 
-async function newquote() {
+function newquote() {
     var lastdiv = document.getElementById(stackedDivs[visibleDivNum]);
     var nextdiv;
 
@@ -237,10 +237,6 @@ async function newquote() {
         var img = document.getElementById("bigimage" + visibleDivNum);
         img.src = choice;
         img.onload = resizeImage;
-
-        // To make an image following another image fade in properly requires
-        // another sleep, but it can be shorter than the previous one:
-        await new Promise(r => setTimeout(r, 500));
     }
     else {
         console.log("new quote:", choice);
