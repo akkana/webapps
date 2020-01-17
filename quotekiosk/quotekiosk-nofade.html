@@ -1,0 +1,235 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script type="text/javascript" >
+// Minimum time between showing successive screens:
+const DELAY = 15000;
+
+// Interval of blackness between successive screens:
+const RENDER_DELAY = 500;
+
+// Fudge factor because otherwise CSS overflows and shows a scrollbar:
+const FILLFRAC = .95;
+
+/*
+var quotelist = [
+    "<b>Lorem ipsum dolor sit amet</b>, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    "images/img001.jpg",
+    "images/img002.jpg",
+    "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+];
+ */
+</script>
+
+<!-- Where to get the list of quotes and images: -->
+<script type="text/javascript" src="quotes.js"></script>
+
+<style>
+/* Without the next line, the body will be positioned considerably down
+ * from the top of the HTML.
+ */
+* { margin: 0; border: 0; padding: 0; }
+
+/* Try to avoid scrollbars */
+html, body { height: 99%; }
+
+body {
+  background-color: black; color: yellow;
+  /* outline: green solid thin; */
+}
+
+a, a.visited { color: #fa3; }
+
+/* Can't allow paragraphs to have a margin, because that mysteriously
+ * makes the body move way down below the top of the html.
+ * Padding seems to do that less, at least.
+ */
+p { padding-bottom: .75em; }
+
+.quotecontent {
+  position: absolute; top: 0; left: 0;
+  /* More trying to avoid scrollbars */
+  width: 90%; height: 90%;
+  padding: 40px;
+  /* outline: red solid thin; */
+  margin: auto;
+  font-face: Times New Roman;
+  font-style: italic;
+}
+
+.imagecontent {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+}
+
+.nodelays {
+  -moz-transition: none !important;
+  -webkit-transition: none !important;
+  -o-transition: none !important;
+  transition: none !important;
+}
+
+table.nopadding {
+    padding: 0; margin: 0; border: 0;
+}
+
+.invisible { opacity: 0; }
+</style>
+
+</head>
+
+<body onload="newquote();">
+
+<div id="quotecontent" class="quotecontent">
+  <span id="quotespan">
+    *
+  </span>
+</div>
+
+<div id="imagecontent" class="imagecontent">
+  <table class="nopadding" width=100% height=100%><tr><td align="center">
+  <div id="imagecenter">
+    <img id="bigimage">
+  </div>
+  </table>
+</div>
+
+<script type="text/javascript" >
+function autoSizeText(el) {
+    const MAXFONT = 200;
+    const MINFONT = 4;
+    const FRAC = .9;
+
+    var fontsize = MAXFONT;
+
+    el.classList.add("nodelays");
+
+    var targetHeight = el.parentElement.offsetHeight * FRAC;
+    while (fontsize >= MINFONT) {
+        el.style.fontSize = fontsize + 'px';
+
+        // For some reason you can't get scrollHeight for the div element,
+        // but can for the children.
+        var totalScrollHeight = 0;
+        var children = el.children;
+        for (var i = 0; i < children.length; i++) {
+            totalScrollHeight += children[i].scrollHeight;
+        }
+        if (totalScrollHeight <= targetHeight)
+            return;
+        fontsize = fontsize - 1;
+    }
+
+    el.classList.remove("nodelays");
+}
+
+var quotecontent = null;
+var imagecontent = null;
+var bigimg = null;
+var quotespan = null;
+
+// Size the image to fit the space available.
+// Called from onload of the img element, so the image should be loaded
+// and the natural size available.
+function resizeImage(img) {
+
+    // Size of the image:
+    imgW = img.naturalWidth;
+    imgH = img.naturalHeight;
+
+    // Size of the window: neither window.innerWidth nor window.clientWidth
+    // works in python-webkit.
+    var winW = window.innerWidth;
+    var winH = window.innerHeight;
+
+    // These work even in webkit, but they get the physical screen width,
+    // not the width of the browser window.
+    if (!winW)
+        winW = window.screen.width;
+    if (!winH)
+        winH = window.screen.height;
+
+    console.log("window is " + winW + " x " + winH);
+
+    // Check aspect ratios:
+    if (imgW/imgH > winW/winH) {
+        // image has a wider aspect ratio than window; scale by width
+        bigimg.style.width = winW * FILLFRAC;
+        bigimg.style.height = imgH * winW / imgW * FILLFRAC;
+    } else {
+        // image has a narrower aspect ratio than window; scale by height
+        bigimg.style.height = winH * FILLFRAC;
+        bigimg.style.width = imgW * winH / imgH * FILLFRAC;
+    }
+}
+
+//
+// The operations in newquote are asynchronous; we can't rely
+// that the div won't be made visible again before its content is changed.
+// In practice, it works to make it invisible in newquote() as long
+// as it isn't made visible again right away; so newquote() makes
+// both divs invisible and changes the content of the active one,
+// then schedules a call to makeVisible to turn it back on.
+//
+// If you have problems with content flashing even with this,
+// try modifying makeVisible so that it changes the content and
+// then sets visibility to visible, instead of changing the
+// content in newquote().
+//
+function makeVisible(el) {
+    el.style.visibility = "visible";
+}
+
+function newquote() {
+    choice = quotelist[Math.floor(Math.random() * quotelist.length)];
+
+    if (! quotecontent) {
+        quotecontent = document.getElementById("quotecontent");
+        imagecontent = document.getElementById("imagecontent");
+        bigimg = document.getElementById("bigimage");
+        quotespan = document.getElementById("quotespan");
+        bigimg.onload = resizeImage;
+    }
+    if (!quotecontent) {
+        console.log("Can't find quotecontent! Aborting.");
+        return;
+    }
+
+    // Turn both invisible
+    quotecontent.style.visibility = "hidden";
+    imagecontent.style.visibility = "hidden";
+
+    // Is it a string or an image filename? Check the extension.
+    if (choice.match(/.(jpg|jpeg|png|gif)$/i)) {
+        console.log("new image:", choice);
+
+        bigimg.src = choice;
+
+        // imagecontent.style.visibility = "visible";
+        setTimeout(function() { makeVisible(imagecontent) }, RENDER_DELAY);
+    }
+    else {
+        console.log("new quote:", choice);
+
+        quotespan.innerHTML = choice;
+        autoSizeText(quotespan);
+
+        // quotecontent.style.visibility = "visible";
+        setTimeout(function() { makeVisible(quotecontent) }, RENDER_DELAY);
+    }
+
+    // Use setTimeout so that the next quote isn't scheduled until
+    // the current quote is finished laying out.
+    // resizeText() is quite slow on a Pi Zero, so using setInterval
+    // to load every N seconds sometimes results in pages loading at
+    // unexpectedly short times.
+    setTimeout(newquote, DELAY);
+}
+
+</script>
+
+</body>
+</html>

@@ -4,6 +4,17 @@
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+<script>
+// Minimum time between showing successive screens:
+const DELAY        = 15000;
+
+// Fudge factor because otherwise CSS overflows and shows a scrollbar:
+const FILLFRAC = .95;
+</script>
+
+<!-- Where to get the list of quotes and images: -->
+<script type="text/javascript" src="quotes.js"></script>
+
 <style>
 /* Without the next line, the body will be positioned considerably down
  * from the top of the HTML.
@@ -44,18 +55,26 @@ p { padding-bottom: .75em; }
   transition: visibility 0s, opacity 1.5s linear;
 }
 
+#img0, img1 { outline: purple solid thin; }
+
+/* This is lovely in more modern browsers but alas doesn't work in webkit:
 #imagecenter {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
+ */
 
 .nodelays {
   -moz-transition: none !important;
   -webkit-transition: none !important;
   -o-transition: none !important;
   transition: none !important;
+}
+
+table.nopadding {
+    padding: 0; margin: 0; border: 0;
 }
 
 .invisible { opacity: 0; }
@@ -78,15 +97,19 @@ p { padding-bottom: .75em; }
 </div>
 
 <div id="img0" class="imagecontent">
+  <table class="nopadding" width=100% height=100%><tr><td align="center">
   <div id="imagecenter">
     <img id="bigimage0">
   </div>
+  </table>
 </div>
 
 <div id="img1" class="imagecontent">
+  <table class="nopadding" width=100% height=100%><tr><td align="center">
   <div id="imagecenter">
     <img id="bigimage1">
   </div>
+  </table>
 </div>
 
 <script>
@@ -172,17 +195,37 @@ var quotelist = [
     "slideshow/Suffrage_map_NM_only_Western_state_without_full_suffrage.jpg",
     "slideshow/Suffragists_Picketing_the_White_House_1918.jpg",
     "slideshow/Sufrage_Colorado_-Women_You_Have_The_VOTE--use_it.jpg",
-    "slideshow/clip_image010.jpg",
-    "slideshow/clip_image011.jpg",
-    "slideshow/clip_image012.jpg",
-    "slideshow/clip_image013.jpg",
-    "slideshow/clip_image014.jpg",
-    "slideshow/clip_image015.jpg",
-    "slideshow/clip_image016.jpg",
-    "slideshow/clip_image017.jpg",
-    "slideshow/clip_image018.jpg",
+    "slideshow/lwv-parade010.jpg",
+    "slideshow/lwv-parade011.jpg",
+    "slideshow/lwv-parade012.jpg",
+    "slideshow/lwv-parade013.jpg",
+    "slideshow/lwv-parade014.jpg",
+    "slideshow/lwv-parade015.jpg",
+    "slideshow/lwv-parade016.jpg",
+    "slideshow/lwv-parade017.jpg",
+    "slideshow/lwv-parade018.jpg",
+
+    "<p>The women were innocent and defenseless, but they were jailed nonetheless  for picketing the White House, carrying signs asking for the vote.<p>And by the end of the night, they were barely alive. Forty prison guards wielding clubs and their warden's blessing went on a rampage against the 33 women wrongly convicted of 'obstructing sidewalk traffic.'",
+    "<p>They beat Lucy Burns, chained her hands to the cell bars above her head and left her hanging for the night, bleeding and gasping for air.<p>They hurled Dora Lewis into a dark cell, smashed her head against an iron bed and knocked her out cold. Her cellmate, Alice Cosu, thought Lewis was dead and suffered a heart attack. Additional affidavits describe the guards grabbing, dragging, beating, choking, slamming, pinching, twisting and kicking the women.",
+    "<p>When one of the leaders, Alice Paul, embarked on a hunger strike, they tied her to a chair, forced a tube down her throat and poured liquid into her until she vomited. She was tortured like this for weeks until word was smuggled out to the press.<p>So, refresh my memory. Some women won't vote this year because  - why, exactly? We have carpool duties? We have to get to work? Our vote doesn't matter? It's raining?",
+    "<p>Last week, I went to a sparsely attended screening of HBO's new movie 'Iron Jawed Angels.' It is a graphic depiction of the battle these women waged so that I could pull the curtain at the polling booth and have my say. I am ashamed to say I needed the reminder.<p>&ldquo;All these years later, voter registration is still my passion. But the actual act of voting had become less personal for me, more rote. Frankly, voting often felt more like an obligation than a privilege. Sometimes it was inconvenient.",
+    "<p>When [a friend] stopped by my desk to talk about the HBO's movie 'Iron Jawed Angels.', she looked angry. She was &mdash; with herself. 'One thought kept coming back to me as I watched that movie,' she said. 'What would those women think of the way I use, or don't use, my right to vote? All of us take it for granted now, not just younger women, but those of us who did seek to learn.' The right to vote, she said, had become valuable to her 'all over again.'",
+    "<p>It is jarring to watch Woodrow Wilson and his cronies try to persuade a psychiatrist to declare Alice Paul insane so that she could be permanently institutionalized. And it is inspiring to watch the doctor refuse. Alice Paul was strong, he said, and brave. That didn't make her crazy.<p>The doctor admonished the men: 'Courage in women is often mistaken for insanity.'",
+    "<p>You have not lived until you have done something for someone who can never repay you.<p>&nbsp;&nbsp;&nbsp;&nbsp;&mdash;Anonymous",
+
+    "slideshow/Lucero01.jpg",
+    "slideshow/Lucero02.jpg",
+    "slideshow/Lucero03.jpg",
+    "slideshow/Lucero04.jpg",
+    "slideshow/Lucero05.jpg",
+    "slideshow/Lucero06.jpg",
+    "slideshow/Lucero07.jpg",
+    "slideshow/Lucero08.jpg",
+    "slideshow/Lucero09.jpg",
+
     "slideshow/suffragettesholdingsign.jpg",
     "slideshow/suffragistspicketthewhitehouse1917hwvnr3udzai6tphhic2bax34ua.jpg"
+
 ];
 
 // There are two image divs and two text divs, but only one of the four
@@ -194,16 +237,24 @@ var visibleDivNum = 0;
 // Called from onload of the img element, so the image should be loaded
 // and the natural size available.
 function resizeImage() {
-    const FILLFRAC = .95;
-
     // Size of the image:
     var img = document.getElementById("bigimage" + visibleDivNum);
     imgW = img.naturalWidth;
     imgH = img.naturalHeight;
 
-    // Size of the window:
+    // Size of the window: neither window.innerWidth nor window.clientWidth
+    // works in python-webkit.
     var winW = window.innerWidth;
     var winH = window.innerHeight;
+
+    // These work even in webkit, but they get the physical screen width,
+    // not the width of the browser window.
+    if (!winW)
+        winW = window.screen.width;
+    if (!winH)
+        winH = window.screen.height;
+
+    console.log("window is " + winW + " x " + winH);
 
     // Check aspect ratios:
     if (imgW/imgH > winW/winH) {
@@ -265,7 +316,7 @@ function newquote() {
     // resizeText() is quite slow on a Pi Zero, so using setInterval
     // to load every N seconds sometimes results in pages loading at
     // unexpectedly short times.
-    setTimeout(newquote, 30000);
+    setTimeout(newquote, DELAY);
 }
 
 newquote();
