@@ -9,15 +9,35 @@
    Search for JSON data files in a directory called "data" below current.
    For any of those, look for the "DIST" property, and color/style
    accordingly.
-   Sample Usage: ?dataset=US_Congress assuming there's data/US_Congress.json.
+   Sample Usage: ?map=US_Congress assuming there's data/US_Congress.json.
  */
-  $dataset = $_GET['dataset'];
-  $setname = str_replace('_', ' ', $dataset);
 
-  $json_content = file_get_contents('data/' . $dataset . '.json');
+if (isset($_GET['map']))
+    $dataset = $_GET['map'];
+else
+    $dataset = NULL;
 
-  $title = $setname . " Districts";
-  echo "<title>" . $title . "/title>"
+if (! empty($dataset)) {
+    $datafilename = 'data/' . $dataset . '.json';
+    if (file_exists($datafilename)) {
+        $setname = str_replace('_', ' ', $dataset);
+        $json_content = file_get_contents($datafilename);
+        $title = $setname . " Districts";
+    }
+    else {
+        $json_content = NULL;
+        $setname = "";
+        $title = "New Mexico Voting Districts";
+    }
+  }
+  else {
+    $title = "District Maps";
+    $setname = "";
+    $json_content = NULL;
+  }
+
+  require ($_SERVER['DOCUMENT_ROOT'] . "/php/banner.php");
+  require ($_SERVER['DOCUMENT_ROOT'] . "/php/sidebar.php");
 ?>
 
 <link rel="stylesheet" href="/css/leaflet.css">
@@ -50,17 +70,19 @@ foreach (scandir(dirname(__FILE__) . '/data') as $fileinfo) {
     $buttonclass = 'buttonlike';
     if ($prettyname === $setname)
         $buttonclass .= ' button_inactive';
-    echo '<a class="' . $buttonclass . '" href="?dataset='
+    echo '<a class="' . $buttonclass . '" href="?map='
          . $path_parts['filename']
          . '">' . $prettyname . '</a> ';
 }
 echo "<p>";
 
+if (empty($json_content)) {
+    if (empty($dataset))
+        echo "Choose the district map you'd like to see.";
+    else
+        echo "No map called " . $dataset;
+}
 
-  if (empty($json_content)) {
-    echo "No map called " . $setname;
-    require ($_SERVER['DOCUMENT_ROOT'] . "/php/footer.php");
-  }
 ?>
 
 <div id="mapid"></div>
@@ -68,12 +90,15 @@ echo "<p>";
 <script>
 
 <?php
+if (! empty($json_content))
     echo 'var boundaryData = ' . $json_content . ';';
-    echo 'var setname = "' . $setname . '";';
+else
+    echo 'var boundaryData = {};';
+echo 'var setname = "' . $setname . '";';
 ?>
 
- var mapNM = L.map(
-     "mapid",
+var mapNM = L.map(
+    "mapid",
      {
          center: [34.25, -105.96],
          crs: L.CRS.EPSG3857,
@@ -157,7 +182,7 @@ echo "<p>";
          "Stamen Terrain" : tile_layer_stamen,
      },
      overlays :  {
-         "NM Congressional Districts" : geojson_boundaries,
+         "Districts" : geojson_boundaries,
      },
  };
 
