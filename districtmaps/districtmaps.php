@@ -87,6 +87,8 @@ if (empty($json_content)) {
 
 <div id="mapid"></div>
 
+<div id="swatches"></div>
+
 <script>
 
 <?php
@@ -126,13 +128,50 @@ var mapNM = L.map(
  // Choose colors according to "golden angle"
  function nextColor() {
      const hue = colornum * 137.508; // use golden angle approximation
+     const saturation = Math.random() * 30. + 70.;
+     const lightness = Math.random() * 40. + 60.;
+     const color = `hsl(${hue},${saturation}%,${lightness}%)`;
+     swatches += '<br><span style="background-color: ' + color + ';">'
+              + colornum + ', ' + color + '</span>';
      colornum += 1;
-     return `hsl(${hue},100%,75%)`;
+     return color;
+     // return `hsl(${hue},100%,75%)`;
 }
+
+/*
+ * Various attempts at a different color styler:
+ // Figure out number of colors, which is the number of distict "DIST"s
+ // in boundaryData.features.
+ let dists = new Set();
+ console.log(boundaryData.features);
+ for (var i=0; i < boundaryData.features.length; ++i) {
+     console.log("Adding", boundaryData.features[i].properties.DIST);
+     dists.add(boundaryData.features[i].properties.DIST);
+ }
+ // var numcolors = boundaryData.features.length;
+ var numcolors = dists.size
+// console.log("numcolors: " + numcolors);
+
+ var swatches = "";
+
+ function nextColorX() {
+     //const hue = colornum * 360.0 / numcolors;
+     const hue = (colornum + 60) * 300.0 / numcolors;
+     const saturation = Math.random() * 50. + 50.;
+     const lightness = Math.random() * 100.;
+     const color = `hsl(${hue},${saturation}%,${lightness}%)`;
+     console.log(colornum, color);
+     swatches += '<br><span style="background-color: ' + color + ';">'
+              + colornum + ', ' + color + '</span>';
+     colornum += 1;
+     return color;
+}
+ */
 
  function geojson_boundaries_styler(feature) {
      if (! (feature.properties.DIST in distcolors))
-         distcolors[feature.properties.DIST] = { "fillColor": nextColor() }
+         distcolors[feature.properties.DIST] = { "fillColor": nextColor(),
+                                                "fillOpacity": .4 }
 
      return distcolors[feature.properties.DIST];
  }
@@ -140,7 +179,7 @@ var mapNM = L.map(
  function geojson_boundaries_highlighter(feature) {
      switch(feature.properties.DIST) {
          default:
-             return {"fillColor": "#ff0000"};
+             return { "fillOpacity": .9 };
      }
  }
 
@@ -191,6 +230,12 @@ var mapNM = L.map(
      layer_control.overlays,
      {"autoZIndex": true, "collapsed": true, "position": "topright"}
  ).addTo(mapNM);
+
+/*
+ var swatchdiv = document.getElementById("swatches");
+ if (swatchdiv)
+     swatchdiv.innerHTML = swatches;
+ */
 
 </script>
 
