@@ -87,8 +87,6 @@ if (empty($json_content)) {
 
 <div id="mapid"></div>
 
-<div id="swatches"></div>
-
 <script>
 
 <?php
@@ -130,57 +128,27 @@ var mapNM = L.map(
      const hue = colornum * 137.508; // use golden angle approximation
      const saturation = Math.random() * 30. + 70.;
      const lightness = Math.random() * 40. + 60.;
-     const color = `hsl(${hue},${saturation}%,${lightness}%)`;
-     swatches += '<br><span style="background-color: ' + color + ';">'
-              + colornum + ', ' + color + '</span>';
      colornum += 1;
-     return color;
-     // return `hsl(${hue},100%,75%)`;
+     return [ hue, saturation, lightness ];
 }
-
-/*
- * Various attempts at a different color styler:
- // Figure out number of colors, which is the number of distict "DIST"s
- // in boundaryData.features.
- let dists = new Set();
- console.log(boundaryData.features);
- for (var i=0; i < boundaryData.features.length; ++i) {
-     console.log("Adding", boundaryData.features[i].properties.DIST);
-     dists.add(boundaryData.features[i].properties.DIST);
- }
- // var numcolors = boundaryData.features.length;
- var numcolors = dists.size
-// console.log("numcolors: " + numcolors);
-
- var swatches = "";
-
- function nextColorX() {
-     //const hue = colornum * 360.0 / numcolors;
-     const hue = (colornum + 60) * 300.0 / numcolors;
-     const saturation = Math.random() * 50. + 50.;
-     const lightness = Math.random() * 100.;
-     const color = `hsl(${hue},${saturation}%,${lightness}%)`;
-     console.log(colornum, color);
-     swatches += '<br><span style="background-color: ' + color + ';">'
-              + colornum + ', ' + color + '</span>';
-     colornum += 1;
-     return color;
-}
- */
 
  function geojson_boundaries_styler(feature) {
      if (! (feature.properties.DIST in distcolors))
-         distcolors[feature.properties.DIST] = { "fillColor": nextColor(),
-                                                "fillOpacity": .4 }
-
-     return distcolors[feature.properties.DIST];
+         distcolors[feature.properties.DIST] = nextColor();
+     const hue = distcolors[feature.properties.DIST][0];
+     const saturation = distcolors[feature.properties.DIST][1];
+     const lightness = distcolors[feature.properties.DIST][1];
+     return { "fillColor": `hsl(${hue},${saturation}%,${lightness}%)`,
+             "fillOpacity": .4 };
  }
 
  function geojson_boundaries_highlighter(feature) {
-     switch(feature.properties.DIST) {
-         default:
-             return { "fillOpacity": .9 };
-     }
+     // Make the highlighted region more saturated, darker, and more opaque
+     brightcolor = `hsl(${distcolors[feature.properties.DIST][0]},`
+                    + '100%,'
+                    + `${distcolors[feature.properties.DIST][2]* .8}%)`;
+     return { "fillOpacity": .5,
+              "fillColor": brightcolor };
  }
 
  var popup = L.popup();
@@ -230,12 +198,6 @@ var mapNM = L.map(
      layer_control.overlays,
      {"autoZIndex": true, "collapsed": true, "position": "topright"}
  ).addTo(mapNM);
-
-/*
- var swatchdiv = document.getElementById("swatches");
- if (swatchdiv)
-     swatchdiv.innerHTML = swatches;
- */
 
 </script>
 
