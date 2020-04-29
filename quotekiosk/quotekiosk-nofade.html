@@ -6,22 +6,18 @@
 
 <script type="text/javascript" >
 // Minimum time between showing successive screens:
-const DELAY = 15000;
+const DELAY = 8000;
 
 // Interval of blackness between successive screens:
 const RENDER_DELAY = 500;
 
-// Fudge factor because otherwise CSS overflows and shows a scrollbar:
-const FILLFRAC = .95;
+// Fudge factors because otherwise CSS overflows and shows a scrollbar:
+const IMGFRAC = .95;
+const TEXTFRAC = .9;
 
-/*
-var quotelist = [
-    "<b>Lorem ipsum dolor sit amet</b>, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    "images/img001.jpg",
-    "images/img002.jpg",
-    "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-];
- */
+// Biggest and smallest font sizes allowed:
+const MAXFONT = 200;
+const MINFONT = 4;
 </script>
 
 <!-- Where to get the list of quotes and images: -->
@@ -99,15 +95,11 @@ table.nopadding {
 
 <script type="text/javascript" >
 function autoSizeText(el) {
-    const MAXFONT = 200;
-    const MINFONT = 4;
-    const FRAC = .9;
-
     var fontsize = MAXFONT;
 
-    el.classList.add("nodelays");
+    // el.classList.add("nodelays");
 
-    var targetHeight = el.parentElement.offsetHeight * FRAC;
+    var targetHeight = el.parentElement.offsetHeight * TEXTFRAC;
     while (fontsize >= MINFONT) {
         el.style.fontSize = fontsize + 'px';
 
@@ -123,7 +115,7 @@ function autoSizeText(el) {
         fontsize = fontsize - 1;
     }
 
-    el.classList.remove("nodelays");
+    // el.classList.remove("nodelays");
 }
 
 var quotecontent = null;
@@ -134,11 +126,10 @@ var quotespan = null;
 // Size the image to fit the space available.
 // Called from onload of the img element, so the image should be loaded
 // and the natural size available.
-function resizeImage(img) {
-
+function resizeImage() {
     // Size of the image:
-    imgW = img.naturalWidth;
-    imgH = img.naturalHeight;
+    imgW = bigimg.naturalWidth;
+    imgH = bigimg.naturalHeight;
 
     // Size of the window: neither window.innerWidth nor window.clientWidth
     // works in python-webkit.
@@ -157,12 +148,12 @@ function resizeImage(img) {
     // Check aspect ratios:
     if (imgW/imgH > winW/winH) {
         // image has a wider aspect ratio than window; scale by width
-        bigimg.style.width = winW * FILLFRAC;
-        bigimg.style.height = imgH * winW / imgW * FILLFRAC;
+        bigimg.style.width = winW * IMGFRAC;
+        bigimg.style.height = imgH * winW / imgW * IMGFRAC;
     } else {
         // image has a narrower aspect ratio than window; scale by height
-        bigimg.style.height = winH * FILLFRAC;
-        bigimg.style.width = imgW * winH / imgH * FILLFRAC;
+        bigimg.style.height = winH * IMGFRAC;
+        bigimg.style.width = imgW * winH / imgH * IMGFRAC;
     }
 }
 
@@ -186,23 +177,25 @@ function makeVisible(el) {
 function newquote() {
     choice = quotelist[Math.floor(Math.random() * quotelist.length)];
 
+    // Fill out the global variables if this is the first time through:
     if (! quotecontent) {
+        console.log("Initializing globals");
         quotecontent = document.getElementById("quotecontent");
         imagecontent = document.getElementById("imagecontent");
         bigimg = document.getElementById("bigimage");
         quotespan = document.getElementById("quotespan");
         bigimg.onload = resizeImage;
     }
-    if (!quotecontent) {
+    if (! quotecontent) {
         console.log("Can't find quotecontent! Aborting.");
         return;
     }
 
-    // Turn both invisible
+    // Turn both text and image invisible
     quotecontent.style.visibility = "hidden";
     imagecontent.style.visibility = "hidden";
 
-    // Is it a string or an image filename? Check the extension.
+    // Is it a string or an image filename? Check for an extension.
     if (choice.match(/.(jpg|jpeg|png|gif)$/i)) {
         console.log("new image:", choice);
 
@@ -214,7 +207,17 @@ function newquote() {
     else {
         console.log("new quote:", choice);
 
+        // Setting innerHTML results in a memory (node) leak
+        // which will eventually kill the browser on a Raspberry Pi.
+        while (quotespan.firstChild){
+            quotespan.removeChild(quotespan.firstChild);
+        }
         quotespan.innerHTML = choice;
+
+        var parser = new DOMParser();
+        var htmlDoc = parser.parseFromString(choice, 'text/html');
+        quotespan.firstChild = htmlDoc;
+
         autoSizeText(quotespan);
 
         // quotecontent.style.visibility = "visible";
