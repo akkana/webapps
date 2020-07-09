@@ -865,7 +865,7 @@ function RenderCssCal(bNewCal)
         }
 
         vCalTime += "</td>\n<td align='right' valign='bottom' width='" + HourCellWidth + "px'></td></tr>";
-            vCalTime += "<tr><td colspan='8' style=\"text-align:center;\"><input style='width:60px;font-size:12px;' onClick='javascript:closewin(\"" + Cal.Ctrl + "\");'  type=\"button\" value=\"OK\">&nbsp;<input style='width:60px;font-size:12px;' onClick='javascript: winCal.style.visibility = \"hidden\"' type=\"button\" value=\"Cancel\"></td></tr>";
+        vCalTime += "<tr><td colspan='8' style=\"text-align:center;\"><input style='width:60px;font-size:12px;' onClick='javascript:closewin(\"" + Cal.Ctrl + "\");'  type=\"button\" value=\"OK\">&nbsp;<input style='width:60px;font-size:12px;' onClick='javascript: winCal.style.visibility = \"hidden\"' type=\"button\" value=\"Cancel\"></td></tr>";
     }
     else //if not to show time.
     {
@@ -1216,9 +1216,15 @@ function NewCssCal(pCtrl, pFormat, pScroller, pShowTime, pTimeMode, pShowSeconds
 }
 
 function closewin(id) {
+    callback(id, Cal.FormatDate(Cal.Date));
+
+    /* The rest of this function doesn't work: the checks against
+     * stuff like MaxYear and StartYear keep it from ever calling
+     * the callback.
     if (Cal.ShowTime === true) {
-    var MaxYear = dtToday.getFullYear() + EndYear;
-    var beforeToday =
+        console.log("ShowTime is true");
+        var MaxYear = dtToday.getFullYear() + EndYear;
+        var beforeToday =
             (Cal.Date < dtToday.getDate()) &&
             (Cal.Month === dtToday.getMonth()) &&
             (Cal.Year === dtToday.getFullYear())
@@ -1227,17 +1233,21 @@ function closewin(id) {
             (Cal.Year === dtToday.getFullYear())
             ||
             (Cal.Year < dtToday.getFullYear());
+        console.log("beforeToday:", beforeToday);
 
-    if ((Cal.Year <= MaxYear) && (Cal.Year >= StartYear) && (Cal.Month === selDate.getMonth()) && (Cal.Year === selDate.getFullYear())) {
-        if (Cal.EnableDateMode === "future") {
-        if (beforeToday === false) {
-            callback(id, Cal.FormatDate(Cal.Date));
+        if ((Cal.Year <= MaxYear) && (Cal.Year >= StartYear) && (Cal.Month === selDate.getMonth()) && (Cal.Year === selDate.getFullYear())) {
+            if (Cal.EnableDateMode === "future") {
+                if (beforeToday === false) {
+                    callback(id, Cal.FormatDate(Cal.Date));
+                }
+            }
+            else
+                callback(id, Cal.FormatDate(Cal.Date));
         }
-        }
-        else
-        callback(id, Cal.FormatDate(Cal.Date));
     }
-    }
+    else
+        console.log("Not ShowTime");
+         */
 
     var CalId = document.getElementById(id);
     //CalId.focus();
@@ -1245,7 +1255,7 @@ function closewin(id) {
     winCal.style.visibility = 'hidden';
 
     if (Cal.callback) {
-    Cal.callback();
+        Cal.callback();
     }
 }
 
