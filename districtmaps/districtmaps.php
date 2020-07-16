@@ -158,25 +158,50 @@ var mapNM = L.map(
          namestr = feature.properties.NAME + "<br>";
      else
          namestr = "";
-     layer.bindTooltip(namestr + "District " + feature.properties.DIST);
+     // A tooltip is the easiest way to show something on mouseover;
+     // but it's bound to the center of the object, and if that's
+     // offscreen, the tooltip will be too.
+     //layer.bindTooltip(namestr + "District " + feature.properties.DIST);
      layer.on({
          mouseout: function(e) {
              geojson_boundaries.resetStyle(e.target);
          },
-         mouseover: function(e) {
-             e.target.setStyle(geojson_boundaries_highlighter(e.target.feature));
-             e.target.openTooltip();
-         },
          /*
+            Mouseover disabled because it's super annoying:
+            it tries to bring up the popup in the center of the region,
+            which might be out of the window, in which case it pans
+            and even zooms to somewhere else, and then even after all
+            that, the popup may not come up over the right region.
+            The click function works much better.
+         mouseover: function(e) {
+             // e.target.setStyle(geojson_boundaries_highlighter(e.target.feature));
+             // e.target.openTooltip();
+
+             // .setLatLng(e.latlng) will set it to the mouse coordinates,
+             // which is on the edge of the feature.
+             popup.setLatLng(e.target.getBounds().getCenter())
+                  .setContent(setname + " District " + feature.properties.DIST)
+                  .openOn(mapNM);
+         },
+         */
          click: function(e) {
              // mapNM.fitBounds(e.target.getBounds());
              popup.setLatLng(e.latlng)
                   .setContent(setname + " District " + feature.properties.DIST)
                   .openOn(mapNM);
          }
-         */
      });
  };
+
+ /* You can use this to make the map pan when you click,
+    but it's pretty annoying and not recommended.
+ mapNM.on('popupopen', function(e) {
+     console.log("popupopen");
+    var px = mapNM.project(e.target._popup._latlng); // find the pixel location on the map where the popup anchor is
+    px.y -= e.target._popup._container.clientHeight/2; // find the height of the popup container, divide by 2, subtract from the Y axis of marker location
+    mapNM.panTo(mapNM.unproject(px),{animate: true}); // pan to new center
+});
+  */
 
  var geojson_boundaries = L.geoJson(boundaryData, {
      onEachFeature: geojson_boundaries_onEachFeature,
