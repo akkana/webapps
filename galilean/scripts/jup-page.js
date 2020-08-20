@@ -28,9 +28,11 @@ function reset2now() {
 }
 
 function updateDateTimeFields(d) {
+  /*
   console.log("updateDateTimeFields " + d);
   console.log("tzoffset: " + d.getTimezoneOffset()/60);
   console.log("datetime2str thinks " + datetime2str(d));
+  */
   document.getElementById("datetimeinput").value = datetime2str(d);
 }
 
@@ -89,7 +91,8 @@ function basename(str)
 // as long as it's an element with position: absolute.
 // left must be provided but the other arguments can be omitted,
 // in which case they won't be changed.
-// If width and height are supplied, we'll try to place the image
+// If width and height are supplied, set the image's width and height
+// (so it will scale if necessary), and place the image
 // so that it's centered on the given coordinates.
 function placeImage(im, left, top, width, height) {
   if (!width)
@@ -102,16 +105,20 @@ function placeImage(im, left, top, width, height) {
   }
 
   if (reverseX)
-    im.style.left = gfxWidth - left - width/2;
+    leftpx = gfxWidth - left - width/2;
   else
-    im.style.left = left - width/2;
+    leftpx = left - width/2;
 
   if (top) {
     if (reverseY)
-      im.style.top = gfxHeight - top - height/2;
+      toppx = gfxHeight - top - height/2;
     else
-      im.style.top = top - height/2;
+      toppx = top - height/2;
   }
+
+  im.style.left = leftpx;
+  if (top)
+    im.style.top = toppx;
 
   if (width) {
     im.width = width;
@@ -121,7 +128,15 @@ function placeImage(im, left, top, width, height) {
       im.height = width;   // assume square if width but not height specified
     }
   }
+  else {    // no width or height specified
+    im.style.left = leftpx;
+    if (top)
+      im.style.top = toppx;
+  }
+
   im.style.visibility = "visible";
+  console.log("placed", im.id, "at", im.style.left, im.style.top);
+  return [ leftpx, toppx ];
 }
 
 // Parse a date and time in form YYYY-MM-DD HH:MM:SS +TZ.
@@ -149,7 +164,6 @@ function parseDateTime(dateTimeString) {
   // H:M:S +TZ
   var timeArray = /(\d{1,2}):(\d{1,2}):(\d{1,2}) ([\+-]\d)/.exec(timeString);
   if (timeArray) {
-    console.log("1", timeArray);
     hour = +timeArray[1];
     min = +timeArray[2];
     sec = +timeArray[3];
@@ -158,7 +172,6 @@ function parseDateTime(dateTimeString) {
     // H:M:S
     timeArray = /(\d{1,2}):(\d{1,2}):(\d{1,2})/.exec(timeString);
     if (timeArray) {
-      console.log("2", timeArray);
       hour = +timeArray[1];
       min = +timeArray[2];
       sec = +timeArray[3];
@@ -167,7 +180,6 @@ function parseDateTime(dateTimeString) {
       // H:M +TZ
       timeArray = /(\d{1,2}):(\d{1,2}) \+(\d)/.exec(timeString);
       if (timeArray) {
-        console.log("3", timeArray);
         hour = +timeArray[1];
         min = +timeArray[2];
         sec = 0;
@@ -175,7 +187,6 @@ function parseDateTime(dateTimeString) {
       } else {
         // H:M
         timeArray = /(\d{1,2}):(\d{1,2})/.exec(timeString);
-        console.log("4", timeArray);
         if (timeArray) {
           hour = +timeArray[1];
           min = +timeArray[2];
@@ -211,7 +222,8 @@ function parseDateTime(dateTimeString) {
 function useNewDate()
 {
   // parse date and time from the two fields:
-  console.log("datetimeinput value is " + document.getElementById("datetimeinput").value);
+  console.log("datetimeinput value is "
+              + document.getElementById("datetimeinput").value);
   var d = parseDateTime(document.getElementById("datetimeinput").value);
 
   if (!d) {
@@ -220,7 +232,6 @@ function useNewDate()
     return;
   }
 
-  console.log("useNewDate: " + d);
   drawJupiter(jup, d);
   predictUpcoming();
 }
@@ -281,7 +292,6 @@ function toggleAnimation() {
 var busy;
 
 function drawJupiter(jup, date) {
-  console.log("drawJupiter for date " + date);
   busy = document.getElementById("recalculating")
   busy.style.visibility = "visible";
 
@@ -298,14 +308,16 @@ function drawJupiter(jup, date) {
   // Callisto's orbit is jupRadius * 1,883,000 km / 71492 km or 26.3.
   //var jupRadius = 19;
   var jupRadius = halfwidth / 26.3;
-  var spotWidth = 27 * jupRadius / 30;
+  var spotWidth = 26 * jupRadius / 30;
   var spotHeight = 13 * jupRadius / 30;
 
   // Make sure Jupiter is properly centered:
-  var img = document.getElementById("jupiter");
-  if (img) {
-    img.width = img.height = 2 * jupRadius;
-    placeImage(img, halfwidth, halfheight, jupRadius*2);
+  var jupimg = document.getElementById("jupiter");
+  if (jupimg) {
+    jupimg.width = jupimg.height = 2 * jupRadius;
+    console.log("Placing Jupiter image at", halfwidth, halfheight,
+                "diameter", jupRadius*2);
+    placeImage(jupimg, halfwidth, halfheight, jupRadius*2);
   }
 
   // Are we reversing?
@@ -334,62 +346,67 @@ function drawJupiter(jup, date) {
   // the system 2 longitude of the spot drifts around,
   // so this needs to be updated regularly.
   // http://jupos.privat.t-online.de/ is a good resource.
-  // Last updated 2019-07-19
-  var coord = jup.getRedSpotXY(312);
-  var img = document.getElementById("grs");
+  // Last updated 2020-08-20
+  var coord = jup.getRedSpotXY(337);
+
+  var spotimg = document.getElementById("grs");
   var label = document.getElementById("grslabel");
 
   // Is the GRS currently visible?
-  if (img && !isNaN(coord.x) && !isNaN(coord.y)) {
-    // XXX Need some extra code here to make width smaller if the GRS
-    // XXX is near the limb and foreshortened.
-    var sx = halfwidth + coord.x * jupRadius - spotWidth/2;
+  if (spotimg && !isNaN(coord.x) && !isNaN(coord.y)) {
+    var jr = jupRadius * .9;   // approx radius at spot's latitude
+
     var sw = spotWidth;
-    var jr = jupRadius * .8;   // approx radius at spot's latitude
-    if (sx < halfwidth - jr) {
-      sw = sw - halfwidth - jr - sx;
-      sx = halfwidth - jr
-    } else if (sx + sw > halfwidth + jr) {
-      sw = halfwidth + jr - sx;
+
+    // XXX Calculate foreshortening if near the limb.
+    // The GRS is roughly 30 degrees wide.
+    //var halfSpotAngle = 15 * Math.PI / 180.;
+    /*
+    if (coord.x < -.77 || coord.x > .77) {
+      sw = sw/2.;
+      console.log("**** Foreshortening spot to", sw);
     }
-    sw = spotWidth;
-    placeImage(img, sx, coord.y * jupRadius + halfheight - spotHeight/2,
-               sw, spotHeight);
+    else
+      console.log("**** NOT Foreshortening,", sw);
+     */
+
+    var sx = halfwidth + coord.x * jr;
+    var sy = coord.y * jupRadius + halfheight - spotHeight/2;
+    placeImage(spotimg, sx, sy, sw, spotHeight);
     if (label) {
       placeImage(label, sx);
     }
+
+    // Clip the spot so it doesn't go outside of Jupiter.
+    // The spot image goes from sx - sw/2 to sx + sw/2
+    // or from spotimg.style.left to spotimg.style.left + sw.
+    // Jupiter is centered at halfwidth, halfheight and has radius jupRadius.
+    // To use clip-path, you need a circle the same size as the jupiter image,
+    // centered where the jupiter image is MINUS the offset (not center)
+    // of the spot image.
+    // console.log("halfwidth, halfheight", halfwidth, halfheight);
+    // console.log("sw is", sw, "halfwidth", sw/2, "halfheight", spotHeight/2);
+    // console.log("subtracting", sx - sw/2, sy - spotHeight/2);
+    // console.log("Spot position is", spotimg.style.left, spotimg.style.top);
+    clipPathX = halfwidth - sx + spotWidth/2;
+    clipPathY = halfheight - sy + spotHeight/2;
+    // console.log("clipPathX = ", halfwidth, "-", sx, "-", spotWidth/2,
+    //             "=", clipPathX);
+    // console.log("clipPathY = ", halfheight, "-", sy, "-", spotHeight/2,
+    //             "=", clipPathY);
+    clippath = "circle(" + jupRadius + "px at " + clipPathX + "px "
+      + clipPathY + "px)";
+
+    //console.log("Clip path:", clippath);
+    spotimg.style.clipPath = clippath;
   }
   // else it's invisible and needs to be hidden
-  else if (img) {
-    img.style.visibility = "hidden";
+  else if (spotimg) {
+    spotimg.style.visibility = "hidden";
     if (label) {
       label.style.visibility = "hidden";
     }
   }
-  //else { alert("no grs image"); }
-
-  /* clip the GRS so it doesn't go outside the circle of Jupiter.
-     This CSS clip_path stuff doesn't work as documented at all,
-     and there's no obvious way to test it.
-   */
-  var grs = document.getElementById("grs");
-  var fudge = 1;
-  grsclip = "circle(" + Math.round(jupRadius*2 + 2*fudge) + "px at "
-    + Math.round(halfwidth - jupRadius - fudge) + "px "
-    + Math.round(halfheight - jupRadius - fudge) + "px)";
-  console.log("Calculated GRS clip: " + grsclip);
-  // Calculated GRS clip: circle(47px at 563px 27px)
-  grsclip = "circle(50px at 560px 25px)";
-  grs.style.clipPath = grsclip;
-
-  /*
-  testclip = "circle(" + Math.round(jupRadius) + "px at "
-    + Math.round(halfwidth - jupRadius + 200) + "px "
-    + Math.round(halfheight - jupRadius) + "px)";
-  console.log("test clip: " + testclip);
-  img.style.clip_path = testclip;
-  img.style.clipPath = "circle(10px at 0px 0px)";
-  /* #jupframe #grs { clip-path: circle(60px at 10px 10px); } */
 
   for (var whichmoon = 0; whichmoon < 4; ++whichmoon) {
     // First handle the shadow

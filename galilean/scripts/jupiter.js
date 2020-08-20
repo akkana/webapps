@@ -273,20 +273,25 @@ function Jupiter()
     this.getMoonXYData = getMoonXYData
 
     //
-    // The Great Red Spot, assuming its system II longitude is  spot_in_deg
+    // The Great Red Spot, assuming its system II longitude is spotlon_in_deg
+    // Units for the coordinates rare fractions of Jupiter's radius.
     //
-    function getRedSpotXY(spot_in_deg)
+    function getRedSpotXY(spotlon_in_deg)
     {
-        var spotlong = angle(lambda2 - spot_in_deg*Math.PI/180);
+        var spotangle = angle(lambda2 - spotlon_in_deg*Math.PI/180);
 
         var coord = new XYCoord();
 
         // See if the spot is visible:
-        if (spotlong > Math.PI * .5 && spotlong < Math.PI * 1.5) {
+        if (spotangle > Math.PI * .5 && spotangle < Math.PI * 1.5) {
             coord.x = coord.y = NaN;
+            console.log("Invisible, spot angle is", spotangle * 180 / Math.PI);
         } else {
-            coord.x = Math.sin(spotlong);
-            coord.y = .42;      // completely random wild-assed guess
+            coord.x = Math.sin(spotangle);
+            // The spot's center is approx 20 degrees south.
+            coord.y = Math.sin(20 * Math.PI / 180)
+            // console.log("**** Spot angle", spotangle * 180 / Math.PI,
+            //            "--> (", coord.x, ",", coord.y, ")");
         }
 
         return coord;
