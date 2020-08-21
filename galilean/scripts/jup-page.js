@@ -361,17 +361,21 @@ function drawJupiter(jup, date) {
     // XXX Calculate foreshortening if near the limb.
     // The GRS is roughly 30 degrees wide.
     //var halfSpotAngle = 15 * Math.PI / 180.;
-    /*
-    if (coord.x < -.77 || coord.x > .77) {
-      sw = sw/2.;
-      console.log("**** Foreshortening spot to", sw);
+    // But for now, just fudge it.
+    //console.log("coord.x is", coord.x);
+    if (Math.abs(coord.x) > .98) {
+      sw = sw/3.;
+      //console.log("**** Foreshortening spot more, to", sw);
     }
-    else
-      console.log("**** NOT Foreshortening,", sw);
-     */
+    if (Math.abs(coord.x) > .85) {
+      sw = sw/2.;
+      //console.log("**** Foreshortening spot to", sw);
+    }
+    //else
+    //  console.log("**** NOT Foreshortening,", sw);
 
     var sx = halfwidth + coord.x * jr;
-    var sy = coord.y * jupRadius + halfheight - spotHeight/2;
+    var sy = halfheight + coord.y * jupRadius;
     placeImage(spotimg, sx, sy, sw, spotHeight);
     if (label) {
       placeImage(label, sx);
