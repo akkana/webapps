@@ -392,7 +392,7 @@ function drawJupiter(jup, date) {
     // console.log("sw is", sw, "halfwidth", sw/2, "halfheight", spotHeight/2);
     // console.log("subtracting", sx - sw/2, sy - spotHeight/2);
     // console.log("Spot position is", spotimg.style.left, spotimg.style.top);
-    clipPathX = halfwidth - sx + spotWidth/2;
+    clipPathX = halfwidth - sx + sw/2;
     clipPathY = halfheight - sy + spotHeight/2;
     // console.log("clipPathX = ", halfwidth, "-", sx, "-", spotWidth/2,
     //             "=", clipPathX);
