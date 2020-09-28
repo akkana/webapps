@@ -7,6 +7,7 @@
       body { margin: 0; }
       canvas { display: block; }
     </style>
+  <link rel="stylesheet" type="text/css" href="/javascript/datetimepicker/datetimepicker.css">
   </head>
   <body>
 <!-- -
@@ -14,7 +15,54 @@
  -->
     <div id="container" width="100vw" height="100vh" />
 
+  <!-- General date/time utilities: -->
+  <script type="text/javascript" src="/javascript/datetimepicker/datetimes.js">
+  </script>
+
+  <!-- Date/time widget -->
+  <script type="text/javascript"
+          src="/javascript/datetimepicker/datetimepicker.js"></script>
+
     <script src="js/three.js"></script>
+
+    <script src="js/planetcalcs.js"></script>
     <script src="js/marsmap.js"></script>
+
+<table class="valign-row"><tr>
+<td><input type="text" id="datetimeinput" />
+<!-- Set the size a lot smaller than the actual number of characters --
+  -- we need: a lot of them are colons, slashes or 1,
+  -- and the size will be set by ems.
+  -->
+<td><input type="image" class="calendarbtn" src="/javascript/datetimepicker/datetimeimages/cal.gif"
+ onclick="javascript:NewCssCal('datetimeinput','yyyyMMdd','dropdown',true,'24',false,null,useNewDate)" />
+
+<td>
+<input type="button" name="now" id="now" value="Now"
+ onClick="reset2now(); return true">
+
+<td>
+<input class="recalcbtn" type="image" src="/javascript/datetimepicker/datetimeimages/reload.png"
+ onClick="useNewDate(); return true">
+</table>
+
+<!-- In theory, cal-container sets up a relative item
+     and then calBorder can be positioned absolutely inside that.
+     It sorta works, anyway ...
+     http://stackoverflow.com/questions/6040005/relatively-position-an-element-without-it-taking-up-space-in-document-flow
+ -->
+<p>
+<span id="cal-container">
+<span id="calBorder"></span>
+</span>
+
+<p>
+<input type="button" id="prevDay" name="prevDay" value="-day" onClick="addHours(-24);">
+<input type="button" id="prevHour" name="prevHour" value="-hour" onClick="addHours(-1);">
+<input type="button" id="prevMins" name="prevMins" value="-5 min" onClick="addHours(-1/12);">
+<input type="button" id="nextMins" name="nextMins" value="+5 min" onClick="addHours(1/12);">
+<input type="button" id="nextHour" name="nextHour" value="+hour" onClick="addHours(1);">
+<input type="button" id="nextDay" name="nextDay" value="+day" onClick="addHours(24);">
+
   </body>
 </html>

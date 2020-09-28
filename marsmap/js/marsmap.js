@@ -1,3 +1,4 @@
+
 // Adapted from https://levelup.gitconnected.com/tutorial-build-an-interactive-virtual-globe-with-three-js-33cf7c2090cb
 
 // Get the DOM element in which you want to attach the scene
@@ -76,6 +77,13 @@ pointLight.position.z = 400;
 // add to the scene
 scene.add(pointLight);
 
+var jdate = getJulianDate(new Date());
+console.log("jdate", jdate);
+var marsvals = MarsMapCalcCM(jdate);
+// This has three values: "CM" in degrees, "lat", and "size"
+console.log("Calculated Mars:", marsvals);
+rotateTo(marsvals.CM);
+
 //Set update function
 function update() {
     //Render
@@ -88,7 +96,7 @@ function update() {
 // Schedule the first frame.
 requestAnimationFrame(update);
 
-// Hard-coded animation function based on keypress
+// Hard-coded animation function based on keypress.
 function animationBuilder(direction) {
     return function animateRotate() {
         switch (direction) {
@@ -107,6 +115,7 @@ function animationBuilder(direction) {
             default:
                 break;
         }
+        console.log("rotation", globe.rotation.y);
     };
 }
 
@@ -116,6 +125,17 @@ var animateDirection = {
     left: animationBuilder('left'),
     right: animationBuilder('right')
 };
+
+// Rotate to where the given longitude, in radians, is centered.
+// Weirdly, globe.rotation.x is latitude, y is longitude. Go figure.
+// With globe.rotation.y == 1.5 * PI, Meridiani is centered.
+// Don't change Y rotation.
+function rotateTo(centerlon) {
+    console.log("rotateTo", centerlon);
+    globe.rotation.y = centerlon + Math.PI * 1.5;
+    console.log("Rotated to y =", globe.rotation.y);
+    renderer.render(scene, camera);
+}
 
 function checkKey(e) {
 
@@ -169,3 +189,25 @@ function onMouseMove(e) {
 }
 
 document.addEventListener('mousemove', onMouseMove);
+
+function useNewDate(d)
+{
+    // parse date and time from the two fields:
+    console.log("datetimeinput value is "
+                + document.getElementById("datetimeinput").value);
+    if (!d) {
+        d = parseDateTime(document.getElementById("datetimeinput").value);
+
+        if (!d) {
+            alert("Couldn't parse date/time '"
+                  + document.getElementById("datetimeinput").value);
+            return;
+        }
+    }
+
+    jdate = getJulianDate(d);
+    console.log("useNewDate: " + d, "Julian", jdate);
+
+    rotateTo(MarsMapCalcCM(jdate).CM);
+}
+
