@@ -136,12 +136,25 @@ function checkKey(e) {
 
 document.onkeydown = checkKey;
 
-// var lastMove = [window.innerWidth / 2, window.innerHeight / 2];
+// JavaScript mouse move events don't reliably report button state.
+// So keep track of button state separately.
+var leftButton = false;
+document.body.onmousedown = function(e) {
+    e = e || window.event;
+    if (e.button == 0)
+        leftButton = true;
+}
+document.body.onmouseup = function(e) {
+    e = e || window.event;
+    if (e.button == 0)
+        leftButton = false;
+}
+
 var lastMove = [-1, -1];
 // Mouse-move animation function: shift-drag
-function onDocumentMouseMove(e) {
+function onMouseMove(e) {
     e = e || window.event;
-    if (e.button != 1 && ! e.shiftKey) {
+    if (!leftButton || ! e.shiftKey) {
         lastMove = [-1, -1];
         return;
     }
@@ -155,4 +168,4 @@ function onDocumentMouseMove(e) {
     lastMove[1] = e.clientY;
 }
 
-document.addEventListener('mousemove', onDocumentMouseMove);
+document.addEventListener('mousemove', onMouseMove);
