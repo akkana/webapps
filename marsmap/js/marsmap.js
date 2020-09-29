@@ -10,6 +10,49 @@ var renderer = new THREE.WebGLRenderer();
 // Set the size. I haven't found any way to do this in the HTML or CSS.
 var SIZE = 500;
 
+
+function screenWidth() {
+    // clientWidth, scrollWidth and offsetWidth all give the same result
+    // in this case.
+    /*
+    console.log("container:",
+                document.getElementById("planet-container").clientWidth);
+    console.log("documentElement:", document.documentElement.clientWidth);
+    console.log("body:", document.body.clientWidth);
+    */
+
+    var w;
+
+    try {
+        w = document.getElementById("planet-container").clientWidth;
+        if (w) {
+            console.log("Screenwidth from planet-container", w);
+            return w;
+        }
+    } catch (e) { console.log("container exception"); }
+    try {
+        w = document.documentElement.clientWidth;
+        if (w) {
+            console.log("Screenwidth from documentElement", w);
+            return w;
+        }
+    } catch (e) { console.log("documentElement exception"); }
+    try {
+        w = document.body.clientWidth;    // For IE8
+        if (w) {
+            console.log("Screenwidth from body", w);
+            return w;
+        }
+    } catch (e) { console.log("body exception"); }
+    console.log("Couldn't get document width!");
+    return 500;
+}
+
+var screenwidth = screenWidth();
+if (screenwidth < SIZE)
+    SIZE = screenwidth;
+console.log("screenwidth", screenwidth, "SIZE", SIZE);
+
 //Set the renderer size
 renderer.setSize(SIZE, SIZE);
 
@@ -19,21 +62,14 @@ var ASPECT = 1.0;
 var NEAR = 0.1;
 var FAR = 10000;
 
-//Create a camera
+// Create the camera and scene.
 var camera = new THREE.PerspectiveCamera(VIEW_ANGLE, ASPECT, NEAR, FAR);
+camera.position.set(0, 0, SIZE);
 
-//Set the camera position - x, y, z
-camera.position.set(0, 0, 500);
-
-// Create a scene
 var scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000);
 
-// Add the camera to the scene.
 scene.add(camera);
-
-// Attach the renderer to the DOM element.
-container.appendChild(renderer.domElement);
 
 /*
 // Someone suggested this was a way to size the canvas to its parent container,
@@ -60,13 +96,19 @@ function resizeCanvasToDisplaySize() {
 resizeCanvasToDisplaySize();
 */
 
+// Attach the renderer to the DOM element.
+console.log("Container:", container);
+container.appendChild(renderer.domElement);
+
 //Three.js uses geometric meshes to create primitive 3D shapes like spheres, cubes, etc. I’ll be using a sphere.
 
 // Set up the sphere attributes.
 // You might think that to fill the available SIZE, you'd want a radius
 // of SIZE / 2, but no, that comes out too small for some reason.
-// SIZE / 1.65 just about (but not quite) fills it.
-var RADIUS = SIZE / 1.7;
+// On a computer display with SIZE == 500, SIZE/1.65 just about
+// fills it (but not quite), SIZE/1.7 looks good; but on my phone,
+// portrait size SIZE==341, // SIZE/1.2 is needed to fill most of the space.
+var RADIUS = SIZE / 2;
 var SEGMENTS = 50;
 var RINGS = 50;
 
@@ -89,7 +131,8 @@ loader.load('maps/marscolor.jpg', function (texture) {
 
 // // Move the Sphere back in Z so we
 //     // can see it.
-globe.position.z = -300;
+//globe.position.z = -300;
+globe.position.z = -SIZE/2.8;
 
 // create a point light
 var pointLight = new THREE.PointLight(0xFFFFFF);
@@ -283,4 +326,10 @@ document.addEventListener('mousemove', onMouseMove);
 //
 // Finally, draw Mars as it is right now.
 //
-drawMarsOnDate(new Date());
+var d = new Date();
+datetimeinput = document.getElementById("datetimeinput");
+if (datetimeinput)
+    datetimeinput.value = datetime2str(d);
+else
+    console.log("No datetimeinput");
+drawMarsOnDate(d);

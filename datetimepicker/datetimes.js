@@ -1,3 +1,7 @@
+//
+// A collection of date and time utilities for use with the datetimepicker.
+//
+
 // Parse a date and time in form YYYY-MM-DD HH:MM:SS +TZ.
 // Return UTC time, already corrected for timezone.
 // If no timezone, assume the time is UTC.
@@ -95,28 +99,22 @@ function datetime2str(d) {
 }
 
 function date2str(d) {
-    /*
-    alert("date2str " + d);
-    alert("Year " + d.getFullYear());
-    alert("Date " + d.get());
-    alert("Month " + d.getMonth());
-    alert("Monthint " + (+d.getMonth()+1));
-    alert("leading0 " + leading0(+d.getMonth()+1));
-    */
     return "" + d.getFullYear() + '-' + leading0(+d.getMonth()+1) + '-'
         + leading0(d.getDate());
 }
 
 function time2str(d) {
+    console.log("time2str", d);
     var s = "" + leading0(d.getHours()) + ":" + leading0(d.getMinutes())
         + ":" + leading0(d.getSeconds());
-    // For now, assume timezone offset is in hours.
+    // Javascript timezone offset is in minutes. Convert to hours..
     // getTimezoneOffset() has a reverse sign from what users expect to see.
     var tzoffset = d.getTimezoneOffset()/60;
     if (tzoffset <= 0)
         s += " +" + -tzoffset;
     else
         s += " -" + tzoffset;
+    console.log("  ... ", s);
     return s;
 }
 

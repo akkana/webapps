@@ -9,26 +9,44 @@
   <link rel="stylesheet" type="text/css" href="/css/planetstyles.css">
   <link rel="stylesheet" type="text/css" href="/javascript/datetimepicker/datetimepicker.css">
   <style type="text/css">
-#planet-container { width: 500px; height: 500px; }
+#planet-container { width: 500px; height: 500px; max-width: 99%; max-height: 99%; }
+
+/* The calendar */
+#cal-container {
+/*
+  position: relative;
+  margin-bottom: 250px;
+ */
+  position: absolute; left: 1em; top: 350px;
+  z-index: 100;
+}
+#calBorder {
+  position: absolute; left: 2em; bottom: 0em;
+  background: white;
+  /* opacity: .8; */
+  z-index: 90;
+  border: 2px outset black;
+  box-shadow: 10px 10px 5px #888888;
+}
   </style>
-  </head>
 
-  <body>
-    <h1>MarsMap</h1>
-    <div id="planet-container"/>
+  <!-- various progressive-web-appy stuff -->
+  <link rel="manifest" href="manifest.json">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <link rel="canonical" href="http://shallowsky.com/marsmap/">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="MarsMap">
+  <link rel="apple-touch-icon" href="icons/marsmap-152.png">
+  <meta name="msapplication-TileImage" content="icons/marsmap-144.png">
+  <meta name="msapplication-TileColor" content="#2F3BA2">
 
-    <!-- Date/time widget and utilities: -->
-    <script type="text/javascript"
-            src="/javascript/datetimepicker/datetimes.js"></script>
-    <script type="text/javascript"
-            src="/javascript/datetimepicker/datetimepicker.js"></script>
-    <script type="text/javascript"
-            src="/javascript/datetimepicker/datebuttons.js"></script>
+</head>
 
-    <script src="js/three.js"></script>
-
-    <script src="js/planetcalcs.js"></script>
-    <script src="js/marsmap.js"></script>
+<body>
+<h1>MarsMap</h1>
+<div id="planet-container"></div>
 
 <table class="valign-row"><tr>
 <td><input type="text" id="datetimeinput" />
@@ -66,5 +84,47 @@
 <input type="button" id="nextHour" name="nextHour" value="+hour" onClick="addHours(1);">
 <input type="button" id="nextDay" name="nextDay" value="+day" onClick="addHours(24);">
 
-  </body>
+<hr>
+
+<h3>About MarsMap:</h3>
+<p>
+MarsMap shows you an observing ephemeris of Mars:
+the major features visible on Mars at any given time.
+<p class="chatty">
+On a computer, you can drag the sphere around using Shift + mouse drag.
+There's currently no alternative on a phone or touchscreen.
+</p>
+<p>
+You should be able to install MarsMap as an app on the home screen of Android or iOS phones and tablets:
+look for "Add to Home Screen" in the Chrome or Safari menu.
+It doesn't collect personal data or need any funky permissions, and shouldn't
+need to use the network at all once you have the app downloaded.
+
+<div class="chatty">
+<p>
+Written by Akkana Peck, originally in C for Linux and PalmOS devices,
+subsequently translated to Java and then JavaScript.
+Uses equations from Jean Meeus, <i>Astronomical Algorithms</i>.
+</div>
+
+<hr>
+<a href="../galilean/">Galilean Moons of Jupiter</a> |
+<a href="../satsat/">Saturn's Satellites</a> |
+<a href="/">Shallow Sky home</a>
+
+
+<!-- Date/time widget and utilities: -->
+<script type="text/javascript"
+        src="/javascript/datetimepicker/datetimes.js"></script>
+<script type="text/javascript"
+        src="/javascript/datetimepicker/datetimepicker.js"></script>
+<script type="text/javascript"
+        src="/javascript/datetimepicker/datebuttons.js"></script>
+
+<script src="js/three.js"></script>
+
+<script src="js/planetcalcs.js"></script>
+<script src="js/marsmap.js"></script>
+
+</body>
 </html>

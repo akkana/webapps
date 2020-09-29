@@ -74,7 +74,7 @@ function reset2now() {
     useNewDate(curDate);
 }
 
-// Add or subtract hours (or days) from jupiter's current time.
+// Add or subtract hours (or days) from Saturn's's current time.
 // Update the date field and the graphics.
 function addHours(hrs) {
     var d = curDate;
