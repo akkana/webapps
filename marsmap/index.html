@@ -4,24 +4,26 @@
     <meta charset="utf-8">
     <title>MarsMap</title>
     <style>
-      body { margin: 0; }
       canvas { display: block; }
     </style>
+  <link rel="stylesheet" type="text/css" href="/css/planetstyles.css">
   <link rel="stylesheet" type="text/css" href="/javascript/datetimepicker/datetimepicker.css">
+  <style type="text/css">
+#planet-container { width: 500px; height: 500px; }
+  </style>
   </head>
+
   <body>
-<!-- -
-    <h1>Mars Map</h1>
- -->
-    <div id="container" width="100vw" height="100vh" />
+    <h1>MarsMap</h1>
+    <div id="planet-container"/>
 
-  <!-- General date/time utilities: -->
-  <script type="text/javascript" src="/javascript/datetimepicker/datetimes.js">
-  </script>
-
-  <!-- Date/time widget -->
-  <script type="text/javascript"
-          src="/javascript/datetimepicker/datetimepicker.js"></script>
+    <!-- Date/time widget and utilities: -->
+    <script type="text/javascript"
+            src="/javascript/datetimepicker/datetimes.js"></script>
+    <script type="text/javascript"
+            src="/javascript/datetimepicker/datetimepicker.js"></script>
+    <script type="text/javascript"
+            src="/javascript/datetimepicker/datebuttons.js"></script>
 
     <script src="js/three.js"></script>
 

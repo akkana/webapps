@@ -2,21 +2,20 @@
 // Adapted from https://levelup.gitconnected.com/tutorial-build-an-interactive-virtual-globe-with-three-js-33cf7c2090cb
 
 // Get the DOM element in which you want to attach the scene
-var container = document.querySelector('#container');
+var container = document.querySelector('#planet-container');
 
 // Create a WebGL renderer
 var renderer = new THREE.WebGLRenderer();
 
-//Set the attributes of the renderer
-var WIDTH = window.innerWidth;
-var HEIGHT = window.innerHeight;
+// Set the size. I haven't found any way to do this in the HTML or CSS.
+var SIZE = 500;
 
 //Set the renderer size
-renderer.setSize(WIDTH, HEIGHT);
+renderer.setSize(SIZE, SIZE);
 
 // Set camera attributes
 var VIEW_ANGLE = 45;
-var ASPECT = WIDTH / HEIGHT;
+var ASPECT = 1.0;
 var NEAR = 0.1;
 var FAR = 10000;
 
@@ -36,25 +35,51 @@ scene.add(camera);
 // Attach the renderer to the DOM element.
 container.appendChild(renderer.domElement);
 
+/*
+// Someone suggested this was a way to size the canvas to its parent container,
+// but it doesn't make any difference: canvas.clientWidth and clientHeight
+// are undefined. And the canvas isn't a child of the container anyway
+// according to the DOM inspector.
+function resizeCanvasToDisplaySize() {
+    const canvas = renderer.domElement;
+    // look up the size the canvas is being displayed
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+    console.log("canvas parent size:", width, height);
+
+    // adjust displayBuffer size to match
+    if (canvas.width !== width || canvas.height !== height) {
+        // you must pass false here or three.js sadly fights the browser
+        renderer.setSize(width, height, false);
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+
+        // update any render target sizes here
+    }
+}
+resizeCanvasToDisplaySize();
+*/
+
 //Three.js uses geometric meshes to create primitive 3D shapes like spheres, cubes, etc. I’ll be using a sphere.
 
-// Set up the sphere attributes
-var RADIUS = 200;
+// Set up the sphere attributes.
+// You might think that to fill the available SIZE, you'd want a radius
+// of SIZE / 2, but no, that comes out too small for some reason.
+// SIZE / 1.65 just about (but not quite) fills it.
+var RADIUS = SIZE / 1.7;
 var SEGMENTS = 50;
 var RINGS = 50;
 
-//create a group which will include our sphere and its texture meshed together
+// Create a group which will include our sphere and its texture meshed together
 var globe = new THREE.Group();
 scene.add(globe);
 
-//Let's create our globe. Use texture loader.
-//First we create a sphere
+// Create the sphere with a texture loader.
 var loader = new THREE.TextureLoader();
 loader.load('maps/marscolor.jpg', function (texture) {
-    //create the sphere
     var sphere = new THREE.SphereGeometry(RADIUS, SEGMENTS, RINGS);
 
-    //map the texture to the material. (Read more about materials in three.js docs.)
+    // Map the texture to the material.
     var material = new THREE.MeshBasicMaterial({ map: texture, overdraw: 0.5 });
 
     // Create a new mesh with sphere geometry.
@@ -77,45 +102,116 @@ pointLight.position.z = 400;
 // add to the scene
 scene.add(pointLight);
 
-var jdate = getJulianDate(new Date());
-console.log("jdate", jdate);
-var marsvals = MarsMapCalcCM(jdate);
-// This has three values: "CM" in degrees, "lat", and "size"
-console.log("Calculated Mars:", marsvals);
-rotateTo(marsvals.CM);
+//
+// The current orientation (and size) of Mars.
+// This has three values: "CM" in radians, "lat" in radians, and "size"
+// XXX size is either wrong, or in unknown units.
+//
+var marsVals;
 
-//Set update function
-function update() {
-    //Render
-    renderer.render(scene, camera);
+// Draw Mars with the current values in marsVals.
+var firstTime = true;
+function drawMars() {
+    //rotateTo(marsVals.CM);
+    if (!marsVals) {
+        console.log("drawMars: no mars yet");
+        return;
+    }
+    globe.rotation.y = marsVals.CM + Math.PI * 1.5;
+    globe.rotation.x = marsVals.lat;
+    //console.log("drawMars", marsVals.CM);
 
-    // Schedule the next frame.
-    requestAnimationFrame(update);
+    // Request a render.
+    // When first setting up the page, three.js takes a while
+    // before it's actually ready to render, so without a delay,
+    // the screen will remain blank. Subsequently, no delay is needed.
+    if (firstTime) {
+        setTimeout( function() {
+            renderer.render(scene, camera);
+        }, 250 );
+        firstTime = false;
+    } else {
+        renderer.render(scene, camera);
+    }
 }
 
-// Schedule the first frame.
-requestAnimationFrame(update);
+// Rotate to where the given longitude, in radians, is centered.
+// Weirdly, globe.rotation.x is latitude, y is longitude. Go figure.
+// With globe.rotation.y == 1.5 * PI, Meridiani is centered.
+// Don't change Y rotation.
+function rotateTo(centerlon) {
+    //resizeCanvasToDisplaySize();
+    console.log("rotateTo", centerlon);
+    globe.rotation.y = centerlon + Math.PI * 1.5;
+    console.log("Rotated to y =", globe.rotation.y);
+    renderer.render(scene, camera);
+}
+
+// Calculate marsVals for date, then draw it.
+function drawMarsOnDate(d) {
+    if (!d)
+        d = new Date();
+    var jdate = getJulianDate(d);
+    console.log("*** drawMarsOnDate:", d, "jdate", jdate);
+    marsVals = MarsMapCalcCM(jdate);
+    console.log("Calculated Mars:", marsVals);
+
+    rotateTo(marsVals.CM);
+
+    drawMars();
+}
+// Set the dateChangeCallback for datetimepicker/datebuttons.js.
+dateChangeCallback = drawMarsOnDate;
+
+//
+// ANIMATION
+//
+// Animation is needed for dragging the sphere around.
+// So we start animating when the shifted left button is down,
+// and stop when that ends.
+//
+
+// JavaScript mouse move events don't reliably report button state.
+// So keep track of button state separately.
+var leftButton = false;
+var animating = false;
+
+// Update function for animations
+function animate() {
+    drawMars();
+
+    // Schedule the next frame, but only if the mouse button is still down.
+    if (animating && leftButton)
+        requestAnimationFrame(animate);
+
+    /* A way to request frames less frequently:
+    setTimeout( function() {
+        requestAnimationFrame( animate );
+    }, 500 );
+     */
+}
 
 // Hard-coded animation function based on keypress.
 function animationBuilder(direction) {
     return function animateRotate() {
         switch (direction) {
             case 'up':
-                globe.rotation.x -= 0.2;
+                marsVals.lat -= 0.2;
                 break;
             case 'down':
-                globe.rotation.x += 0.2;
+                marsVals.lat += 0.2;
                 break;
             case 'left':
-                globe.rotation.y -= 0.2;
+                marsVals.CM -= 0.2;
                 break;
             case 'right':
-                globe.rotation.y += 0.2;
+                marsVals.CM += 0.2;
                 break;
             default:
                 break;
         }
-        console.log("rotation", globe.rotation.y);
+        //console.log("rotation", globe.rotation.y);
+        drawMars();
     };
 }
 
@@ -126,19 +222,7 @@ var animateDirection = {
     right: animationBuilder('right')
 };
 
-// Rotate to where the given longitude, in radians, is centered.
-// Weirdly, globe.rotation.x is latitude, y is longitude. Go figure.
-// With globe.rotation.y == 1.5 * PI, Meridiani is centered.
-// Don't change Y rotation.
-function rotateTo(centerlon) {
-    console.log("rotateTo", centerlon);
-    globe.rotation.y = centerlon + Math.PI * 1.5;
-    console.log("Rotated to y =", globe.rotation.y);
-    renderer.render(scene, camera);
-}
-
 function checkKey(e) {
-
     e = e || window.event;
 
     e.preventDefault();
@@ -156,21 +240,26 @@ function checkKey(e) {
 
 document.onkeydown = checkKey;
 
-// JavaScript mouse move events don't reliably report button state.
-// So keep track of button state separately.
-var leftButton = false;
 document.body.onmousedown = function(e) {
     e = e || window.event;
-    if (e.button == 0)
+    if (e.button == 0) {
         leftButton = true;
+        if (!animating && e.shiftKey) {
+            requestAnimationFrame(animate);
+            animating = true;
+        }
+    }
 }
 document.body.onmouseup = function(e) {
     e = e || window.event;
-    if (e.button == 0)
+    if (e.button == 0) {
         leftButton = false;
+        animating = false;
+    }
 }
 
 var lastMove = [-1, -1];
+
 // Mouse-move animation function: shift-drag
 function onMouseMove(e) {
     e = e || window.event;
@@ -179,10 +268,11 @@ function onMouseMove(e) {
         return;
     }
     if (lastMove[0] >= 0) {
-        var mouseX = e.clientX - lastMove[0];
-        var mouseY = e.clientY - lastMove[1];
-        globe.rotation.y += mouseX * .005;
-        globe.rotation.x += mouseY * .005;
+        var dX = e.clientX - lastMove[0];
+        var dY = e.clientY - lastMove[1];
+
+        marsVals.CM  += dX * .005;
+        marsVals.lat += dY * .005;
     }
     lastMove[0] = e.clientX;
     lastMove[1] = e.clientY;
@@ -190,24 +280,7 @@ function onMouseMove(e) {
 
 document.addEventListener('mousemove', onMouseMove);
 
-function useNewDate(d)
-{
-    // parse date and time from the two fields:
-    console.log("datetimeinput value is "
-                + document.getElementById("datetimeinput").value);
-    if (!d) {
-        d = parseDateTime(document.getElementById("datetimeinput").value);
-
-        if (!d) {
-            alert("Couldn't parse date/time '"
-                  + document.getElementById("datetimeinput").value);
-            return;
-        }
-    }
-
-    jdate = getJulianDate(d);
-    console.log("useNewDate: " + d, "Julian", jdate);
-
-    rotateTo(MarsMapCalcCM(jdate).CM);
-}
-
+//
+// Finally, draw Mars as it is right now.
+//
+drawMarsOnDate(new Date());

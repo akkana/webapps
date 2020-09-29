@@ -1,5 +1,10 @@
 
-const earth = {
+//
+// These are variables instead of constants because the orbital elements
+// are calculated from components. Though JS seems to allow changing them
+// even if they're declared const.
+//
+var earth = {
     "inc": 0.0, "inc_b": 0.00005,    "inc_m": -0.000000356985,
     "asc": 0.0, "asc_b": -11.26084,  "asc_m": 0.0000000000,
     "per": 0.0, "per_b": 102.9404,   "per_m": 0.0000470935,
@@ -8,7 +13,7 @@ const earth = {
     "lon": 0.0, "lon_b": 98.9874,   "lon_m": 0.9856473520
 };
 
-const mars = {
+var mars = {
     "inc": 0.0, "inc_b": 1.8497,     "inc_m": -0.0000000178,
     "asc": 0.0, "asc_b": 49.5574,    "asc_m": 0.0000211081,
     "per": 0.0, "per_b": 336.0590,   "per_m": 0.0000504042,
@@ -25,8 +30,10 @@ var northObl = 26.2;   /* obliquity of Mars (in degrees) */
 var lonCorr = 0.174;   /* correction for reference longitude */
 var marsRot = 1.025972;   /* rotational period of Mars in Earth days */
 
-// Javascript doesn't have fmod
-Math.fmod = function (a,b) { return Number((a - (Math.floor(a / b) * b)).toPrecision(8)); };
+// Javascript doesn't have fmod, but you can monkeypatch it
+Math.fmod = function (a,b) {
+    return Number((a - (Math.floor(a / b) * b)).toPrecision(8));
+};
 
 // Calculate the current appearance of Mars.
 // Returns three keys: CM (radians), lat (radians) and size (4.4?
@@ -43,14 +50,14 @@ function MarsMapCalcCM(jdate) {
                  "z": 0.0 }
 
     /* compute ecliptic coordinates of Mars */
-    var marsM = mars.lon-mars.per;
+    var marsM = mars.lon - mars.per;
     var marsV = Kepler(marsM, mars.ecc);
-    var marsR = mars.sem*(1.0-mars.ecc*mars.ecc)/(1.0+mars.ecc*Math.cos(marsV));
-    var marsPos= { "x": marsR*(Math.cos(mars.asc)*Math.cos(marsV+mars.per-mars.asc)-
-                               Math.sin(mars.asc)*Math.sin(marsV+mars.per-mars.asc)*Math.cos(mars.inc)),
-                   "y": marsR*(Math.sin(mars.asc)*Math.cos(marsV+mars.per-mars.asc)+
-                               Math.cos(mars.asc)*Math.sin(marsV+mars.per-mars.asc)*Math.cos(mars.inc)),
-                   "z": marsR*Math.sin(marsV+mars.per-mars.asc)*Math.sin(mars.inc)
+    var marsR = mars.sem * (1.0 - mars.ecc * mars.ecc) / (1.0 + mars.ecc * Math.cos(marsV));
+    var marsPos= { "x": marsR * (Math.cos(mars.asc) * Math.cos(marsV + mars.per - mars.asc)
+                                 - Math.sin(mars.asc) * Math.sin(marsV + mars.per - mars.asc) * Math.cos(mars.inc)),
+                   "y": marsR * (Math.sin(mars.asc) * Math.cos(marsV + mars.per - mars.asc)
+                                 + Math.cos(mars.asc) * Math.sin(marsV + mars.per - mars.asc) * Math.cos(mars.inc)),
+                   "z": marsR * Math.sin(marsV + mars.per - mars.asc) * Math.sin(mars.inc)
                  }
 
     /* compute vector from center of Mars to center of Earth */
@@ -100,6 +107,10 @@ function MarsMapCalcCM(jdate) {
     var marsLat = 0.5 * Math.PI - Math.acos(DotProduct(mars2Earth, marsNorth));
 
     /* compute size of disc */
+    /* XXX Meeus has this same equation (except he uses 9.36) and
+     * claims that this is arcseconds, but it's nowhere near the right
+     * answer for arcseconds, comes out around 4.5 when it should be 21.
+     */
     var marsSize = 9.37/marsDist;
     console.log("marsDist", marsDist, "marsSize", marsSize);
 
