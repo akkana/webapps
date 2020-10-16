@@ -118,7 +118,7 @@ scene.add(globe);
 
 // Create the sphere with a texture loader.
 var loader = new THREE.TextureLoader();
-loader.load('maps/marscolor.jpg', function (texture) {
+loader.load('maps/AkkColorMars.jpg', function (texture) {
     var sphere = new THREE.SphereGeometry(RADIUS, SEGMENTS, RINGS);
 
     // Map the texture to the material.
