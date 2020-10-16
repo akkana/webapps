@@ -268,8 +268,6 @@ var animateDirection = {
 function checkKey(e) {
     e = e || window.event;
 
-    e.preventDefault();
-
     if (e.keyCode == '38') {
         animateDirection.up();
     } else if (e.keyCode == '40') {
@@ -278,7 +276,18 @@ function checkKey(e) {
         animateDirection.left();
     } else if (e.keyCode == '39') {
         animateDirection.right();
+
+    // seriously, JS has no callback for Enter in a text field,
+    // you have to check for its key code??
+    } else if (e.keyCode == 13) {
+        useNewDate();
+
+    } else {
+        return true;
     }
+
+    e.preventDefault();
+    return false;
 }
 
 document.onkeydown = checkKey;
