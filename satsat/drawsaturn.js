@@ -142,13 +142,14 @@ function DrawMoon(xc, yc, which) {
     ChangeColor(planetC);
     ctx.fillRect(xc-moonrad, yc-moonrad, moonrad*2, moonrad*2);
 
-    if (which == 7)
-        console.log("Drawing Iapetus at", xc, yc);
+    // if (which == 7)
+    //     console.log("Drawing Iapetus at", xc, yc);
 
     ChangeColor("yellow");
-    DrawString(xc, canvas.height-5, which+1, null);
+    DrawString(xc, canvas.height-22, which+1, null);
 
     ctx.textAlign = "left";
+
     if (yc < canvas.height/2) {
         textx = xc + 3;
         texty = yc - 3;
@@ -267,18 +268,18 @@ function DrawSaturn()
 
     tempY = Inclination / D2R;
 
-    // Label the cardinal directions:
-    ChangeColor(planetC);
-    DrawString(XC,      10,     flipNS ? "-N-" : "-S-", 3);
-    DrawString(XC,      Ymax-4, flipNS ? "-S-" : "-N-", 3);
-    DrawString(Xmax-15, YC,     flipEW ? "-W"  : "-E",  2);
-    DrawString(3,       YC,     flipEW ?  "E-" :  "W-", 2);
-
     // Clear the canvas
     ChangeColor(skyC);
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    // Label the cardinal directions:
     ctx.font = "bold 17px Sans";
+    ChangeColor(planetC);
+    DrawString(XC,      15,     flipNS ? "-S-" : "-N-", 3);
+    DrawString(XC,      Ymax-4, flipNS ? "-N-" : "-S-", 3);
+    DrawString(Xmax-30, YC,     flipEW ?  "E-" :  "W-", 2);
+    DrawString(10,      YC,     flipEW ? "-W"  : "-E",  2);
+
     Message("Inclination: " + Math.floor(tempY)
             + "." + Math.floor(Inclination*10./D2R - tempY*10.) + "\u00B0");
 
@@ -320,7 +321,7 @@ function DrawSaturn()
         //    Oval(XC, YC, satMoons[i].sma * Scale, ringAspect, 0);
         X = XC - (satMoons[i].sma * Math.sin(satMoons[i].u) * Scale);
         Y = YC + (satMoons[i].sma * Math.cos(satMoons[i].u) * Math.sin(Inclination) * Scale);
-        DrawMoon(flipEW ? Xmax-X : X, flipNS ? Ymax-Y : Y, i);
+        DrawMoon(flipEW ? X : Xmax-X, flipNS ? Y : Ymax-Y, i);
     }
 
     /********************* Iapetus' Orbit (Earth View) *******************/
