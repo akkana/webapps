@@ -274,7 +274,7 @@ function DrawSaturn()
 
     // Label the cardinal directions:
     ctx.font = "bold 17px Sans";
-    ChangeColor(planetC);
+    ChangeColor("#fa0");
     DrawString(XC,      15,     flipNS ? "-S-" : "-N-", 3);
     DrawString(XC,      Ymax-4, flipNS ? "-N-" : "-S-", 3);
     DrawString(Xmax-30, YC,     flipEW ?  "E-" :  "W-", 2);
