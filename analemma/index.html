@@ -12,7 +12,7 @@ body { border: 0; margin: 0; padding: 0; }
  const TWOPI = Math.PI * 2.;
  const HALFPI = Math.PI / 2.;
 
- function drawCircle(xc, yc, r, fill) {
+ function drawCircle(ctx, xc, yc, r, fill) {
      ctx.beginPath();
      ctx.ellipse(xc, yc, r, r, 0, 0, TWOPI);
      if (fill)
@@ -21,7 +21,7 @@ body { border: 0; margin: 0; padding: 0; }
          ctx.stroke();
  }
 
- function changeColor(c) {
+ function changeColor(ctx, c) {
      ctx.fillStyle = c;
      ctx.strokeStyle = c;
  }
@@ -31,65 +31,86 @@ body { border: 0; margin: 0; padding: 0; }
 <body>
 
   <canvas id="canvas" style="position: absolute; left:0px; top:0px ;width: 100%; height: 100%"></canvas>
-  <img id="background-img" src="background.jpg"2
-   style="visibility: none">
 
 <script language=JavaScript>
+var backgroundImg;
 
- // draw an analemma
- var canvas = document.getElementById('canvas');
- var canvasWidth = window.innerWidth;
- var canvasHeight = window.innerHeight;
- console.log("Width", canvasWidth, ", height", canvasHeight);
+function drawAnalemma() {
+    // draw an analemma
+    var canvas = document.getElementById('canvas');
+    var canvasWidth = window.innerWidth;
+    var canvasHeight = window.innerHeight;
+    console.log("Width", canvasWidth, ", height", canvasHeight);
 
- var ctx = canvas.getContext('2d');
- ctx.canvas.width  = canvasWidth;
- ctx.canvas.height = canvasHeight;
+    var ctx = canvas.getContext('2d');
+    ctx.canvas.width  = canvasWidth;
+    ctx.canvas.height = canvasHeight;
 
- // base image
- var img = document.getElementById("background-img");
- if (img.complete && img.naturalHeight !== 0) {
-     // Specifying source and dest width and height in the drawImage call
-     // is supposed to make the image scale, but it doesn't unless you
-     // also set width and height in the image element's style:
-     img.style.width = ctx.canvas.width + "px";
-     img.style.height = ctx.canvas.height + "px";
+    if (backgroundImg) {
+        /*
+        console.log("Initially, image is", backgroundImg.style.width,
+                    "x", backgroundImg.style.height);
+        console.log("natural height:", backgroundImg.naturalHeight,
+                    "complete?", backgroundImg.complete);
+        */
 
-     ctx.drawImage(img,
-                   0, 0, img.width,    img.height,
-                   0, 0, ctx.canvas.width, ctx.canvas.height);
- } else {
-     changeColor("000");
-     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+        // Specifying source and dest width and height in the drawImage call
+        // is supposed to make the image scale, but it doesn't unless you
+        // also set width and height in the image element's style:
+        backgroundImg.style.width = ctx.canvas.width + "px";
+        backgroundImg.style.height = ctx.canvas.height + "px";
+        // console.log("Changed to", backgroundImg.style.width, "x",
+        //             backgroundImg.style.height);
+
+        ctx.drawImage(backgroundImg,
+                      0, 0, backgroundImg.width, backgroundImg.height,
+                      0, 0, ctx.canvas.width,    ctx.canvas.height);
+    } else {
+        changeColor(ctx, "000");
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    }
+
+    var lon = -106.306;
+    var lat = 35.885;
+
+    changeColor(ctx, "#ff0");
+
+    // Get the standard time timezone offset (January)
+    var year = 2021;
+    var stdTZOffset = new Date(year, 0, 1, 12, 0).getTimezoneOffset();
+
+    var days = [1, 10, 20];
+    const radius = 4;
+    for (month=0; month < 12; ++month) {
+        for (dayindex=0; dayindex < days.length; ++dayindex) {
+            var d = new Date(year, month, days[dayindex], 12, 0);
+            var newTZOffset = d.getTimezoneOffset();
+            if (newTZOffset != stdTZOffset) {
+                var hroffset = parseInt((stdTZOffset - newTZOffset) / 60);
+                var minoffset = (stdTZOffset - newTZOffset) % 60;
+                d = new Date(year, month, days[dayindex],
+                             12 + hroffset, minoffset);
+            }
+            var sunpos = SunCalc.getPosition(d, lat, lon);
+            drawCircle(ctx,
+                       sunpos.azimuth * canvasWidth / Math.PI + canvasWidth/2,
+                       canvasHeight - sunpos.altitude * canvasHeight / HALFPI,
+                       radius, true);
+        }
+    }
  }
 
- var lon = -106.306;
- var lat = 35.885;
+ backgroundImg = new Image();
 
- changeColor("#ff0");
-
- // Get the standard time timezone offset (January)
- var year = 2021;
- var stdTZOffset = new Date(year, 0, 1, 12, 0).getTimezoneOffset();
-
- var days = [1, 10, 20];
- const radius = 4;
- for (month=0; month < 12; ++month) {
-     for (dayindex=0; dayindex < days.length; ++dayindex) {
-         var d = new Date(year, month, days[dayindex], 12, 0);
-         var newTZOffset = d.getTimezoneOffset();
-         if (newTZOffset != stdTZOffset) {
-             var hroffset = parseInt((stdTZOffset - newTZOffset) / 60);
-             var minoffset = (stdTZOffset - newTZOffset) % 60;
-             d = new Date(year, month, days[dayindex],
-                          12 + hroffset, minoffset);
-         }
-         var sunpos = SunCalc.getPosition(d, lat, lon);
-         drawCircle(sunpos.azimuth * canvasWidth / Math.PI + canvasWidth/2,
-                    canvasHeight - sunpos.altitude * canvasHeight / HALFPI,
-                    radius, true);
-     }
+ backgroundImg.onload = function() {
+     drawAnalemma();
  }
+ backgroundImg.onerror = function() {
+     backgroundImg = null;
+     drawAnalemma();
+ }
+
+ backgroundImg.src = "background.jpg";
 
 </script>
 
