@@ -20,22 +20,33 @@ body { border: 0; margin: 0; padding: 0; }
 
 <script language=JavaScript>
 
+//////////////////////////////////////////////////////////
+// Usage:
+//
+// Initialize everything first:
+// Analemma.initCanvas();
+//
+// Then either draw a plain analemma:
+// Analemma.drawAnalemma();
+// or draw one with a background image URL specified:
+// Analemma.drawWithBackgroundImg("background.jpg");
+//
+
+
 Analemma = {
     backgroundImg: null,
     ctx: null,
+    lon: -106.306,
+    lat: 35.885,
 
     initCanvas: function() {
         var canvas = document.getElementById('canvas');
-        var canvasWidth = window.innerWidth;
-        var canvasHeight = window.innerHeight;
-        console.log("Width", canvasWidth, ", height", canvasHeight);
-
         this.ctx = canvas.getContext('2d');
-        this.ctx.canvas.width  = canvasWidth;
-        this.ctx.canvas.height = canvasHeight;
+        this.ctx.canvas.width  = window.innerWidth;
+        this.ctx.canvas.height = window.innerHeight;
     },
 
-    initBackgroundImg: function(url) {
+    drawWithBackgroundImg: function(url) {
         //this.backgroundImg = new Image();
         var img = new Image();
         var thisAnalemma = this;
@@ -55,21 +66,12 @@ Analemma = {
 
     drawAnalemma: function() {
         if (this.backgroundImg) {
-            /*
-               console.log("Initially, image is",
-                           this.backgroundImg.style.width,
-                           "x", this.backgroundImg.style.height);
-               console.log("natural height:", this.backgroundImg.naturalHeight,
-                           "complete?", this.backgroundImg.complete);
-             */
 
             // Specifying source and dest width and height in the drawImage call
             // is supposed to make the image scale, but it doesn't unless you
             // also set width and height in the image element's style:
             this.backgroundImg.style.width = this.ctx.canvas.width + "px";
             this.backgroundImg.style.height = this.ctx.canvas.height + "px";
-            // console.log("Changed to", this.backgroundImg.style.width, "x",
-            //             this.backgroundImg.style.height);
 
             this.ctx.drawImage(this.backgroundImg,
                                0, 0, this.backgroundImg.width,
@@ -79,11 +81,8 @@ Analemma = {
         } else {
             this.changeColor("000");
             this.ctx.fillRect(0, 0,
-                              this.ctx.canvasWidth, this.ctx.canvas.height);
+                              this.ctx.canvas.width, this.ctx.canvas.height);
         }
-
-        var lon = -106.306;
-        var lat = 35.885;
 
         this.changeColor("#ff0");
 
@@ -92,7 +91,6 @@ Analemma = {
         var stdTZOffset = new Date(year, 0, 1, 12, 0).getTimezoneOffset();
 
         var days = [1, 10, 20];
-        const radius = 4;
         for (month=0; month < 12; ++month) {
             for (dayindex=0; dayindex < days.length; ++dayindex) {
                 var d = new Date(year, month, days[dayindex], 12, 0);
@@ -103,13 +101,19 @@ Analemma = {
                     d = new Date(year, month, days[dayindex],
                                  12 + hroffset, minoffset);
                 }
-                var sunpos = SunCalc.getPosition(d, lat, lon);
-                this.drawCircle(
-                    sunpos.azimuth * this.ctx.canvas.width / Math.PI + this.ctx.canvas.width/2,
-                    this.ctx.canvas.height - sunpos.altitude * this.ctx.canvas.height / HALFPI,
-                    radius, true);
+                this.drawSunOn(d);
             }
         }
+    },
+
+    drawSunOn: function(d) {
+        const radius = 4;
+
+        var sunpos = SunCalc.getPosition(d, this.lat, this.lon);
+        this.drawCircle(
+            sunpos.azimuth * this.ctx.canvas.width / Math.PI + this.ctx.canvas.width/2,
+            this.ctx.canvas.height - sunpos.altitude * this.ctx.canvas.height / HALFPI,
+            radius, true);
     },
 
     drawCircle: function(xc, yc, r, fill) {
@@ -124,12 +128,16 @@ Analemma = {
     changeColor: function(c) {
         this.ctx.fillStyle = c;
         this.ctx.strokeStyle = c;
-    }
+    },
 
  }
 
+// Initialize everything first:
 Analemma.initCanvas();
-Analemma.initBackgroundImg("background.jpg");
+
+// You can either draw with a background image, or without:
+Analemma.drawAnalemma();
+//Analemma.drawWithBackgroundImg("background.jpg");
 
 </script>
 
