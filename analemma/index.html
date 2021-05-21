@@ -11,6 +11,9 @@ body { border: 0; margin: 0; padding: 0; }
 <script language="javascript">
  const TWOPI = Math.PI * 2.;
  const HALFPI = Math.PI / 2.;
+ const STEPSIZE = 14;         // How many days to advance between sun drawings
+ const RADIUS = 5;            // How big to draw the sun
+
 </script>
 </head>
 
@@ -38,33 +41,40 @@ Analemma = {
     ctx: null,
     lon: -106.306,
     lat: 35.885,
+    startDate: null,
+    curDate: null,
+    year: null,
 
     initCanvas: function() {
         var canvas = document.getElementById('canvas');
         this.ctx = canvas.getContext('2d');
         this.ctx.canvas.width  = window.innerWidth;
         this.ctx.canvas.height = window.innerHeight;
+
+        document.onkeydown = this.keyHandler;
     },
 
     drawWithBackgroundImg: function(url) {
-        //this.backgroundImg = new Image();
+        thisAnalemma = this;
+
         var img = new Image();
-        var thisAnalemma = this;
 
         img.onload = function() {
             thisAnalemma.backgroundImg = this;
-            thisAnalemma.drawAnalemma();
+            // thisAnalemma.drawAnalemma();
+            thisAnalemma.drawBackground();
         }
 
         img.onerror = function() {
             thisAnalemma.backgroundImg = null;
-            thisAnalemma.drawAnalemma();
+            // thisAnalemma.drawAnalemma();
+            thisAnalemma.drawBackground();
         }
 
         img.src = "background.jpg";
     },
 
-    drawAnalemma: function() {
+    drawBackground: function() {
         if (this.backgroundImg) {
 
             // Specifying source and dest width and height in the drawImage call
@@ -83,8 +93,12 @@ Analemma = {
             this.ctx.fillRect(0, 0,
                               this.ctx.canvas.width, this.ctx.canvas.height);
         }
+    },
 
-        this.changeColor("#ff0");
+    drawAnalemma: function(startDate) {
+        this.drawBackground();
+
+        //this.changeColor("#ff0");
 
         // Get the standard time timezone offset (January)
         var year = 2021;
@@ -94,6 +108,8 @@ Analemma = {
         for (month=0; month < 12; ++month) {
             for (dayindex=0; dayindex < days.length; ++dayindex) {
                 var d = new Date(year, month, days[dayindex], 12, 0);
+                this.correctForDST(d);
+/*
                 var newTZOffset = d.getTimezoneOffset();
                 if (newTZOffset != stdTZOffset) {
                     var hroffset = parseInt((stdTZOffset - newTZOffset) / 60);
@@ -101,19 +117,80 @@ Analemma = {
                     d = new Date(year, month, days[dayindex],
                                  12 + hroffset, minoffset);
                 }
+*/
+                if (!this.startDate)
+                    this.startDate = d;
+                this.curDate = d;
+
                 this.drawSunOn(d);
             }
         }
     },
 
+    setStartDate: function(d) {
+        this.startDate = d;
+        correctForDST(this.startDate);
+
+        // Set the end date to be a year later
+        this.endDate = d;
+        this.endDate.setFullYear(d.getFullYear() + 1);
+    },
+
+    drawNextSun: function() {
+        // Already have a date? Advance it
+        if (this.curDate) {
+            this.curDate.setDate(this.curDate.getDate() + STEPSIZE);
+            // Set back to noon, which will then be checked for DST
+            this.curDate.setHours(12);
+        }
+
+        // No date set yet.
+        else {
+            // No start date yet defined?
+            if (!this.startDate) {
+                // Is there a year set? Then start on Jan 1 of that year.
+                if (this.year)
+                    this.setStartDate(new Date(this.year, 0, 1, 12));
+                // Otherwise, start at noon today
+                else {
+                    this.startDate = new Date();
+                    this.startDate.setHours(12);
+                    this.startDate.setMinutes(0);
+                    this.year = this.startDate.year;
+                }
+            }
+            this.curDate = this.startDate;
+        }
+
+        // It's been set to 12 noon, so compensate for DST:
+        this.correctForDST(this.startDate);
+
+        this.drawSunOn(this.curDate);
+    },
+
     drawSunOn: function(d) {
-        const radius = 4;
+        this.changeColor("#ff0");
 
         var sunpos = SunCalc.getPosition(d, this.lat, this.lon);
         this.drawCircle(
             sunpos.azimuth * this.ctx.canvas.width / Math.PI + this.ctx.canvas.width/2,
             this.ctx.canvas.height - sunpos.altitude * this.ctx.canvas.height / HALFPI,
-            radius, true);
+            RADIUS, true);
+    },
+
+    // If a date is in Daylight Savings Time, change it to use Standard Time.
+    correctForDST: function(d) {
+        if (!this.stdTZOffset)
+            this.stdTZOffset = new Date(
+                d.getFullYear(), 0, 1, 12, 0).getTimezoneOffset();
+        var newTZOffset = d.getTimezoneOffset();
+        if (newTZOffset == this.stdTZOffset)
+            return;
+
+        var hroffset = parseInt((this.stdTZOffset - newTZOffset) / 60);
+        var minoffset = (this.stdTZOffset - newTZOffset) % 60;
+        d.setHours(d.getHours() + hroffset);
+        d.setMinutes(d.getMinutes() + minoffset);
     },
 
     drawCircle: function(xc, yc, r, fill) {
@@ -130,14 +207,27 @@ Analemma = {
         this.ctx.strokeStyle = c;
     },
 
+    keyHandler: function(e) {
+        e = e || window.event;
+
+        if (e.keyCode == 190) {    // dot
+            // this is the document.
+            // I can't find any way to pass the analemma's "this"
+            // to the key handler, to avoid needing the global here:
+            Analemma.drawNextSun();
+            return;
+        }
+        //console.log("keyHandler: keycode =", e.keyCode);
+    }
+
  }
 
 // Initialize everything first:
 Analemma.initCanvas();
 
 // You can either draw with a background image, or without:
-Analemma.drawAnalemma();
-//Analemma.drawWithBackgroundImg("background.jpg");
+//Analemma.drawAnalemma();
+Analemma.drawWithBackgroundImg("background.jpg");
 
 </script>
 
