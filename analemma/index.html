@@ -7,6 +7,7 @@
 <style>
 body { border: 0; margin: 0; padding: 0; }
 </style>
+
 <script language="javascript" type="text/javascript" src="js/suncalc.js"></script>
 <script language="javascript">
  const TWOPI = Math.PI * 2.;
@@ -26,21 +27,16 @@ body { border: 0; margin: 0; padding: 0; }
 //////////////////////////////////////////////////////////
 // Usage:
 //
-// Initialize everything first:
+// Initialize everything with:
 // Analemma.initCanvas();
-//
-// Then either draw a plain analemma:
-// Analemma.drawAnalemma();
-// or draw one with a background image URL specified:
-// Analemma.drawWithBackgroundImg("background.jpg");
 //
 
 
 Analemma = {
     backgroundImg: null,
     ctx: null,
-    lon: -106.306,
-    lat: 35.885,
+    lon: null,
+    lat: null,
     startDate: null,
     curDate: null,
     year: null,
@@ -48,10 +44,10 @@ Analemma = {
     // In a talk, when drawing suns one by one, it's fun to show the
     // DST problem when it appears. But you don't want that if you're
     // just trying to draw a correct analemma.
-    showDSTBlooper: true,
+    showDSTBlooper: false,
 
     // Labels and x, y offsets for the four events
-    labels: [
+    labelList: [
         [ "Vernal equinox", -15, 0 ],
         [ "Summer solstice", 0, -10 ],
         [ "Autumnal equinox", 10, 0 ],
@@ -65,26 +61,69 @@ Analemma = {
         this.ctx.canvas.height = window.innerHeight;
 
         document.onkeydown = this.keyHandler;
+
+        // Parse URL parameters date, lat, lon.
+        // Sample URLs:
+        // http://localhost/analemma/?blooper&incremental&nextPage=../about-analemma.html",
+        // http://localhost/analemma/?labels=false",
+        var url = new URL(window.location);
+        this.lat = url.searchParams.get("lat") || 35.885;
+        this.lon = url.searchParams.get("lon") || -106.306;
+        var startDate = url.searchParams.get("startDate");
+        if (startDate) this.startDate = new Date(startDate);
+        this.year = url.searchParams.get("year");
+        if (url.searchParams.get("blooper") != null)
+            this.showDSTBlooper = true;
+        this.hour = url.searchParams.get("hour") || 12;
+
+        // Since this was written for use in talks, if nextPage is set,
+        // on spacebar we'll go to that page.
+        this.nextPage = url.searchParams.get("nextPage");
+
+        // Draw the analemma right away unless incremental is set
+        var incr = url.searchParams.get("incremental");
+        this.incremental = ! (incr == null || incr == "false");
+
+        // Draw labels unless labels=false
+        this.labels = (url.searchParams.get("labels") != "false");
+
+        var bgImgURL = url.searchParams.get("bg") || null;
+
+        this.drawWithBackgroundImg(bgImgURL);
+    },
+
+    maybeDrawAll: function() {
+        if (this.incremental)
+            return;
+        this.finishAnalemma();
+        if (this.labels)
+            this.drawLabels();
     },
 
     drawWithBackgroundImg: function(url) {
-        thisAnalemma = this;
+        if (url) {
+            thisAnalemma = this;
 
-        var img = new Image();
+            var img = new Image();
 
-        img.onload = function() {
-            thisAnalemma.backgroundImg = this;
-            // thisAnalemma.drawAnalemma();
-            thisAnalemma.drawBackground();
+            img.onload = function() {
+                thisAnalemma.backgroundImg = this;
+                thisAnalemma.drawBackground();
+                thisAnalemma.maybeDrawAll();
+            }
+
+            img.onerror = function() {
+                thisAnalemma.backgroundImg = null;
+                thisAnalemma.drawBackground();
+                thisAnalemma.maybeDrawAll();
+            }
+
+            img.src = url;
         }
-
-        img.onerror = function() {
-            thisAnalemma.backgroundImg = null;
-            // thisAnalemma.drawAnalemma();
-            thisAnalemma.drawBackground();
+        else {
+            this.drawBackground();
+            this.maybeDrawAll();
         }
-
-        img.src = "background.jpg";
     },
 
     drawBackground: function() {
@@ -123,7 +162,7 @@ Analemma = {
             this.curDate.setDate(this.curDate.getDate() + STEPSIZE);
 
             // Set back to noon, which will then be checked for DST
-            this.curDate.setHours(12);
+            this.curDate.setHours(this.hour);
         }
 
         // No date set yet.
@@ -132,12 +171,12 @@ Analemma = {
             if (! this.startDate) {
                 // Is there a year set? Then start on Jan 1 of that year.
                 if (this.year)
-                    this.setStartDate(new Date(this.year, 0, 1, 12));
+                    this.setStartDate(new Date(this.year, 0, 1, this.hour));
                 // Otherwise, start on Jan 1 of this year
                 else {
                     this.startDate = new Date()
                     this.startDate = new Date(this.startDate.getFullYear(),
-                                              0, 1, 12);
+                                              0, 1, this.hour);
                 }
             }
             this.curDate = new Date(this.startDate);
@@ -166,7 +205,7 @@ Analemma = {
             this.showDSTBlooper = false;
         }
 
-        // It's been set to 12 noon; now compensate for DST:
+        // It's been set to the right hour; now compensate for DST:
         this.correctForDST(this.curDate);
 
         this.drawSunOn(this.curDate);
@@ -222,7 +261,7 @@ Analemma = {
     correctForDST: function(d) {
         if (!this.stdTZOffset)
             this.stdTZOffset = new Date(
-                d.getFullYear(), 0, 1, 12, 0).getTimezoneOffset();
+                d.getFullYear(), 0, 1, this.hour, 0).getTimezoneOffset();
         var newTZOffset = d.getTimezoneOffset();
         if (newTZOffset == this.stdTZOffset)
             return;
@@ -261,7 +300,7 @@ Analemma = {
         for (var i=0; i<4; ++i) {
             var year = new Date().getFullYear();
             var event_time = quickEquiSol(i, year);
-            event_time.setHours(12);
+            event_time.setHours(this.hour);
             event_time.setMinutes(0);
             this.correctForDST(event_time);
 
@@ -270,23 +309,23 @@ Analemma = {
             this.drawCircle(xy[0], xy[1], 6, true);
             this.drawCircle(xy[0], xy[1], 6, false);
 
-            if (this.labels[i][1] > 0)
+            if (this.labelList[i][1] > 0)
                 this.ctx.textAlign = "left";
-            else if (this.labels[i][1] < 0)
+            else if (this.labelList[i][1] < 0)
                 this.ctx.textAlign = "right";
             else
                 this.ctx.textAlign = "center";
 
-            if (this.labels[i][2] > 0)
+            if (this.labelList[i][2] > 0)
                 this.ctx.textBaseline = "top";
-            else if (this.labels[i][2] < 0)
+            else if (this.labelList[i][2] < 0)
                 this.ctx.textBaseline = "bottom";
             else
                 this.ctx.textBaseline = "middle";
 
-            this.ctx.fillText(this.labels[i][0],
-                              xy[0] + this.labels[i][1],
-                              xy[1] + this.labels[i][2]);
+            this.ctx.fillText(this.labelList[i][0],
+                              xy[0] + this.labelList[i][1],
+                              xy[1] + this.labelList[i][2]);
         }
         this.ctx.shadowBlur = 0;
     },
@@ -308,6 +347,9 @@ Analemma = {
         else if (e.keyCode == 90) {   // z
             Analemma.drawLabels();
         }
+        else if (e.keyCode == 32 && Analemma.nextPage) {   // spacebar
+            window.location = Analemma.nextPage;
+        }
         else if (e.keyCode == 8) {    // backspace
             window.location = "../solstice.html";
         }
@@ -320,10 +362,6 @@ Analemma = {
 
 // Initialize everything first:
 Analemma.initCanvas();
-
-// You can either draw with a background image, or without:
-//Analemma.finishAnalemma();
-Analemma.drawWithBackgroundImg("background.jpg");
 
 </script>
 
