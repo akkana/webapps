@@ -45,6 +45,14 @@ Analemma = {
     curDate: null,
     year: null,
 
+    // Labels and x, y offsets for the four events
+    labels: [
+        [ "Vernal equinox", -15, 0 ],
+        [ "Summer solstice", 0, -10 ],
+        [ "Autumnal equinox", 10, 0 ],
+        [ "Winter solstice", 0, 10 ]
+    ],
+
     initCanvas: function() {
         var canvas = document.getElementById('canvas');
         this.ctx = canvas.getContext('2d');
@@ -140,6 +148,7 @@ Analemma = {
         // Already have a date? Advance it
         if (this.curDate) {
             this.curDate.setDate(this.curDate.getDate() + STEPSIZE);
+
             // Set back to noon, which will then be checked for DST
             this.curDate.setHours(12);
         }
@@ -151,12 +160,12 @@ Analemma = {
                 // Is there a year set? Then start on Jan 1 of that year.
                 if (this.year)
                     this.setStartDate(new Date(this.year, 0, 1, 12));
-                // Otherwise, start at noon today
+                // Otherwise, start on Jan 1 of this year
                 else {
-                    this.startDate = new Date();
-                    this.startDate.setHours(12);
-                    this.startDate.setMinutes(0);
-                    this.year = this.startDate.year;
+                    this.startDate = new Date()
+                    this.startDate = new Date(this.startDate.getFullYear(),
+                                              0, 1, 12);
+                    this.curDate = this.startDate;
                 }
             }
             this.curDate = this.startDate;
@@ -168,14 +177,22 @@ Analemma = {
         this.drawSunOn(this.curDate);
     },
 
+    sunpos_to_xy: function(sunpos) {
+        return [
+            sunpos.azimuth * this.ctx.canvas.width / Math.PI
+                + this.ctx.canvas.width/2,
+            this.ctx.canvas.height
+                - sunpos.altitude * this.ctx.canvas.height / HALFPI
+        ];
+    },
+
     drawSunOn: function(d) {
         this.changeColor("#ff0");
 
         var sunpos = SunCalc.getPosition(d, this.lat, this.lon);
-        this.drawCircle(
-            sunpos.azimuth * this.ctx.canvas.width / Math.PI + this.ctx.canvas.width/2,
-            this.ctx.canvas.height - sunpos.altitude * this.ctx.canvas.height / HALFPI,
-            RADIUS, true);
+        console.log(sunpos);
+        xy = this.sunpos_to_xy(sunpos);
+        this.drawCircle(xy[0], xy[1], RADIUS, true);
     },
 
     // If a date is in Daylight Savings Time, change it to use Standard Time.
@@ -207,17 +224,77 @@ Analemma = {
         this.ctx.strokeStyle = c;
     },
 
+    drawLabels: function() {
+        this.ctx.fillStyle = "#ff0";
+        this.ctx.strokeStyle = "#f00";
+        this.ctx.shadowColor = "black";
+
+        // title the image
+        this.ctx.font = "bold 50px Sans";
+        this.ctx.fillText("Analemma", 45, 70);
+        this.ctx.font = "normal 25px Sans";
+
+        this.ctx.shadowBlur = 4;
+        for (var i=0; i<4; ++i) {
+            var year = new Date().getFullYear();
+            var event_time = quickEquiSol(i, year);
+            event_time.setHours(12);
+            event_time.setMinutes(0);
+            this.correctForDST(event_time);
+            console.log(i, this.labels[i][0], event_time);
+            var sunpos = SunCalc.getPosition(event_time, this.lat, this.lon);
+            console.log(sunpos);
+            xy = this.sunpos_to_xy(sunpos);
+            console.log(this.labels[i][0],
+                        xy[0], "+", this.labels[i][1],
+                        xy[1], "+", this.labels[i][2]);
+            this.drawCircle(xy[0], xy[1], 6, true);
+            this.drawCircle(xy[0], xy[1], 6, false);
+
+            if (this.labels[i][1] > 0)
+                this.ctx.textAlign = "left";
+            else if (this.labels[i][1] < 0)
+                this.ctx.textAlign = "right";
+            else
+                this.ctx.textAlign = "center";
+
+            if (this.labels[i][2] > 0)
+                this.ctx.textBaseline = "top";
+            else if (this.labels[i][2] < 0)
+                this.ctx.textBaseline = "bottom";
+            else
+                this.ctx.textBaseline = "middle";
+
+            console.log(this.labels[i][0],
+                        this.ctx.textAlign, this.ctx.textBaseline);
+            this.ctx.fillText(this.labels[i][0],
+                              xy[0] + this.labels[i][1],
+                              xy[1] + this.labels[i][2]);
+        }
+        this.ctx.shadowBlur = 0;
+    },
+
     keyHandler: function(e) {
+        // this is the document.
+        // I can't find any way to pass the analemma's "this"
+        // to the key handler, so everything in this function
+        // uses the global Analemma instead of this.
+
         e = e || window.event;
 
-        if (e.keyCode == 190) {    // dot
-            // this is the document.
-            // I can't find any way to pass the analemma's "this"
-            // to the key handler, to avoid needing the global here:
+        if (e.keyCode == 190) {        // dot
             Analemma.drawNextSun();
             return;
         }
-        //console.log("keyHandler: keycode =", e.keyCode);
+        else if (e.keyCode == 90) {   // z
+            Analemma.drawLabels();
+        }
+        else if (e.keyCode == 8) {    // backspace
+            window.location = "../solstice.html";
+            return
+        }
+        console.log("keyHandler: keycode =", e.keyCode,
+                    "charcode =", e.charCode);
     }
 
  }

@@ -7,8 +7,6 @@
  even if it's included in a project with a different license.
 
  Modified by Akkana to work outside of node.js.
-
- License is 
 */
 
 // (function () { 'use strict';
@@ -80,6 +78,9 @@ function sunCoords(d) {
         dec: declination(L, 0),
         ra: rightAscension(L, 0)
     };
+}
+
+function find_equinoxes_and_solstices() {
 }
 
 var SunCalc = {};
@@ -186,6 +187,30 @@ SunCalc.getTimes = function (date, lat, lng, height) {
     return result;
 };
 
+// Calcualte an initial guess for the equinoxes and solstices in a year.
+// Meeus Astronmical Algorithms Chapter 27
+function quickEquiSol(k, year) { // Valid for years 1000 to 3000
+    var JDE0=0, Y=(year-2000)/1000;
+    switch( k ) {
+    case 0:
+        JDE0 = 2451623.80984 + 365242.37404*Y + 0.05169 * Math.pow(Y, 2)
+            - 0.00411 * Math.pow(Y, 3) - 0.00057 * Math.pow(Y, 4);
+        break;
+    case 1:
+        JDE0 = 2451716.56767 + 365241.62603*Y + 0.00325 * Math.pow(Y, 2)
+            + 0.00888 * Math.pow(Y, 3) - 0.00030 * Math.pow(Y, 4);
+        break;
+    case 2:
+        JDE0 = 2451810.21715 + 365242.01767*Y - 0.11575 * Math.pow(Y, 2)
+            + 0.00337 * Math.pow(Y, 3) + 0.00078 * Math.pow(Y, 4);
+        break;
+    case 3:
+        JDE0 = 2451900.05952 + 365242.74049*Y - 0.06223 * Math.pow(Y, 2)
+            - 0.00823 * Math.pow(Y, 3) + 0.00032 * Math.pow(Y, 4);
+        break;
+    }
+    return fromJulian(JDE0);
+}
 
 // moon calculations, based on http://aa.quae.nl/en/reken/hemelpositie.html formulas
 
