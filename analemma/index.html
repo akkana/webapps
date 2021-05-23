@@ -45,6 +45,11 @@ Analemma = {
     curDate: null,
     year: null,
 
+    // In a talk, when drawing suns one by one, it's fun to show the
+    // DST problem when it appears. But you don't want that if you're
+    // just trying to draw a correct analemma.
+    showDSTBlooper: true,
+
     // Labels and x, y offsets for the four events
     labels: [
         [ "Vernal equinox", -15, 0 ],
@@ -138,7 +143,30 @@ Analemma = {
             this.curDate = new Date(this.startDate);
         }
 
-        // It's been set to 12 noon, so compensate for DST:
+        // showDSTBlooper is a tri-state.
+        // false means don't do anything abnormal, just draw the analemma.
+        // true means we haven't get gotten to DST and drawn the blooper.
+        // If it's set to a date, that means it's the next step after
+        // drawing the blooper, so black that one out then draw it
+        // where it should have been.
+        if (this.showDSTBlooper == true && this.stdTZOffset
+            && this.curDate.getTimezoneOffset() != this.stdTZOffset) {
+            this.showDSTBlooper = this.curDate;
+            this.drawSunOn(this.curDate);
+
+            // But we didn't actually draw the correct position of
+            // the sun on this date, so set the date back so it'll
+            // be drawn next time.
+            this.curDate.setDate(this.curDate.getDate() - STEPSIZE);
+            return;
+        }
+        else if (typeof(this.showDSTBlooper) == 'object'
+                 && 'getTimezoneOffset' in this.showDSTBlooper) {
+            this.drawSunOn(this.curDate, true);
+            this.showDSTBlooper = false;
+        }
+
+        // It's been set to 12 noon; now compensate for DST:
         this.correctForDST(this.curDate);
 
         this.drawSunOn(this.curDate);
@@ -169,12 +197,25 @@ Analemma = {
         ];
     },
 
-    drawSunOn: function(d) {
-        this.changeColor("#ff0");
-
+    drawSunOn: function(d, xout) {
         var sunpos = SunCalc.getPosition(d, this.lat, this.lon);
         xy = this.sunpos_to_xy(sunpos);
-        this.drawCircle(xy[0], xy[1], RADIUS, true);
+        if (xout) {
+            const XSIZE = 8;
+            this.changeColor("#000");
+            this.ctx.lineWidth = 3;
+            this.ctx.beginPath();
+            this.ctx.moveTo(xy[0]-XSIZE, xy[1]-XSIZE);
+            this.ctx.lineTo(xy[0]+XSIZE, xy[1]+XSIZE);
+            this.ctx.stroke();
+            this.ctx.moveTo(xy[0]-XSIZE, xy[1]+XSIZE);
+            this.ctx.lineTo(xy[0]+XSIZE, xy[1]-XSIZE);
+            this.ctx.stroke();
+        }
+        else {
+            this.changeColor("#ff0");
+            this.drawCircle(xy[0], xy[1], RADIUS, true);
+        }
     },
 
     // If a date is in Daylight Savings Time, change it to use Standard Time.
