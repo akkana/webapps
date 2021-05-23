@@ -103,38 +103,6 @@ Analemma = {
         }
     },
 
-    drawAnalemma: function(startDate) {
-        this.drawBackground();
-
-        //this.changeColor("#ff0");
-
-        // Get the standard time timezone offset (January)
-        var year = 2021;
-        var stdTZOffset = new Date(year, 0, 1, 12, 0).getTimezoneOffset();
-
-        var days = [1, 10, 20];
-        for (month=0; month < 12; ++month) {
-            for (dayindex=0; dayindex < days.length; ++dayindex) {
-                var d = new Date(year, month, days[dayindex], 12, 0);
-                this.correctForDST(d);
-/*
-                var newTZOffset = d.getTimezoneOffset();
-                if (newTZOffset != stdTZOffset) {
-                    var hroffset = parseInt((stdTZOffset - newTZOffset) / 60);
-                    var minoffset = (stdTZOffset - newTZOffset) % 60;
-                    d = new Date(year, month, days[dayindex],
-                                 12 + hroffset, minoffset);
-                }
-*/
-                if (!this.startDate)
-                    this.startDate = d;
-                this.curDate = d;
-
-                this.drawSunOn(d);
-            }
-        }
-    },
-
     setStartDate: function(d) {
         this.startDate = d;
         correctForDST(this.startDate);
@@ -156,7 +124,7 @@ Analemma = {
         // No date set yet.
         else {
             // No start date yet defined?
-            if (!this.startDate) {
+            if (! this.startDate) {
                 // Is there a year set? Then start on Jan 1 of that year.
                 if (this.year)
                     this.setStartDate(new Date(this.year, 0, 1, 12));
@@ -165,16 +133,31 @@ Analemma = {
                     this.startDate = new Date()
                     this.startDate = new Date(this.startDate.getFullYear(),
                                               0, 1, 12);
-                    this.curDate = this.startDate;
                 }
             }
-            this.curDate = this.startDate;
+            this.curDate = new Date(this.startDate);
         }
 
         // It's been set to 12 noon, so compensate for DST:
-        this.correctForDST(this.startDate);
+        this.correctForDST(this.curDate);
 
         this.drawSunOn(this.curDate);
+    },
+
+    // No matter how far the drawing has progressed, finish it now:
+    finishAnalemma: function() {
+        // Make sure startDate is set
+        if (! this.startDate) {
+            this.drawNextSun();
+        }
+
+        // End date is start date plus one year
+        var endDate = new Date(this.startDate);
+        endDate.setFullYear(this.startDate.getFullYear() + 1);
+
+        while (this.curDate < endDate) {
+            this.drawNextSun();
+        }
     },
 
     sunpos_to_xy: function(sunpos) {
@@ -190,7 +173,6 @@ Analemma = {
         this.changeColor("#ff0");
 
         var sunpos = SunCalc.getPosition(d, this.lat, this.lon);
-        console.log(sunpos);
         xy = this.sunpos_to_xy(sunpos);
         this.drawCircle(xy[0], xy[1], RADIUS, true);
     },
@@ -241,13 +223,9 @@ Analemma = {
             event_time.setHours(12);
             event_time.setMinutes(0);
             this.correctForDST(event_time);
-            console.log(i, this.labels[i][0], event_time);
+
             var sunpos = SunCalc.getPosition(event_time, this.lat, this.lon);
-            console.log(sunpos);
             xy = this.sunpos_to_xy(sunpos);
-            console.log(this.labels[i][0],
-                        xy[0], "+", this.labels[i][1],
-                        xy[1], "+", this.labels[i][2]);
             this.drawCircle(xy[0], xy[1], 6, true);
             this.drawCircle(xy[0], xy[1], 6, false);
 
@@ -265,8 +243,6 @@ Analemma = {
             else
                 this.ctx.textBaseline = "middle";
 
-            console.log(this.labels[i][0],
-                        this.ctx.textAlign, this.ctx.textBaseline);
             this.ctx.fillText(this.labels[i][0],
                               xy[0] + this.labels[i][1],
                               xy[1] + this.labels[i][2]);
@@ -282,19 +258,21 @@ Analemma = {
 
         e = e || window.event;
 
-        if (e.keyCode == 190) {        // dot
+        if (e.keyCode == 13) {        // Enter
             Analemma.drawNextSun();
-            return;
+        }
+        else if (e.keyCode == 190) {   // dot
+            Analemma.finishAnalemma();
         }
         else if (e.keyCode == 90) {   // z
             Analemma.drawLabels();
         }
         else if (e.keyCode == 8) {    // backspace
             window.location = "../solstice.html";
-            return
         }
-        console.log("keyHandler: keycode =", e.keyCode,
-                    "charcode =", e.charCode);
+        else
+            console.log("keyHandler: keycode =", e.keyCode,
+                        "charcode =", e.charCode);
     }
 
  }
@@ -303,7 +281,7 @@ Analemma = {
 Analemma.initCanvas();
 
 // You can either draw with a background image, or without:
-//Analemma.drawAnalemma();
+//Analemma.finishAnalemma();
 Analemma.drawWithBackgroundImg("background.jpg");
 
 </script>
