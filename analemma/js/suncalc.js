@@ -80,8 +80,6 @@ function sunCoords(d) {
     };
 }
 
-function find_equinoxes_and_solstices() {
-}
 
 var SunCalc = {};
 
@@ -147,7 +145,6 @@ function getSetJ(h, lw, phi, dec, n, M, L) {
 // the observer height (in meters) relative to the horizon
 
 SunCalc.getTimes = function (date, lat, lng, height) {
-
     height = height || 0;
 
     var lw = rad * -lng,
@@ -187,7 +184,7 @@ SunCalc.getTimes = function (date, lat, lng, height) {
     return result;
 };
 
-// Calcualte an initial guess for the equinoxes and solstices in a year.
+// Calculate an initial guess for the equinoxes and solstices in a year.
 // Meeus Astronmical Algorithms Chapter 27
 function quickEquiSol(k, year) { // Valid for years 1000 to 3000
     var JDE0=0, Y=(year-2000)/1000;
@@ -210,6 +207,120 @@ function quickEquiSol(k, year) { // Valid for years 1000 to 3000
         break;
     }
     return fromJulian(JDE0);
+}
+
+// Get all the interesting equinox/solstice related dates, including
+// longest/shortest days and earliest/latest sunrise/sunset,
+// which should all be within 20 days of the solstice.
+function allEquiSolDates(year, lat, lon, alt) {
+    vals = {}
+
+    // First get the four main passages
+    vals.vernal_equinox = quickEquiSol(0, year);
+    vals.summer_solstice = quickEquiSol(1, year);
+    vals.autumnal_equinox = quickEquiSol(2, year);
+    vals.winter_solstice = quickEquiSol(3, year);
+
+    // Will iterate near each solstice to find the extremes
+    vals.longest_day_len = null;
+    vals.shortest_day_len = null;
+    vals.longest_day = null
+    vals.shortest_day = null
+    vals.earliest_sunrise = null;
+    vals.earliest_sunset = null;
+    vals.latest_sunrise = null;
+    vals.latest_sunset = null;
+
+    // Compare just the times, not the dates, of two Date objects.
+    // return true if date1 has an earlier time than date2.
+    function earlierTime(date1, date2) {
+        if (date1.getHours() < date2.getHours())
+            return true;
+        if (date1.getHours() > date2.getHours())
+            return false;
+        if (date1.getMinutes() < date2.getMinutes())
+            return true;
+        if (date1.getMinutes() > date2.getMinutes())
+            return false;
+        if (date1.getSeconds() < date2.getSeconds())
+            return true;
+        if (date1.getSeconds() > date2.getSeconds())
+            return false;
+        if (date1.getMilliseconds() < date2.getMilliseconds())
+            return true;
+        if (date1.getMilliseconds() > date2.getMilliseconds())
+            return false;
+        // They're essentially equal, so it doesn't matter what's returned.
+        // Return the one with the earlier date.
+        return (date1 < date2);
+    }
+
+    function compare_rises_sets(d) {
+        var times = SunCalc.getTimes(d, lat, lon, alt);
+        //console.log("Comparing sunset", times.sunset)
+        if (! vals.earliest_sunrise ||
+            earlierTime(times.sunrise, vals.earliest_sunrise))
+            vals.earliest_sunrise = times.sunrise;
+        if (! vals.earliest_sunset ||
+            earlierTime(times.sunset, vals.earliest_sunset))
+            vals.earliest_sunset = times.sunset;
+        if (! vals.latest_sunrise ||
+            earlierTime(vals.latest_sunrise, times.sunrise))
+            vals.latest_sunrise = times.sunrise;
+        if (! vals.latest_sunset ||
+            earlierTime(vals.latest_sunset, times.sunset)) {
+            vals.latest_sunset = times.sunset;
+        }
+
+        var daylength = times.sunset - times.sunrise; // milliseconds
+        if (! vals.shortest_day_len || daylength < vals.shortest_day_len) {
+            vals.shortest_day_len = daylength;
+            vals.shortest_day = times.sunrise;
+        }
+        if (! vals.longest_day_len || daylength > vals.longest_day_len) {
+            vals.longest_day_len = daylength;
+            vals.longest_day = times.sunrise;
+        }
+    }
+
+    // It's possible that the following logic is wrong for the southern hemi.
+    const MAXDAYS = 15;     // How many days to calculate back
+
+    for(var i=-MAXDAYS; i<MAXDAYS; ++i) {
+        var d = vals.summer_solstice.addDays(i);
+        compare_rises_sets(d);
+    }
+
+    for(i=-MAXDAYS; i<MAXDAYS; ++i) {
+        var d = vals.winter_solstice.addDays(i);
+        compare_rises_sets(d);
+    }
+
+    // Hopefully everything has been found now.
+    // Convert day lengths from milliseconds to hours:
+    vals.shortest_day_len /= 1000*60*60;
+    vals.longest_day_len /= 1000*60*60;
+
+    /*
+    console.log("vals", vals);
+    console.log("earliest sunset", vals.earliest_sunset);
+    console.log("shortest day", vals.shortest_day, vals.shortest_day_len);
+    console.log("winter solstice", vals.winter_solstice);
+    console.log("latest sunrise", vals.latest_sunrise);
+    console.log("-----");
+    console.log("earliest sunrise", vals.earliest_sunrise);
+    console.log("longest day", vals.longest_day, vals.longest_day_len);
+    console.log("summer solstice", vals.summer_solstice);
+    console.log("latest sunset", vals.latest_sunset);
+     */
+
+    return vals;
+}
+
+Date.prototype.addDays = function(days) {
+    var date = new Date(this.valueOf());
+    date.setDate(date.getDate() + days);
+    return date;
 }
 
 // moon calculations, based on http://aa.quae.nl/en/reken/hemelpositie.html formulas

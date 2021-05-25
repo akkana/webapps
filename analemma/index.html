@@ -27,7 +27,19 @@ body { border: 0; margin: 0; padding: 0; }
 //////////////////////////////////////////////////////////
 // Usage:
 //
-// Initialize everything with:
+// URL parameters:
+// incremental: don't draw automatically, user must hit Enter for each new sun
+// labels:      draw labels automatically, else user must hit z to see them
+// bloopers:    draw in the wrong place for first DST sun, then X it out
+//              (to illustrate why you need to use standard time)
+// nextPage:    page to jump to if user hits spacebar
+// startDate:   date to start on, in some form JS Date can parse
+// lat, lon:    earth coordinates to use, in decimal degrees:
+// hour:        hour to use, if not 12 noon (use 24-hour format)
+// year:        start from Jan 1 of specified year (default: current year)
+// bg:          URL of a background image to use, else will use black
+//
+// Initialize with:
 // Analemma.initCanvas();
 //
 
@@ -46,12 +58,18 @@ Analemma = {
     // just trying to draw a correct analemma.
     showDSTBlooper: false,
 
-    // Labels and x, y offsets for the four events
+    // Labels and x, y offsets for the various events:
     labelList: [
-        [ "Vernal equinox", -15, 0 ],
-        [ "Summer solstice", 0, -10 ],
-        [ "Autumnal equinox", 10, 0 ],
-        [ "Winter solstice", 0, 10 ]
+        [ "Vernal equinox", "vernal_equinox", -15, 0 ],
+        [ "Summer solstice", "summer_solstice", 0, -10 ],
+        [ "Autumnal equinox", "autumnal_equinox", 10, 0 ],
+        [ "Winter solstice", "winter_solstice", 0, 10 ],
+        // [ "Shortest day", "shortest_day", 0, 0 ],
+        // [ "Longest day", "longest_day", 0, 0 ],
+        [ "Earliest sunrise", "earliest_sunrise", 15, 1 ],
+        [ "Latest sunrise", "latest_sunrise", -15, -1 ],
+        [ "Earliest sunset", "earliest_sunset", 15, -1 ],
+        [ "Latest sunset", "latest_sunset", -15, 1 ],
     ],
 
     initCanvas: function() {
@@ -148,11 +166,13 @@ Analemma = {
     },
 
     setStartDate: function(d) {
-        this.startDate = d;
-        correctForDST(this.startDate);
+        this.startDate = new Date(d);
+        this.correctForDST(this.startDate);
+
+        this.year = this.startDate.getFullYear();
 
         // Set the end date to be a year later
-        this.endDate = d;
+        this.endDate = new Date(d);
         this.endDate.setFullYear(d.getFullYear() + 1);
     },
 
@@ -175,8 +195,8 @@ Analemma = {
                 // Otherwise, start on Jan 1 of this year
                 else {
                     this.startDate = new Date()
-                    this.startDate = new Date(this.startDate.getFullYear(),
-                                              0, 1, this.hour);
+                    this.setStartDate(new Date(this.startDate.getFullYear(),
+                                               0, 1, this.hour));
                 }
             }
             this.curDate = new Date(this.startDate);
@@ -294,40 +314,53 @@ Analemma = {
         // title the image
         this.ctx.font = "bold 50px Sans";
         this.ctx.fillText("Analemma", 45, 70);
-        this.ctx.font = "normal 25px Sans";
+        this.ctx.font = "normal 17px Sans";
 
         this.ctx.shadowBlur = 4;
-        for (var i=0; i<4; ++i) {
-            var year = new Date().getFullYear();
-            var event_time = quickEquiSol(i, year);
-            event_time.setHours(this.hour);
+
+        sunvals = allEquiSolDates(this.startDate.getFullYear(),
+                                  this.lat, this.lon);
+
+        for (var event in this.labelList) {
+            label = this.labelList[event][1];
+            prettyname = this.labelList[event][0];
+            event_time = new Date(vals[label]);
+            event_time.setHours(12);
             event_time.setMinutes(0);
             this.correctForDST(event_time);
-
+            var offsetx = this.labelList[event][2];
+            var offsety = this.labelList[event][3];
             var sunpos = SunCalc.getPosition(event_time, this.lat, this.lon);
             xy = this.sunpos_to_xy(sunpos);
             this.drawCircle(xy[0], xy[1], 6, true);
             this.drawCircle(xy[0], xy[1], 6, false);
 
-            if (this.labelList[i][1] > 0)
+            // JavaScript lacks any sane way to format date strings
+            prettyname += " "
+                + (event_time.getMonth() + 1) + '/'
+                + event_time.getDate() + '/'
+                + (event_time.getFullYear() - 2000);
+            //if (label.indexOf("sunrise") > 0|| label.indexOf("sunset") > 0)
+                prettyname += " " + vals[label].getHours()
+                    + ':' + vals[label].getMinutes();
+
+            if (offsetx > 0)
                 this.ctx.textAlign = "left";
-            else if (this.labelList[i][1] < 0)
+            else if (offsetx < 0)
                 this.ctx.textAlign = "right";
             else
                 this.ctx.textAlign = "center";
 
-            if (this.labelList[i][2] > 0)
+            if (offsety > 0)
                 this.ctx.textBaseline = "top";
-            else if (this.labelList[i][2] < 0)
+            else if (offsety < 0)
                 this.ctx.textBaseline = "bottom";
             else
                 this.ctx.textBaseline = "middle";
 
-            this.ctx.fillText(this.labelList[i][0],
-                              xy[0] + this.labelList[i][1],
-                              xy[1] + this.labelList[i][2]);
+            this.ctx.fillText(prettyname, xy[0] + offsetx, xy[1] + offsety);
         }
-        this.ctx.shadowBlur = 0;
+      this.ctx.shadowBlur = 0;
     },
 
     keyHandler: function(e) {
