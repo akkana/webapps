@@ -316,7 +316,9 @@ Analemma = {
         this.ctx.fillText("Analemma", 45, 70);
         this.ctx.font = "normal 17px Sans";
 
-        this.ctx.shadowBlur = 4;
+        this.ctx.shadowBlur = 0;
+        this.ctx.shadowOffsetX = 2;
+        this.ctx.shadowOffsetY = 2;
 
         sunvals = allEquiSolDates(this.startDate.getFullYear(),
                                   this.lat, this.lon);
@@ -360,7 +362,6 @@ Analemma = {
 
             this.ctx.fillText(prettyname, xy[0] + offsetx, xy[1] + offsety);
         }
-      this.ctx.shadowBlur = 0;
     },
 
     keyHandler: function(e) {
