@@ -43,7 +43,6 @@ body { border: 0; margin: 0; padding: 0; }
 // Analemma.initCanvas();
 //
 
-
 Analemma = {
     backgroundImg: null,
     ctx: null,
@@ -317,8 +316,6 @@ Analemma = {
         this.ctx.font = "normal 17px Sans";
 
         this.ctx.shadowBlur = 0;
-        this.ctx.shadowOffsetX = 2;
-        this.ctx.shadowOffsetY = 2;
 
         sunvals = allEquiSolDates(this.startDate.getFullYear(),
                                   this.lat, this.lon);
@@ -327,15 +324,26 @@ Analemma = {
             label = this.labelList[event][1];
             prettyname = this.labelList[event][0];
             event_time = new Date(vals[label]);
-            event_time.setHours(12);
+            event_time.setHours(this.hour);
             event_time.setMinutes(0);
             this.correctForDST(event_time);
             var offsetx = this.labelList[event][2];
             var offsety = this.labelList[event][3];
             var sunpos = SunCalc.getPosition(event_time, this.lat, this.lon);
             xy = this.sunpos_to_xy(sunpos);
+
+            // If there's a shadow offset, then another circle will be
+            // drawn offset from the main circle.
+            this.ctx.shadowOffsetX = 0;
+            this.ctx.shadowOffsetY = 0;
+            this.ctx.lineWidth = 2;
             this.drawCircle(xy[0], xy[1], 6, true);
             this.drawCircle(xy[0], xy[1], 6, false);
+            console.log("drawCircle", xy);
+
+            // For the text, though, we actually do want a shadow offset.
+            this.ctx.shadowOffsetX = 2;
+            this.ctx.shadowOffsetY = 2;
 
             // JavaScript lacks any sane way to format date strings
             prettyname += " "
