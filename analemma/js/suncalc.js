@@ -6,7 +6,9 @@
  License is BSD 2-Clause "Simplified" License
  even if it's included in a project with a different license.
 
- Modified by Akkana to work outside of node.js.
+ Modified by Akkana to work outside of node.js
+ and to add solstice/equinox/day length calculations
+ and subsolar point.
 */
 
 // (function () { 'use strict';
@@ -22,7 +24,8 @@ var PI   = Math.PI,
     acos = Math.acos,
     rad  = PI / 180;
 
-// sun calculations are based on http://aa.quae.nl/en/reken/zonpositie.html formulas
+// sun calculations are based on
+// http://aa.quae.nl/en/reken/zonpositie.html formulas
 
 
 // date/time constants and conversions
@@ -40,13 +43,23 @@ function toDays(date)   { return toJulian(date) - J2000; }
 
 var e = rad * 23.4397; // obliquity of the Earth
 
-function rightAscension(l, b) { return atan(sin(l) * cos(e) - tan(b) * sin(e), cos(l)); }
-function declination(l, b)    { return asin(sin(b) * cos(e) + cos(b) * sin(e) * sin(l)); }
+function rightAscension(l, b) {
+    return atan(sin(l) * cos(e) - tan(b) * sin(e), cos(l));
+}
+function declination(l, b) {
+    return asin(sin(b) * cos(e) + cos(b) * sin(e) * sin(l));
+}
 
-function azimuth(H, phi, dec)  { return atan(sin(H), cos(H) * sin(phi) - tan(dec) * cos(phi)); }
-function altitude(H, phi, dec) { return asin(sin(phi) * sin(dec) + cos(phi) * cos(dec) * cos(H)); }
+function azimuth(H, phi, dec)  {
+    return atan(sin(H), cos(H) * sin(phi) - tan(dec) * cos(phi));
+}
+function altitude(H, phi, dec) {
+    return asin(sin(phi) * sin(dec) + cos(phi) * cos(dec) * cos(H));
+}
 
-function siderealTime(d, lw) { return rad * (280.16 + 360.9856235 * d) - lw; }
+function siderealTime(d, lw) {
+    return rad * (280.16 + 360.9856235 * d) - lw;
+}
 
 function astroRefraction(h) {
     if (h < 0) // the following formula works for positive altitudes only.
@@ -99,6 +112,33 @@ SunCalc.getPosition = function (date, lat, lng) {
         azimuth: azimuth(H, phi, c.dec),
         altitude: altitude(H, phi, c.dec)
     };
+};
+
+/*
+def subsolar_point(obstime):
+    """Return lon, lat of the earth's subsolar point at the given UTC datetime.
+    """
+    gmt_obs = ephem.Observer()
+    gmt_obs.lat = "0"
+    gmt_obs.lon = "0"
+    gmt_obs.date = obstime
+    sun.compute(gmt_obs.date)
+    sun_lon = math.degrees(sun.ra - gmt_obs.sidereal_time())
+    if sun_lon < -180.0 :
+        sun_lon = 360.0 + sun_lon
+    elif sun_lon > 180.0 :
+        sun_lon = sun_lon - 360.0
+    sun_lat = math.degrees(sun.dec)
+    return sun_lon, sun_lat
+*/
+
+SunCalc.getSubsolarPoint = function(date) {
+    var d = toDays(date);
+    var c = sunCoords(d);
+    return {
+        longitude: c.ra - siderealTime(d, 0),
+        latitude: c.dec
+    }
 };
 
 
