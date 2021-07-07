@@ -20,19 +20,19 @@ else
 if (! empty($dataset)) {
     $datafilename = 'data/' . $dataset . '.json';
     if (file_exists($datafilename)) {
-        $setname = str_replace('_', ' ', $dataset);
+        $GLOBALS["setname"] = str_replace('_', ' ', $dataset);
         $json_content = file_get_contents($datafilename);
-        $title = $setname . " Districts";
+        $title = $GLOBALS["setname"] . " Districts";
     }
     else {
         $json_content = NULL;
-        $setname = "";
+        $GLOBALS["setname"] = "";
         $title = "New Mexico Voting Districts";
     }
   }
   else {
     $title = "District Maps";
-    $setname = "";
+    $GLOBALS["setname"] = "";
     $json_content = NULL;
   }
 
@@ -63,12 +63,14 @@ if (! empty($dataset)) {
 echo "View districts: ";
 foreach (scandir(dirname(__FILE__) . '/data') as $fileinfo) {
     $path_parts = pathinfo($fileinfo);
+    if (! array_key_exists("extension", $path_parts))
+        continue;
     if (strtolower($path_parts['extension']) !== 'json')
         continue;
 
     $prettyname = str_replace('_', ' ', $path_parts['filename']);
     $buttonclass = 'buttonlike';
-    if ($prettyname === $setname)
+    if ($prettyname === $GLOBALS["setname"])
         $buttonclass .= ' button_inactive';
     echo '<a class="' . $buttonclass . '" href="?map='
          . $path_parts['filename']
@@ -94,7 +96,7 @@ if (! empty($json_content))
     echo 'var boundaryData = ' . $json_content . ';';
 else
     echo 'var boundaryData = {};';
-echo 'var setname = "' . $setname . '";';
+echo 'var setname = "' . $GLOBALS["setname"] . '";';
 ?>
 
 var mapNM = L.map(
@@ -130,7 +132,7 @@ var mapNM = L.map(
      const lightness = Math.random() * 40. + 60.;
      colornum += 1;
      return [ hue, saturation, lightness ];
-}
+ }
 
  function geojson_boundaries_styler(feature) {
      if (! (feature.properties.DIST in distcolors))
@@ -139,7 +141,7 @@ var mapNM = L.map(
      const saturation = distcolors[feature.properties.DIST][1];
      const lightness = distcolors[feature.properties.DIST][1];
      return { "fillColor": `hsl(${hue},${saturation}%,${lightness}%)`,
-             "fillOpacity": .4 };
+              "fillOpacity": .4 };
  }
 
  function geojson_boundaries_highlighter(feature) {
