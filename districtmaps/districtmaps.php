@@ -70,31 +70,6 @@ if (! empty($dataset)) {
 <?php
 
 // Buttons for all the map data available
-echo "View districts: ";
-foreach (scandir(dirname(__FILE__) . '/data') as $fileinfo) {
-    $path_parts = pathinfo($fileinfo);
-    if (! array_key_exists("extension", $path_parts))
-        continue;
-    if (strtolower($path_parts['extension']) !== 'json')
-        continue;
-
-    $prettyname = str_replace('_', ' ', $path_parts['filename']);
-    $buttonclass = 'buttonlike';
-    if ($prettyname === $GLOBALS["setname"])
-        $buttonclass .= ' button_inactive';
-    echo '<a class="' . $buttonclass . '" href="?map='
-         . $path_parts['filename']
-         . '">' . $prettyname . '</a> ';
-}
-echo "<p>";
-
-if (empty($json_content)) {
-    if (empty($dataset))
-        echo "Choose the district map you'd like to see.";
-    else
-        echo "No map called " . $dataset;
-}
-
 function buttonrow($subdir, $buttonclass) {
     if ($subdir) {
         $datapath = $subdir . '/';
@@ -131,16 +106,10 @@ function buttonrow($subdir, $buttonclass) {
 }
 
 // Buttons for all the map data available
-echo "NM districts: ";
-echo PHP_EOL;
+echo "Districts: ";
 buttonrow('', 'buttonlike');
-echo PHP_EOL;
-echo "<p>";
-print PHP_EOL;
-echo "\nRegional: ";
-buttonrow('Regional', 'buttonlike');
-echo PHP_EOL;
-echo "<p>";
+// echo "\nRegional: ";
+// buttonrow('Regional', 'buttonlike');
 
 ?>
 
