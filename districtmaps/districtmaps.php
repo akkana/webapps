@@ -17,6 +17,12 @@ if (isset($_GET['map']))
 else
     $dataset = NULL;
 
+function startsWith($haystack, $needle)
+{
+     $length = strlen($needle);
+     return (substr($haystack, 0, $length) === $needle);
+}
+
 if (! empty($dataset)) {
     $datafilename = 'data/' . $dataset . '.json';
     if (file_exists($datafilename)) {
@@ -35,6 +41,10 @@ if (! empty($dataset)) {
     $GLOBALS["setname"] = "";
     $json_content = NULL;
   }
+?>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 
   require ($_SERVER['DOCUMENT_ROOT'] . "/php/banner.php");
   require ($_SERVER['DOCUMENT_ROOT'] . "/php/sidebar.php");
@@ -84,6 +94,53 @@ if (empty($json_content)) {
     else
         echo "No map called " . $dataset;
 }
+
+function buttonrow($subdir, $buttonclass) {
+    if ($subdir) {
+        $datapath = $subdir . '/';
+    } else {
+        $datapath = '';
+    }
+    $curpretty = $GLOBALS["setname"];
+    if (startsWith($curpretty, "Regional/"))
+        $curpretty = substr($curpretty, 9);
+    foreach (scandir(dirname(__FILE__) . '/data/' . $datapath) as $fileinfo) {
+        $path_parts = pathinfo($fileinfo);
+        if (! array_key_exists("extension", $path_parts))
+            continue;
+        if (strtolower($path_parts['extension']) !== 'json')
+            continue;
+
+        $prettyname = str_replace('_', ' ', $path_parts['filename']);
+        $thisbuttonclass = $buttonclass;
+        if ($prettyname === $curpretty) {
+            $thisbuttonclass .= ' button_inactive';
+            //error_log($prettyname . " is inactive");
+        }
+
+        // I don't know any better way to get the tilde back in Dona Ana;
+        // SWCP doesn't support nonascii characters in filenames.
+        if ($prettyname === "Dona Ana Co")
+            $prettyname = "Do&ntilde;a Ana Co";
+
+        echo '<a class="' . $thisbuttonclass . '" href="?map='
+                          . $datapath . $path_parts['filename']
+                        . '">' . $prettyname . "</a>";
+        echo PHP_EOL;
+    }
+}
+
+// Buttons for all the map data available
+echo "NM districts: ";
+echo PHP_EOL;
+buttonrow('', 'buttonlike');
+echo PHP_EOL;
+echo "<p>";
+print PHP_EOL;
+echo "\nRegional: ";
+buttonrow('Regional', 'buttonlike');
+echo PHP_EOL;
+echo "<p>";
 
 ?>
 
@@ -230,11 +287,12 @@ var mapNM = L.map(
 
 <h2>Data and Credits</h2>
 <p>
-Our interactive maps were made with
-<a href="https://leafletjs.com/">Leaflet</a>
-and <a href="https://gdal.org/">GDAL</a>;
+Source code for the map viewer:
+<a href="https://github.com/akkana/webapps/tree/master/districtmaps">districtmap</a>,
+which in turn uses <a href="https://leafletjs.com/">Leaflet</a>
+Data files were processed with <a href="https://gdal.org/">GDAL</a>.
 the background map uses
-<a href="https://www.openstreetmap.org/">OpenStreetMap map</a>.
+<a href="https://www.openstreetmap.org/">OpenStreetMap data</a>.
 <p>
 Download the <a href="data/">data for New Mexico voting districts</a>
 used for these maps, in GeoJSON format.
