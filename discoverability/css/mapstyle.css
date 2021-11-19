@@ -1,0 +1,53 @@
+#mapcontainer {
+  max-width: 100%; height: auto;
+}
+
+/* The checkboxes for which maps to show or hide */
+#trail_agency_chooser {
+  position: relative;
+  margin-bottom: .5em;
+  xxoutline: thin solid purple;
+}
+
+/* Information on a trail or placemark the user clicks on */
+#trailinfo {
+  height: 6em;
+  xxoutline: thin solid green;
+}
+
+#trailmap_bottom {
+  /* Float it right so long trail info in the leftbox misses it.
+     But that's not a problem if the leftbox is limited to
+     the same height as the map.
+  float: right;
+   */
+}
+
+/* The big area where the actual map gets displayed */
+#map-canvas {
+  height: 600px;
+  max-width:100%;
+  xxoutline: thin solid blue;
+}
+
+/* Make the leftbox the same height as #map-canvas */
+#trailmap_leftbox {
+  position: relative;
+  float: left;
+  background-color:#ffffff;
+  xxoutline: thin solid green;
+
+  width: 190px;
+  height: 600px;
+  /* XXX We have a problem when dynamic content, like USFS trail info,
+   * is so tall it overflows the fixed height.
+   * Specifying min-height instead of height doesn't help.
+   * If all else fails, we could do this:
+  overflow: hidden;
+   * but then the user misses a lot of the information about that trail.
+   #ECECFB
+     max-width: 21%;
+  min-width: 205px;
+   */
+}
+
