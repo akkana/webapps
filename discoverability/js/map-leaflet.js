@@ -36,6 +36,39 @@ function init_trailmap() {
 
     L.control.layers(baseMaps, overlayMaps).addTo(map);
 
+    function onEachFeature(feature, layer) {
+        // does this feature have a property named popupContent?
+        if (feature.properties && feature.properties.popupContent) {
+            layer.bindPopup(feature.properties.popupContent);
+        }
+    }
+
+    function fillPopups(trailjson, filename) {
+        function prettyname() {
+            var pretty = new String(filename)
+                .substring(filename.lastIndexOf('/') + 1);
+            if (pretty.lastIndexOf(".") != -1)
+                pretty = pretty.substring(0, pretty.lastIndexOf("."));
+            return pretty;
+        }
+
+        for (var i in trailjson.features) {
+            var feature = trailjson.features[i];
+            if (feature.properties) {
+                if (feature.properties.description)
+                    feature.properties.popupContent =
+                        feature.properties.description;
+                else if (feature.properties.name)
+                    feature.properties.popupContent = feature.properties.name;
+                else
+                    feature.properties.popupContent = prettyname();
+            } else {
+                console.log("Feature without properties in", filename);
+                feature.properties = { 'popupContent': prettyname() };
+            }
+        }
+    }
+
     function addTrail(jsonfile) {
         // Load a trail using ajax. https://gis.stackexchange.com/a/251184
         let xhr = new XMLHttpRequest();
@@ -43,12 +76,14 @@ function init_trailmap() {
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.responseType = 'json';
         xhr.onload = function() {
-            console.log("onload, status is", xhr.status);
             if (xhr.status !== 200) {
-                console.log("Couldn't load, status was", xhr.status);
+                console.log("Couldn't load", jsonfile,
+                            "status was", xhr.status);
                 return;
             }
-            L.geoJSON(xhr.response).addTo(map);
+            fillPopups(xhr.response, jsonfile);
+            L.geoJSON(xhr.response,
+                      { onEachFeature: onEachFeature }).addTo(map);
         };
         xhr.send();
     }
