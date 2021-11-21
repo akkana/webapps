@@ -3,7 +3,7 @@ var maplayers = {
 var map;
 
 function init_trailmap() {
-    map = new L.Map('map-canvas').setView([35.86, -106.26], 12);;
+    map = new L.Map('map-canvas').setView([35.84, -106.33], 12);;
 
     var Stamen_Terrain = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.{ext}', {
         attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -52,24 +52,46 @@ function init_trailmap() {
             return pretty;
         }
 
-        for (var i in trailjson.features) {
-            var feature = trailjson.features[i];
-            if (feature.properties) {
-                if (feature.properties.description)
-                    feature.properties.popupContent =
+        // Try to get trail info from the CSV first:
+        if (traildata[filename]) {
+            function addFeatureToPopup(prop) {
+                if (traildata[filename][prop])
+                    popup += "<b>" + prop + "</b>: "
+                        + traildata[filename][prop] + "<br>";
+            }
+            var popup = "";
+            addFeatureToPopup("Trail Name");
+            addFeatureToPopup("name");
+            addFeatureToPopup("Miles");
+            addFeatureToPopup("Trail Surface");
+            addFeatureToPopup("Obstacles");
+            addFeatureToPopup("Accessible");
+            addFeatureToPopup("Not Accessible");
+            trailjson.features[0].properties.popupContent = popup;
+        } else {
+            console.log("No DB entry for", filename);
+            for (var i in trailjson.features) {
+                var feature = trailjson.features[i];
+                if (feature.properties) {
+                    if (feature.properties.description)
+                        feature.properties.popupContent =
                         feature.properties.description;
-                else if (feature.properties.name)
-                    feature.properties.popupContent = feature.properties.name;
-                else
+                    else if (feature.properties.name)
+                        feature.properties.popupContent = feature.properties.name;
+                    else
+                        feature.properties.popupContent = prettyname();
+                } else {
+                    console.log("Feature without properties in", filename);
+                    //feature.properties = { 'popupContent': prettyname() };
                     feature.properties.popupContent = prettyname();
-            } else {
-                console.log("Feature without properties in", filename);
-                feature.properties = { 'popupContent': prettyname() };
+                }
             }
         }
     }
 
-    function addTrail(jsonfile) {
+    function addTrail(jsonfile, popupstr) {
+        //console.log("addTrail", jsonfile);
+
         // Load a trail using ajax. https://gis.stackexchange.com/a/251184
         let xhr = new XMLHttpRequest();
         xhr.open('GET', jsonfile);
@@ -81,16 +103,20 @@ function init_trailmap() {
                             "status was", xhr.status);
                 return;
             }
-            fillPopups(xhr.response, jsonfile);
+            fillPopups(xhr.response, jsonfile, popupstr);
             L.geoJSON(xhr.response,
                       { onEachFeature: onEachFeature }).addTo(map);
         };
         xhr.send();
     }
 
-    // jsonfiles was set by some PHP in index.html
-    for (var f in jsonfiles) {
-        addTrail(jsonfiles[f]);
+    // traildata was set by some PHP in index.html.
+    // It's a dictionary: here's the arcane ECMAscript 2017
+    // incancation to loop over it.
+    //console.log("traildata:");
+    //console.log(traildata);
+    for (const [key, value] of Object.entries(traildata)) {
+        addTrail(key, value);
     }
 }
 
