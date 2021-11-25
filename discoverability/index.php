@@ -64,9 +64,6 @@
       if ($ext !== 'json' && $ext !== 'geojson')
           continue;
 
-      # The filename is the key
-      print("  'traildata/" . $path_parts['basename'] . "': {\n");
-
       // Now add the dictionary of values.
 
       // Is it in the spreadsheet?
@@ -75,46 +72,30 @@
       foreach($alltraildata as $traildata) {
           if (array_key_exists('Filename', $traildata)) {
               if ($traildata["Filename"] === $path_parts['filename']) {
+                  // Found a match: $traildata describes this track file.
                   $curdata = $traildata;
                   //print("// **** Found " . $traildata["Filename"] . "\n");
                   break;
               }
-              /*
-              else
-                  print("  // " . $traildata["Filename"] .  ' != '
-                        . $path_parts['filename']
-                        . "\n");
-          }
-          else {
-              print("//  No filename key in:\n");
-              print_r($traildata);
-               */
           }
       }
 
       // Was it found?
       if ($curdata) {
-          /*
-          if (array_key_exists('Trail Name', $curdata))
-              print("    'name': '" .$curdata["Trail Name"] . "',\n");
-          else
-              print("    'name': '" . $path_parts['filename'] . "',\n");
-          if (array_key_exists('Miles', $curdata))
-              print("    'miles': '" . $curdata["Miles"] . "',\n");
-              */
+          print("  'traildata/" . $path_parts['basename'] . "': {\n");
 
           // add other parameters
-          keyToJS("Trail Name", $curdata);
-          keyToJS("Miles", $curdata);
-          keyToJS("Accessible", $curdata);
-          keyToJS("Not Accessible", $curdata);
+          keyToJS("Name", $curdata);
+          keyToJS("Rollator", $curdata);
+          keyToJS("Wheelchair", $curdata);
           keyToJS("Obstacles", $curdata);
-          keyToJS("Trail Surface", $curdata);
+          keyToJS("Surface", $curdata);
+          keyToJS("Comments", $curdata);
+          print("  },\n");
 
       } else {
-          print("    'name': '" . $path_parts['filename'] . "',\n");
+          // print("// ignoring " . $path_parts['filename'] . "',\n");
       }
-      print("  },\n");
   }
   print("};\n");
   print("</script>\n");

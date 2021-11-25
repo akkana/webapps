@@ -36,14 +36,9 @@ function init_trailmap() {
 
     L.control.layers(baseMaps, overlayMaps).addTo(map);
 
-    function onEachFeature(feature, layer) {
-        // does this feature have a property named popupContent?
-        if (feature.properties && feature.properties.popupContent) {
-            layer.bindPopup(feature.properties.popupContent);
-        }
-    }
-
     function fillPopups(trailjson, filename) {
+        console.log("fillPopups for", filename);
+
         function prettyname() {
             var pretty = new String(filename)
                 .substring(filename.lastIndexOf('/') + 1);
@@ -54,20 +49,28 @@ function init_trailmap() {
 
         // Try to get trail info from the CSV first:
         if (traildata[filename]) {
-            function addFeatureToPopup(prop) {
+            function addAttrToPopup(prop) {
                 if (traildata[filename][prop])
                     popup += "<b>" + prop + "</b>: "
                         + traildata[filename][prop] + "<br>";
             }
+
             var popup = "";
-            addFeatureToPopup("Trail Name");
-            addFeatureToPopup("name");
-            addFeatureToPopup("Miles");
-            addFeatureToPopup("Trail Surface");
-            addFeatureToPopup("Obstacles");
-            addFeatureToPopup("Accessible");
-            addFeatureToPopup("Not Accessible");
-            trailjson.features[0].properties.popupContent = popup;
+            addAttrToPopup("Name");
+            addAttrToPopup("name");
+            // addAttrToPopup("Miles");
+            addAttrToPopup("Obstacles");
+            addAttrToPopup("Surface");
+            addAttrToPopup("Slope");
+            addAttrToPopup("Comments");
+            console.log("popup will be:", popup, "for",
+                        trailjson.features.length, "features");
+
+            // trailjson.features[0].properties.popupContent = popup;
+            for (fid in trailjson.features) {
+                trailjson.features[fid].properties.popupContent = popup;
+            }
+
         } else {
             console.log("No DB entry for", filename);
             for (var i in trailjson.features) {
@@ -82,10 +85,28 @@ function init_trailmap() {
                         feature.properties.popupContent = prettyname();
                 } else {
                     console.log("Feature without properties in", filename);
-                    //feature.properties = { 'popupContent': prettyname() };
+                    // feature.properties = { 'popupContent': prettyname() };
                     feature.properties.popupContent = prettyname();
                 }
             }
+        }
+    }
+
+    function getTrailStyle(trailJSON) {
+        // console.log("getTrailStyle:", trailJSON);
+        return { "color": "purple" };
+
+        // It might also be possible to highlight trails on mouseover:
+        // https://stackoverflow.com/questions/36614071/leaflet-highlight-marker-when-mouseover-with-different-colors
+    }
+
+    function onEachFeature(feature, layer) {
+        console.log("onEachFeature", feature);
+
+        // does this feature have a property named popupContent?
+        if (feature.properties && feature.properties.popupContent) {
+            console.log("Binding a popup");
+            layer.bindPopup(feature.properties.popupContent);
         }
     }
 
@@ -104,8 +125,21 @@ function init_trailmap() {
                 return;
             }
             fillPopups(xhr.response, jsonfile, popupstr);
-            L.geoJSON(xhr.response,
-                      { onEachFeature: onEachFeature }).addTo(map);
+            var trailJSON = xhr.response;
+            var layer = L.geoJSON(
+                trailJSON,
+
+                // setting style here makes it ignore the onEachFeature.
+                // { style: getTrailStyle },
+
+                // onEachFeature sets the popup content
+                { onEachFeature: onEachFeature }
+            );
+
+            // Another way to set style, which doesn't override onEachFeature
+            layer.setStyle(getTrailStyle(trailJSON));
+
+            layer.addTo(map);
         };
         xhr.send();
     }
