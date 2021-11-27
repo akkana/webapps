@@ -21,6 +21,12 @@
   $rollatorFiles = array();
   $ableFiles = array();
 
+if (!function_exists('str_contains')) {
+    function str_contains($haystack, $needle) {
+        return $needle !== '' && strpos($haystack, $needle) !== false;
+    }
+}
+
   // open all .json files in the traildata directory
   foreach (scandir(dirname(__FILE__) . '/traildata/') as $fileinfo) {
 
