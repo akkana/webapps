@@ -1,0 +1,83 @@
+{
+  "type": "FeatureCollection",
+  "name": "tracks",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "Name": "Mesa trail (Pueblo Canyon Overlook)",
+        "Wheelchair": ".4 mi",
+        "Rollator": ".4 mi",
+        "Width": "72 inches",
+        "Surface": "pavement",
+        "Slope": "end to Aspen Ridge",
+        "Comments": "This trail begins either at Aspen Ridge or Nambe Loop. The portion of the trail near Aspen Ridge is steeper and therefore it is best to start at Nambe loop.  The trail is wide, paved, but with cracks.  There are various signs along the way showing various exercises that can be done."
+      },
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              -106.279198,
+              35.882489
+            ],
+            [
+              -106.279328,
+              35.882725
+            ],
+            [
+              -106.279725,
+              35.88286
+            ],
+            [
+              -106.280551,
+              35.882817
+            ],
+            [
+              -106.281237,
+              35.882901
+            ],
+            [
+              -106.282226,
+              35.883377
+            ],
+            [
+              -106.283055,
+              35.88357
+            ],
+            [
+              -106.283503,
+              35.883566
+            ],
+            [
+              -106.285042,
+              35.883033
+            ],
+            [
+              -106.285016,
+              35.882985
+            ],
+            [
+              -106.284794,
+              35.882962
+            ],
+            [
+              -106.284698,
+              35.882352
+            ],
+            [
+              -106.284781,
+              35.882261
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

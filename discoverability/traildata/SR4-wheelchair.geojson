@@ -10,7 +10,13 @@
   "features": [
     {
       "type": "Feature",
-      "properties": { "name": "sidewalk" },
+      "properties": {
+        "Name": "SR4 trail",
+        "Surface": "asphalt",
+        "Slope": "steep",
+        "Comments": "Paved sidewalk through the main part of White Rock.",
+        "access": "rollator"
+      },
       "geometry": {
         "type": "LineString",
         "coordinates": [
@@ -27,24 +33,13 @@
     },
     {
       "type": "Feature",
-      "properties": { "name": "Steep part" },
-      "geometry": {
-        "type": "LineString",
-        "coordinates": [
-          [
-            -106.212162,
-            35.826692
-          ],
-          [
-            -106.216887,
-            35.824852
-          ]
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {},
+      "properties": {
+        "Name": "SR4 trail",
+        "Surface": "asphalt",
+        "Slope": "steep",
+        "access": "rollator",
+        "Comments": "A fairly flat, paved trail past La Senda and Pajarito Acres."
+      },
       "geometry": {
         "type": "LineString",
         "coordinates": [

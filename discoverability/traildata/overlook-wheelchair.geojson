@@ -1,0 +1,111 @@
+{
+  "type": "FeatureCollection",
+  "name": "tracks",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "Name": "Overlook in White Rock",
+        "Rollator": "3/4 mi",
+        "Wheelchair": "3/4 mi",
+        "Width": "varies",
+        "Surface": "sidewalk to chipped gravel",
+        "Slope": "slopes",
+        "Comments": "This trail is paved in places, but in other places the pavement is disintegrating. But when you hit a bad stretch you can use parking lots or the road."
+      },
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              -106.192047,
+              35.825327
+            ],
+            [
+              -106.19088,
+              35.825737
+            ],
+            [
+              -106.190051,
+              35.825782
+            ],
+            [
+              -106.189863,
+              35.825983
+            ],
+            [
+              -106.187363,
+              35.825931
+            ],
+            [
+              -106.185809,
+              35.825984
+            ],
+            [
+              -106.185021,
+              35.825966
+            ],
+            [
+              -106.184475,
+              35.825942
+            ],
+            [
+              -106.183377,
+              35.825876
+            ],
+            [
+              -106.18273,
+              35.826032
+            ],
+            [
+              -106.181943,
+              35.826017
+            ],
+            [
+              -106.181384,
+              35.825913
+            ],
+            [
+              -106.180831,
+              35.825948
+            ],
+            [
+              -106.180623,
+              35.826165
+            ],
+            [
+              -106.180381,
+              35.826177
+            ],
+            [
+              -106.180206,
+              35.826293
+            ],
+            [
+              -106.180161,
+              35.826411
+            ],
+            [
+              -106.179883,
+              35.826536
+            ],
+            [
+              -106.179777,
+              35.826653
+            ],
+            [
+              -106.179507,
+              35.826677
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

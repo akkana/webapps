@@ -1,0 +1,35 @@
+{
+  "type": "FeatureCollection",
+  "name": "tracks",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "Name": "SR4 trail",
+        "Surface": "asphalt",
+        "Slope": "steep",
+        "access": "rollator",
+        "Comments": "This is a paved trail which follows State Route 4 to Monterey S. It is wide and recent repaired for cracks, but is steep in places, probably too steep for a manual wheelchair."
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            -106.212162,
+            35.826692
+          ],
+          [
+            -106.216887,
+            35.824852
+          ]
+        ]
+      }
+    }
+  ]
+}

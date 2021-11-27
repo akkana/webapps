@@ -1,0 +1,151 @@
+{
+  "type": "FeatureCollection",
+  "name": "tracks",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "Name": "Kimberly Cul-de-Sac",
+        "Rollator": "entire trail",
+        "Obstacles": "rocks",
+        "Width": "road",
+        "Surface": "pack dirt",
+        "Slope": "slight slope",
+        "Comments": "The Cul-de-sac has two trails. The left hand trail goes out to the rim with a view of White Rock Canyon.  The maintenance road makes it possible to reach the rim. However, there are rocks over which the Rollator must travel.  It is very much worth the view  but at times the trail is narrow."
+      },
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              -106.19946,
+              35.812891
+            ],
+            [
+              -106.199161,
+              35.812643
+            ],
+            [
+              -106.199037,
+              35.812388
+            ],
+            [
+              -106.199047,
+              35.81197
+            ],
+            [
+              -106.19885,
+              35.811657
+            ],
+            [
+              -106.198852,
+              35.811557
+            ],
+            [
+              -106.198968,
+              35.811537
+            ],
+            [
+              -106.198938,
+              35.811429
+            ],
+            [
+              -106.198938,
+              35.811412
+            ],
+            [
+              -106.198938,
+              35.811416
+            ],
+            [
+              -106.198938,
+              35.811417
+            ],
+            [
+              -106.198952,
+              35.81143
+            ],
+            [
+              -106.198929,
+              35.811418
+            ],
+            [
+              -106.198924,
+              35.811422
+            ],
+            [
+              -106.198921,
+              35.811428
+            ],
+            [
+              -106.198927,
+              35.811458
+            ],
+            [
+              -106.198932,
+              35.811461
+            ],
+            [
+              -106.198932,
+              35.811462
+            ],
+            [
+              -106.198932,
+              35.811462
+            ],
+            [
+              -106.198932,
+              35.811462
+            ],
+            [
+              -106.198932,
+              35.811462
+            ],
+            [
+              -106.198932,
+              35.811462
+            ],
+            [
+              -106.198932,
+              35.811462
+            ],
+            [
+              -106.198932,
+              35.811462
+            ],
+            [
+              -106.198932,
+              35.811462
+            ],
+            [
+              -106.198932,
+              35.811462
+            ],
+            [
+              -106.198949,
+              35.811463
+            ],
+            [
+              -106.199009,
+              35.811608
+            ],
+            [
+              -106.199063,
+              35.811943
+            ],
+            [
+              -106.199118,
+              35.81235
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

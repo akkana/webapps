@@ -19,7 +19,7 @@ or convert multiple files (using zsh syntax):
 
 ```
 foreach fil (*.gpx)
-  gpsbabel -i gpx -f $fil  -o geojson -F $fil:t:r.geojson
+  ogr2ogr -f GeoJSON$fil:t:r.geojson  $fil tracks
 end
 
 ```

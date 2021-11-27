@@ -14,45 +14,12 @@
 
 <?php
 
-  // Read in the the spreadsheet.
-  // code from https://gist.github.com/benbalter/3173096
-
-  $csvfile = 'traildata/accessible-trails.csv';
-  $alltraildata = array();
   $errstr = "";
-  try {
-      $lines = explode( "\n", file_get_contents($csvfile) );
-      $headers = str_getcsv( array_shift( $lines ) );
-      foreach($lines as $line) {
-
-          $row = array();
-
-          foreach ( str_getcsv( $line ) as $key => $field )
-              $row[ $headers[ $key ] ] = $field;
-
-          $row = array_filter( $row );
-
-          $alltraildata[] = $row;
-      }
-
-      // print_r($alltraildata);
-
-  } catch (Exception $e) {
-    // no extra spreadsheet metadata
-    $errstr = $csvfile . " not found: " . $e->getMessage();
-    print("errstr: " . $errstr);
-  }
-
-  // Keys from the CSV as read in by PHP will have to be turned
-  // into keys in a JavaScript object, like this:
-  function keyToJS($key, $phpobj) {
-      if (array_key_exists($key, $phpobj))
-          print("    '" . $key . "': '" .$phpobj[$key] . "',\n");
-  }
 
   // Read in all available track files, adding metadata if there is any.
-  print("<script>\n");
-  print("traildata = {\n");
+  $wheelchairFiles = array();
+  $rollatorFiles = array();
+  $ableFiles = array();
 
   // open all .json files in the traildata directory
   foreach (scandir(dirname(__FILE__) . '/traildata/') as $fileinfo) {
@@ -64,40 +31,33 @@
       if ($ext !== 'json' && $ext !== 'geojson')
           continue;
 
-      // Now add the dictionary of values.
-
-      // Is it in the spreadsheet?
-      // print("//////// Looking for " . $path_parts['filename'] . "\n");
-      $curdata = null;
-      foreach($alltraildata as $traildata) {
-          if (array_key_exists('Filename', $traildata)) {
-              if ($traildata["Filename"] === $path_parts['filename']) {
-                  // Found a match: $traildata describes this track file.
-                  $curdata = $traildata;
-                  //print("// **** Found " . $traildata["Filename"] . "\n");
-                  break;
-              }
-          }
-      }
-
-      // Was it found?
-      if ($curdata) {
-          print("  'traildata/" . $path_parts['basename'] . "': {\n");
-
-          // add other parameters
-          keyToJS("Name", $curdata);
-          keyToJS("Rollator", $curdata);
-          keyToJS("Wheelchair", $curdata);
-          keyToJS("Obstacles", $curdata);
-          keyToJS("Surface", $curdata);
-          keyToJS("Comments", $curdata);
-          print("  },\n");
-
-      } else {
-          // print("// ignoring " . $path_parts['filename'] . "',\n");
-      }
+      // What access type is it?
+      if (str_contains($path_parts['filename'], "wheelchair"))
+          array_push($wheelchairFiles, $fileinfo);
+      else if (str_contains($path_parts['filename'], "rollator"))
+          array_push($rollatorFiles, $fileinfo);
+      else
+          array_push($ableFiles, $fileinfo);
   }
-  print("};\n");
+
+  // Now write that info into JS that can call Leaflet.
+  print("<script>\n");
+
+  print("wheelchairFiles = [\n");
+  for ($i=0; $i<sizeof($wheelchairFiles); ++$i)
+      print('  "' . $wheelchairFiles[$i] . "\",\n");
+  print("];\n");
+
+  print("rollatorFiles = [\n");
+  for ($i=0; $i<sizeof($rollatorFiles); ++$i)
+      print('  "' . $rollatorFiles[$i] . "\",\n");
+  print("];\n");
+
+  print("ableFiles = [\n");
+  for ($i=0; $i<sizeof($ableFiles); ++$i)
+      print('  "' . $ableFiles[$i] . "\",\n");
+  print("];\n");
+
   print("</script>\n");
 ?>
 
@@ -117,6 +77,11 @@ The interactive trail map requires Javascript.
 
 <div id="mapcontainer">
   <div id="trailmap_leftbox">
+
+    <h3>Legend</h3>
+         <div style="color: magenta">&horbar; Wheelchair accessible</div>
+         <div style="color: #44f;">&horbar; Rollator accessible</div>
+         <div style="color: red">&horbar; Not accessible</div>
 
     <h3 class="trailmap_h3">Show/hide:</h3>
 

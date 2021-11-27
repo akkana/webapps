@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "tracks",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { }, "geometry": { "type": "MultiLineString", "coordinates": [ [ [ -106.442902, 35.833198 ], [ -106.44465, 35.83402 ], [ -106.445778, 35.83514 ], [ -106.4468, 35.837079 ], [ -106.44691, 35.837728 ], [ -106.44749, 35.838458 ] ] ] } }
+]
+}

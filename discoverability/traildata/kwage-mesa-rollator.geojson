@@ -1,0 +1,95 @@
+{
+  "type": "FeatureCollection",
+  "name": "tracks",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "Name": "Kwage Mesa utilities road",
+        "Rollator": "1 mi",
+        "Obstacles": "road is clear of rocks or tops shaved",
+        "Width": "road",
+        "Surface": "packed soil",
+        "Slope": "flat",
+        "Comments": "The utilities road is accessible to the Rollator Walker but the traditional trailhead is inaccessible to the Rollator Walker because of rocks and narrowness of the trail. The traditional route for the Kwage Mesa Trail is starting at the playlot. This area is very rocky and narrow. However the utilities road is accessible to the Rollator Walker. To access the maintenance road you must go to the north of the Reb Jackson Dressage Arena. That road continues on the length of the mesa and is nearly flat."
+      },
+      "geometry": {
+        "type": "MultiLineString",
+        "coordinates": [
+          [
+            [
+              -106.276506,
+              35.894074
+            ],
+            [
+              -106.276113,
+              35.894092
+            ],
+            [
+              -106.274493,
+              35.89365
+            ],
+            [
+              -106.274089,
+              35.893308
+            ],
+            [
+              -106.272233,
+              35.89284
+            ],
+            [
+              -106.270346,
+              35.892258
+            ],
+            [
+              -106.265712,
+              35.891939
+            ],
+            [
+              -106.263143,
+              35.890756
+            ],
+            [
+              -106.260187,
+              35.890117
+            ],
+            [
+              -106.257694,
+              35.889693
+            ],
+            [
+              -106.255935,
+              35.886854
+            ],
+            [
+              -106.251946,
+              35.88601
+            ],
+            [
+              -106.251558,
+              35.885658
+            ],
+            [
+              -106.250097,
+              35.885361
+            ],
+            [
+              -106.249541,
+              35.884888
+            ],
+            [
+              -106.24855,
+              35.884879
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}
