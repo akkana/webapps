@@ -36,7 +36,8 @@ function init_trailmap() {
 
     L.control.layers(baseMaps, overlayMaps).addTo(map);
 
-    PROPERTIES = [ "Name", "Surface", "Slope", "Comments" ];
+    PROPERTIES = [ "Name", "Rollator", "Wheelchair",
+                   "Obstacles", "Surface", "Slope", "Comments" ];
 
     function fillPopups(trailjson, filename) {
         // Define a popup for a GeoJSON file.
