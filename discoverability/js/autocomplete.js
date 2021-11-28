@@ -1,11 +1,35 @@
+/* -*- Mode: JavaScript; indent-tabs-mode: nil; js-indent-level: 2 -*- */
 
 /* Autocomplete, from
  * https://www.w3schools.com/howto/howto_js_autocomplete.asp
  */
 
+  // Matching function
+  function matches(arritem, typedval) {
+    arritem = arritem.toLowerCase();
+    typedval = typedval.toLowerCase();
+    // console.log("Comparing arritem", arritem, "to typedval", typedval);
+
+    // Is the beginning a match?
+    if (arritem.substr(0, typedval.length) == typedval)
+      return true;
+
+    // If the beginning doesn't match, maybe the typed term matches
+    // something later in the string. But don't do this until the
+    // user has typed several characters.
+    if (typedval.length > 2 && arritem.indexOf(typedval) > 0)
+      return true;
+
+    return false;
+  }
+
 function autocomplete(inp, arr) {
   /*the autocomplete function takes two arguments,
   the text field element and an array of possible autocompleted values:*/
+
+  // First convert the input array to all-lowercase
+  console.log("Autocomplete names:", arr);
+
   var currentFocus;
   /*execute a function when someone writes in the text field:*/
   inp.addEventListener("input", function(e) {
@@ -20,13 +44,15 @@ function autocomplete(inp, arr) {
       a.setAttribute("class", "autocomplete-items");
       /*append the DIV element as a child of the autocomplete container:*/
       this.parentNode.appendChild(a);
-      /*for each item in the array...*/
+
+      // loop over the array of known terms
       for (i = 0; i < arr.length; i++) {
         if (! arr[i])
             continue;
-        // check if the item starts with the same letters
-        // as the text field value:
-        if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+
+        // check for a match
+        if (matches(arr[i], val)) {
+
           /*create a DIV element for each matching element:*/
           b = document.createElement("DIV");
           /*make the matching letters bold:*/
@@ -47,6 +73,7 @@ function autocomplete(inp, arr) {
         }
       }
   });
+
   /*execute a function presses a key on the keyboard:*/
   inp.addEventListener("keydown", function(e) {
       var x = document.getElementById(this.id + "autocomplete-list");
@@ -74,6 +101,7 @@ function autocomplete(inp, arr) {
         highlightTrail();
       }
   });
+
   function addActive(x) {
     /*a function to classify an item as "active":*/
     if (!x) return false;
@@ -84,12 +112,14 @@ function autocomplete(inp, arr) {
     /*add class "autocomplete-active":*/
     x[currentFocus].classList.add("autocomplete-active");
   }
+
   function removeActive(x) {
     /*a function to remove the "active" class from all autocomplete items:*/
     for (var i = 0; i < x.length; i++) {
       x[i].classList.remove("autocomplete-active");
     }
   }
+
   function closeAllLists(elmnt) {
     /*close all autocomplete lists in the document,
     except the one passed as an argument:*/
