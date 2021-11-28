@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="leaflet/leaflet.css" />
 
 <script src="leaflet/leaflet.js"></script>
+<script src="js/autocomplete.js"></script>
 
 <?php
 
@@ -85,16 +86,29 @@ The interactive trail map requires Javascript.
   <div id="trailmap_leftbox">
 
     <h3>Legend</h3>
-         <div style="color: magenta">&horbar; Wheelchair accessible</div>
-         <div style="color: #44f;">&horbar; Rollator accessible</div>
+         <div style="color: #0c0">&horbar; Wheelchair accessible</div>
+         <div style="color: blue;">&horbar; Rollator accessible</div>
          <div style="color: red">&horbar; Not accessible</div>
 
+    <p>
+    Search:
+    <div class="autocomplete" style="width:300px;">
+      <input id="searchTrailInput" type="text" name="trailname"
+             placeholder="Trail name">
+    </div>
+    <p>
+    <div id="selectedLegend">
+      <div style="color: magenta">&horbar; Selected trail</div>
+    </div>
+
+<!--
     <h3 class="trailmap_h3">Show/hide:</h3>
 
     <div id="trail_chooser">
       <input name="kmlfiles" type="checkbox" value="somevalue" checked
        onclick="toggleLayer('layername', this.checked);">Something</a>
     </div>
+ -->
 
   </div><!--end of trailmap_leftbox-->
 
@@ -114,7 +128,6 @@ The interactive trail map requires Javascript.
   </div><!--end of trailmap_bottom-->
 
 </div><!--end of mapcontainer-->
-
 
 </body>
 </html>

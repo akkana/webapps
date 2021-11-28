@@ -69,7 +69,7 @@ def convert_trackfile(trackfile, traildata):
             if outfile.endswith(".gpx"):
                 outfile = outfile[:-3] + "geojson"
             if os.path.exists(outfile):
-                outfile = outfile + ".new"
+                os.rename(outfile, outfile + ".bak")
 
             with open(outfile, "w") as outfp:
                 print(json.dumps(trailjson, indent=2), file=outfp)

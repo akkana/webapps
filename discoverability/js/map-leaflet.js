@@ -1,6 +1,34 @@
+/* -*- Mode: JavaScript; indent-tabs-mode: nil; js-indent-level: 4 -*- */
+
 var maplayers = {
 };
+
 var map;
+
+// Map colors
+var wheelchairColor = "#0f0";
+var rollatorColor = "blue";
+var ableColor = "red";
+var selectedColor = "magenta";
+
+/* For the autocomplete input field */
+var trailnames = [];
+
+var lastSelectedLayer = null;
+
+function getTrailStyle(accesstype) {
+    // console.log("getTrailStyle", trailJSON);
+    // All features in a file must have the same accesstype,
+    // since they'll all be shown in the same layer.
+    if (accesstype.indexOf("wheelchair") >= 0)
+        return { "color": wheelchairColor };
+    if (accesstype.indexOf("rollator") >= 0)
+        return { "color": rollatorColor };
+    return { "color": ableColor };
+
+    // It might also be possible to highlight trails on mouseover:
+    // https://stackoverflow.com/questions/36614071/leaflet-highlight-marker-when-mouseover-with-different-colors
+}
 
 function init_trailmap() {
     map = new L.Map('map-canvas').setView([35.84, -106.3], 12);;
@@ -11,7 +39,7 @@ function init_trailmap() {
         minZoom: 0,
         maxZoom: 18,
         ext: 'png'
-       });
+    });
     Stamen_Terrain.addTo(map);
 
     var OSM = L.tileLayer(
@@ -43,7 +71,7 @@ function init_trailmap() {
         // Define a popup for a GeoJSON file.
         // trailjson is the JSON read from the file, which will
         // be passed to L.geoJSON().
-        console.log("fillPopups for", filename, ":", trailjson);
+        // console.log("fillPopups for", filename, ":", trailjson);
 
         function prettyname() {
             var pretty = new String(filename)
@@ -61,11 +89,11 @@ function init_trailmap() {
                     if (props[PROPERTIES[pi]]) {
                         popup += PROPERTIES[pi] + ": " + props[PROPERTIES[pi]]
                             + "<br>";
-                        console.log(PROPERTIES[pi],
-                                    "->", props[PROPERTIES[pi]]);
+                        // console.log(PROPERTIES[pi],
+                        //             "->", props[PROPERTIES[pi]]);
                     }
-                    else console.log("no", PROPERTIES[pi], "in", filename,
-                                     props);
+                    // else console.log("no", PROPERTIES[pi], "in", filename,
+                    //                  props);
                 }
             }
             return popup;
@@ -73,7 +101,6 @@ function init_trailmap() {
 
         // Now add the popup to all the features in this layer.
         for (fi in trailjson.features) {
-            console.log("Getting popup for", trailjson.features[fi]);
             var popup = popupFor(trailjson.features[fi]);
             if (! popup)
                 popup = popupFor(trailjson.features[0]);
@@ -81,22 +108,6 @@ function init_trailmap() {
                 popup = prettyname();
             trailjson.features[fi].properties.popupContent = popup;
         }
-    }
-
-    function getTrailStyle(trailJSON) {
-        console.log("getTrailStyle", trailJSON);
-        // All features in a file must have the same accesstype,
-        // since they'll all be shown in the same layer.
-        var accesstype = trailJSON.features[0].properties.access;
-        console.log("access", accesstype);
-        if (accesstype == "rollator")
-            return { "color": "#44f" };
-        if (accesstype == "wheelchair")
-            return { "color": "magenta" };
-        return { "color": "red" };
-
-        // It might also be possible to highlight trails on mouseover:
-        // https://stackoverflow.com/questions/36614071/leaflet-highlight-marker-when-mouseover-with-different-colors
     }
 
     function onEachFeature(feature, layer) {
@@ -107,9 +118,6 @@ function init_trailmap() {
     }
 
     function addTrailLayer(jsonfile, popupstr, accesstype) {
-        console.log(":::::: addTrailLayer:", jsonfile,
-                    ": accesstype=", accesstype);
-
         // Load a trail using ajax. https://gis.stackexchange.com/a/251184
         let xhr = new XMLHttpRequest();
         xhr.open('GET', jsonfile);
@@ -123,7 +131,9 @@ function init_trailmap() {
             }
 
             var trailJSON = xhr.response;
-            console.log("*** Loaded file", jsonfile, xhr, trailJSON);
+            console.log("*** Loaded", jsonfile, trailJSON);
+
+            trailnames.push(trailJSON.features[0].properties.Name);
 
             for (fi in trailJSON.features) {
                 // console.log("Adding access to",
@@ -132,7 +142,7 @@ function init_trailmap() {
                     trailJSON.features[fi].properties.access = accesstype;
                 else
                     trailJSON.features[fi].properties
-                        = { "access": accesstype };
+                    = { "access": accesstype };
             }
             // console.log("now trailJSON:", trailJSON);
 
@@ -142,9 +152,6 @@ function init_trailmap() {
                 trailJSON,
                 {
                     filter: function(feature) {
-                        console.log("filtered feature properties:",
-                                    feature.properties);
-
                         // Return true if we should be showing this accesstype
                         if (feature.properties.access &&
                             feature.properties.access.indexOf("rollator") >= 0)
@@ -160,12 +167,11 @@ function init_trailmap() {
                 }
             );
 
+            layer.access = trailJSON.features[0].properties.access;
+            layer.properties = trailJSON.features[0].properties;
+
             // Another way to set style, which doesn't override onEachFeature
-            layer.setStyle(getTrailStyle(trailJSON));
-
-            layer.access = "rollator,wheelchair";
-
-            console.log("Created GeoJSON layer", layer);
+            layer.setStyle(getTrailStyle(layer.access));
 
             layer.addTo(map);
         };
@@ -188,21 +194,60 @@ function init_trailmap() {
 
     // traildata was set by some PHP in index.html.
     // It's a dictionary: here's the arcane ECMAscript 2017
-    // incancation to loop over it.
+    // incancation to loop over a dictionary.
     /*
-    for (const [key, value] of Object.entries(rollatorFiles)) {
-        addTrailLayer(key, value);
-    }
-    /*
-    addTrailLayer("traildata/wheelchair.json");
-    addTrailLayer("traildata/rollator.json");
+      for (const [key, value] of Object.entries(rollatorFiles)) {
+      addTrailLayer(key, value);
+      }
     */
 }
 
-function toggleLayer(name, checked) {
-  if (checked)
-    map.addLayer(maplayers[name]);
-  else
-    map.removeLayer(maplayers[name]);
+function unhighlightTrail() {
+    if (lastSelectedLayer) {
+        lastSelectedLayer.setStyle(getTrailStyle(lastSelectedLayer.access));
+    }
+    lastSelectedLayer = null;
 }
 
+function highlightTrail() {
+    var trailname = document.getElementById("searchTrailInput").value;
+    // console.log("Looking for the layer matching:", trailname);
+    // console.log("Map:", map);
+    // console.log("layers", map._layers, "length", map._layers.length);
+
+    unhighlightTrail();
+
+    // Leaflet wants you to loop over layers like this:
+    // map.eachLayer(function(layer) {
+    // but there's no way to break out of that loop.
+    for (var i in map._layers) {
+        var layer = map._layers[i];
+        try {
+            if (layer.properties.Name == trailname) {
+                // path styling options are documented here:
+                // https://leafletjs.com/reference-1.0.3.html#path
+                layer.setStyle({ "color": selectedColor });
+                lastSelectedLayer = layer;
+                document.getElementById("selectedLegend").style.visibility
+                    = "visible";
+                return;
+            }
+        } catch {
+        }
+    }
+    console.log("Didn't find a layer matching", trailname);
+}
+
+// When the user searches for a trail by name
+function toggleLayer(name, checked) {
+    if (checked)
+        map.addLayer(maplayers[name]);
+    else
+        map.removeLayer(maplayers[name]);
+}
+
+/* Wait a few seconds before loading autocomplete */
+setTimeout(function () {
+    // console.log("Initializing autocomplete with", trailnames);
+    autocomplete(document.getElementById("searchTrailInput"), trailnames);
+}, 2000);
