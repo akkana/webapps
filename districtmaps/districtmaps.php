@@ -17,31 +17,39 @@ if (isset($_GET['map']))
 else
     $dataset = NULL;
 
+/*
 function startsWith($haystack, $needle)
 {
      $length = strlen($needle);
      return (substr($haystack, 0, $length) === $needle);
 }
+*/
 
+// Calculate setname (data file path) and title
 if (! empty($dataset)) {
     $datafilename = 'data/' . $dataset . '.json';
     if (file_exists($datafilename)) {
         $GLOBALS["setname"] = str_replace('_', ' ', $dataset);
         $json_content = file_get_contents($datafilename);
-        $title = $GLOBALS["setname"] . " Districts";
+        $title = basename($GLOBALS["setname"]);
+
+        $title = $title . " Districts";
     }
     else {
         $json_content = NULL;
         $GLOBALS["setname"] = "";
-        $title = "New Mexico Voting Districts";
+        $title = "Districts";
     }
-  }
-  else {
+}
+else {
     $title = "District Maps";
     $GLOBALS["setname"] = "";
     $json_content = NULL;
-  }
+}
+
+$GLOBALS["title"] = $title;
 ?>
+
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
@@ -69,17 +77,57 @@ if (! empty($dataset)) {
 
 <?php
 
-// Buttons for all the map data available
+<?php
+
+if (empty($json_content)) {
+    if (empty($dataset))
+        echo "Choose the district map you'd like to see:";
+    else
+        echo "No map called " . $dataset;
+}
+echo "<p>";
+
 function buttonrow($subdir, $buttonclass) {
+    // PHP <5.4 can't do function dereferencing, so use an intermediate var:
+    $mapinfo = pathinfo($_GET['map']);
+    $mapname = $mapinfo['basename'];
+
+    // base path for the data, not a database
+    $data_base = dirname(__FILE__) . '/data/';
+
+    // Make a row of buttons for the given directory,
+    // plus additional rows for each subdirectory.
+
     if ($subdir) {
         $datapath = $subdir . '/';
+        print(str_replace('_', ' ', $subdir) . ":");
     } else {
         $datapath = '';
+        print("Statewide districts: ");
     }
-    $curpretty = $GLOBALS["setname"];
-    if (startsWith($curpretty, "Regional/"))
-        $curpretty = substr($curpretty, 9);
-    foreach (scandir(dirname(__FILE__) . '/data/' . $datapath) as $fileinfo) {
+    print(PHP_EOL);
+
+    if ($buttonclass === "select") {
+        print('<select class="districtsel" name="select_'
+              . $subdir . '" id="select_' . $subdir
+              . '" onchange="selectChange(\'' . $subdir . '\')">');
+        print(PHP_EOL);
+        print('  <option value="none"> </option>');
+        print(PHP_EOL);
+    }
+
+    $savedirs = array();
+    $curpretty = "";
+    foreach (scandir($data_base . $datapath) as $fileinfo) {
+        if ($fileinfo[0] == '.')
+            continue;
+
+        $fullpath = $data_base . $datapath . $fileinfo;
+        if (is_dir($fullpath)) {
+            array_push($savedirs, $datapath . $fileinfo);
+            continue;
+        }
+
         $path_parts = pathinfo($fileinfo);
         if (! array_key_exists("extension", $path_parts))
             continue;
@@ -98,24 +146,62 @@ function buttonrow($subdir, $buttonclass) {
         if ($prettyname === "Dona Ana Co")
             $prettyname = "Do&ntilde;a Ana Co";
 
-        echo '<a class="' . $thisbuttonclass . '" href="?map='
-                          . $datapath . $path_parts['filename']
-                        . '">' . $prettyname . "</a>";
-        echo PHP_EOL;
+        if ($buttonclass === "select") {
+            if ($mapname == $path_parts['filename'])
+                $is_sel = " selected";
+            else
+                $is_sel = "";
+            print('  <option value="' . $path_parts['filename'] . '"'
+                  . $is_sel . '>'
+                  . $prettyname . '</option>');
+        }
+        else {
+            print('<a class="' . $thisbuttonclass . '" href="?map='
+                               . $datapath . $path_parts['filename']
+                               . '">' . $prettyname . "</a>");
+        }
+        print(PHP_EOL);
+    }
+    if ($buttonclass === "select") {
+        print("</select>");
+    }
+
+    if ($savedirs)
+        print("<p>");
+
+    foreach ($savedirs as $savedir) {
+        print(PHP_EOL);
+        buttonrow($savedir, "select");
     }
 }
 
 // Buttons for all the map data available
-echo "Districts: ";
 buttonrow('', 'buttonlike');
-// echo "\nRegional: ";
-// buttonrow('Regional', 'buttonlike');
+echo PHP_EOL;
+echo "<p>";
+print PHP_EOL;
 
 ?>
 
 <div id="mapid"></div>
 
 <script>
+
+function selectChange(whichdir) {
+    cururl = location.protocol + '//' + location.host + location.pathname;
+
+    var selectname = "select_" + whichdir;
+    var select = document.getElementById(selectname);
+    var selectedValue = select.options[select.selectedIndex].value;
+    if (selectedValue == "none") {
+        window.location = cururl;
+        return;
+    }
+
+    // Get the current URL without query string parameters
+    newurl = cururl + "?map=" + whichdir + '/' + selectedValue;
+    window.location = newurl;
+}
 
 <?php
 if (! empty($json_content))
