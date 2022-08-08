@@ -1,0 +1,32 @@
+
+/* Make an a look like a button */
+a.buttonlike {
+/*
+    color: blue;
+    font-weight: bold;
+    background: #efefef;
+    color: black;
+*/
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 3px;
+    text-decoration: none;
+}
+a.XXXbuttonlike:visited { color: black }
+a.buttonlike:hover { background: #eee; border: 1px solid blue; }
+a.buttonlike:active { border: 3px inset #ddd }
+a.button_inactive { border: 3px inset #ddd }
+
+a.buttonlike_sm {
+    background: #ddd;
+    color: blue;
+    font-weight: bold;
+    border: 2px outset #ddd;
+    padding: .1em;
+    text-decoration: none;
+}
+a.buttonlike_sm:hover { background: #eee; }
+a.buttonlike_sm:active { border: 3px inset #ddd; }
+
+select.districtsel { margin-right: 1.5em; }
+

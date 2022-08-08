@@ -7,9 +7,9 @@
 <?php
 /*
    Search for JSON data files in a directory called "data" below current.
-   For any of those, look for the "DIST" property, and color/style
+   For any of those, look for the "NAME" property, and color/style
    accordingly.
-   Sample Usage: ?map=US_Congress assuming there's data/US_Congress.json.
+   Sample Usage: ?map=Special/District_Court
  */
 
 if (isset($_GET['map']))
@@ -28,37 +28,32 @@ function startsWith($haystack, $needle)
 // Calculate setname (data file path) and title
 if (! empty($dataset)) {
     $datafilename = 'data/' . $dataset . '.json';
+    if (! file_exists($datafilename))
+        $datafilename = 'data/' . $dataset . '.geojson';
     if (file_exists($datafilename)) {
         $GLOBALS["setname"] = str_replace('_', ' ', $dataset);
         $json_content = file_get_contents($datafilename);
         $title = basename($GLOBALS["setname"]);
-
-        $title = $title . " Districts";
     }
     else {
         $json_content = NULL;
         $GLOBALS["setname"] = "";
-        $title = "Districts";
+        $title = "Data Maps";
     }
 }
 else {
-    $title = "District Maps";
+    $title = "Data Maps";
     $GLOBALS["setname"] = "";
     $json_content = NULL;
 }
-
 $GLOBALS["title"] = $title;
+
 ?>
 
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<title><?php print($title); ?></title>
 
-  require ($_SERVER['DOCUMENT_ROOT'] . "/php/banner.php");
-  require ($_SERVER['DOCUMENT_ROOT'] . "/php/sidebar.php");
-?>
-
-<link rel="stylesheet" href="/css/leaflet.css">
+<link rel="stylesheet" href="css/leaflet.css">
+<link rel="stylesheet" href="css/map.css">
 
 <script src="js/leaflet.js"></script>
 
@@ -66,6 +61,7 @@ $GLOBALS["title"] = $title;
 #mmmapid { position:absolute; top:0; bottom:0; right:0; left:0;}
 
 #mapid { height: 670px; width: 98%; }
+
 
 .leaflet-popup-content { font-size: 1.3em; }
 .leaflet-tooltip { font-size: 1.3em; }
@@ -75,13 +71,21 @@ $GLOBALS["title"] = $title;
 
 <body>
 
+<p>
 <?php
+$prettytitle = str_replace('_', ' ', $dataset);
+if ($prettytitle)
+    print("<h1>" . $prettytitle . " Map</h1>");
+else
+    print("<h2>Data Maps</h2>");
+print(PHP_EOL);
+?>
 
 <?php
 
 if (empty($json_content)) {
     if (empty($dataset))
-        echo "Choose the district map you'd like to see:";
+        echo "Choose the data you'd like to map:";
     else
         echo "No map called " . $dataset;
 }
@@ -103,7 +107,7 @@ function buttonrow($subdir, $buttonclass) {
         print(str_replace('_', ' ', $subdir) . ":");
     } else {
         $datapath = '';
-        print("Statewide districts: ");
+        print("Datasets: ");
     }
     print(PHP_EOL);
 
@@ -131,7 +135,8 @@ function buttonrow($subdir, $buttonclass) {
         $path_parts = pathinfo($fileinfo);
         if (! array_key_exists("extension", $path_parts))
             continue;
-        if (strtolower($path_parts['extension']) !== 'json')
+        if (strtolower($path_parts['extension']) !== 'json'
+            && strtolower($path_parts['extension']) !== 'geojson')
             continue;
 
         $prettyname = str_replace('_', ' ', $path_parts['filename']);
@@ -247,20 +252,21 @@ var mapNM = L.map(
  }
 
  function geojson_boundaries_styler(feature) {
-     if (! (feature.properties.DIST in distcolors))
-         distcolors[feature.properties.DIST] = nextColor();
-     const hue = distcolors[feature.properties.DIST][0];
-     const saturation = distcolors[feature.properties.DIST][1];
-     const lightness = distcolors[feature.properties.DIST][1];
+     if (! (feature.properties.NAME in distcolors))
+         distcolors[feature.properties.NAME] = nextColor();
+     const hue = distcolors[feature.properties.NAME][0];
+     const saturation = distcolors[feature.properties.NAME][1];
+     const lightness = distcolors[feature.properties.NAME][1];
      return { "fillColor": `hsl(${hue},${saturation}%,${lightness}%)`,
               "fillOpacity": .4 };
  }
 
  function geojson_boundaries_highlighter(feature) {
      // Make the highlighted region more saturated, darker, and more opaque
-     brightcolor = `hsl(${distcolors[feature.properties.DIST][0]},`
+     // XXX This isn't actually working.
+     brightcolor= `hsl(${distcolors[feature.properties.NAME][0]},`
                     + '100%,'
-                    + `${distcolors[feature.properties.DIST][2]* .8}%)`;
+                    + `${distcolors[feature.properties.NAME][2]* .8}%)`;
      return { "fillOpacity": .5,
               "fillColor": brightcolor };
  }
@@ -275,7 +281,7 @@ var mapNM = L.map(
      // A tooltip is the easiest way to show something on mouseover;
      // but it's bound to the center of the object, and if that's
      // offscreen, the tooltip will be too.
-     //layer.bindTooltip(namestr + "District " + feature.properties.DIST);
+     //layer.bindTooltip(namestr + feature.properties.NAME);
      layer.on({
          mouseout: function(e) {
              geojson_boundaries.resetStyle(e.target);
@@ -294,14 +300,14 @@ var mapNM = L.map(
              // .setLatLng(e.latlng) will set it to the mouse coordinates,
              // which is on the edge of the feature.
              popup.setLatLng(e.target.getBounds().getCenter())
-                  .setContent(setname + " District " + feature.properties.DIST)
+                  .setContent(setname + feature.properties.NAME)
                   .openOn(mapNM);
          },
          */
          click: function(e) {
              // mapNM.fitBounds(e.target.getBounds());
              popup.setLatLng(e.latlng)
-                  .setContent(setname + " District " + feature.properties.DIST)
+                  .setContent(setname + ": " + feature.properties.NAME)
                   .openOn(mapNM);
          }
      });
@@ -328,7 +334,7 @@ var mapNM = L.map(
          "Stamen Terrain" : tile_layer_stamen,
      },
      overlays :  {
-         "Districts" : geojson_boundaries,
+         "Areas" : geojson_boundaries,
      },
  };
 
@@ -343,14 +349,23 @@ var mapNM = L.map(
 <h2>Data and Credits</h2>
 <p>
 Source code for the map viewer:
-<a href="https://github.com/akkana/webapps/tree/master/districtmaps">districtmap</a>,
-which in turn uses <a href="https://leafletjs.com/">Leaflet</a>
+<a href="https://github.com/akkana/webapps/tree/master/datamaps">datamaps on GitHub</a>,
+which uses <a href="https://leafletjs.com/">Leaflet</a>.
 Data files were processed with <a href="https://gdal.org/">GDAL</a>.
-the background map uses
+The background map uses
 <a href="https://www.openstreetmap.org/">OpenStreetMap data</a>.
 <p>
-Download the <a href="data/">data for New Mexico voting districts</a>
-used for these maps, in GeoJSON format.
+You can download the <a href="data/">data used for these maps</a>,
+in GeoJSON format.
+<p>
+To use it to view new dataset, drop your geojson file into the data directory.
+If you want differently colored, clickable areas, rename the property you
+want it to categorize by to "NAME". (Eventually I'll make this configurable.)
+
+<?php
+require ($_SERVER['DOCUMENT_ROOT'] . "/php/footer.php");
+?>
+
 
 </body>
-</htmlp>
+</html>
