@@ -1,0 +1,40 @@
+@import "datetimepicker.css";
+
+#astrotimewidget {
+  color: white; background: #556;
+  padding: .6em;
+  border-radius: 10px;
+  display: inline-block;  /* don't be wider than contents */
+}
+
+/* width of the datetime text input */
+#datetimeinput { width: 15em; }
+
+/* are these still needed?
+input[type=button] { background: black; color: white; }
+input[type=text]   { background: #421; color: white; }
+select { background: #224; color: white; }
+*/
+
+/* The Reload button image is white, so needs a dark background to show up */
+#astrotimewidget .recalcbtn { background: #556; }
+
+/* Button etc. colors */
+#astrotimewidget input[type=button] { background: black; color: white; }
+#astrotimewidget input[type=text]   { background: #421; color: white; }
+#astrotimewidget select { background: #224; color: white; }
+
+/* I can't find any way to style an input button by name --
+ * it has to have an id as well as a name.
+ */
+#astrotimewidget input[type=button]#prevDay  { background: #733; font-weight: bold; }
+#astrotimewidget input[type=button]#prevHour { background: #522; font-weight: bold; }
+#astrotimewidget input[type=button]#prevMins { background: #311; font-weight: bold; }
+#astrotimewidget input[type=button]#nextDay  { background: #733; font-weight: bold; }
+#astrotimewidget input[type=button]#nextHour { background: #522; font-weight: bold; }
+#astrotimewidget input[type=button]#nextMins { background: #311; font-weight: bold; }
+
+#astrotimewidget input[type=button]#now { background: darkgreen; font-weight: bold; }
+
+#astrotimewidget input[type=button]#animate {
+    color: yellow; background: #222; font-weight: bold; width: 6em; }

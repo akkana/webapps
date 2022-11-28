@@ -43,7 +43,7 @@ function addHours(hrs) {
 
     datetimeinput = document.getElementById("datetimeinput");
     if (datetimeinput)
-        datetimeinput.defaultvalue = datetime2str(d);
+        datetimeinput.value = datetime2str(d);
 
     if (dateChangeCallback)
         dateChangeCallback(d);
@@ -57,7 +57,7 @@ function reset2now() {
 
     datetimeinput = document.getElementById("datetimeinput");
     if (datetimeinput)
-        datetimeinput.defaultvalue = datetime2str(d);
+        datetimeinput.value = datetime2str(d);
 
     if (dateChangeCallback)
         dateChangeCallback(d);

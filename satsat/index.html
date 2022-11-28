@@ -7,7 +7,8 @@
   <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
   <meta content="utf-8" http-equiv="encoding">
   <link rel="stylesheet" type="text/css" href="satstyles.css">
-  <link rel="stylesheet" type="text/css" href="/javascript/datetimepicker/datetimepicker.css">
+  <link rel="stylesheet" type="text/css"
+        href="/javascript/datetimepicker/astrotimewidget.css">
 
   <!-- various progressive-web-appy stuff -->
   <link rel="manifest" href="manifest.json">
@@ -42,57 +43,8 @@ the current position of Saturn's moons.
 
 <canvas id="satCanvas"></canvas>
 
-<table class="valign-row"><tr>
-<td><input type="text" id="datetimeinput" />
-<!-- Set the size a lot smaller than the actual number of characters --
-  -- we need: a lot of them are colons, slashes or 1,
-  -- and the size will be set by ems.
-  -->
-<td><input type="image" class="calendarbtn" src="/javascript/datetimepicker/datetimeimages/cal.gif"
- onclick="javascript:NewCssCal('datetimeinput','yyyyMMdd','dropdown',true,'24',false,null,useNewDate)" />
+<div id="astrotimewidget"></div>
 
-<td>
-<input type="button" name="now" id="now" value="Now"
- onClick="reset2now(); return true">
-
-<td>
-<input class="recalcbtn" type="image" src="/javascript/datetimepicker/datetimeimages/reload.png"
- onClick="useNewDate(); return true">
-</table>
-
-<!-- In theory, cal-container sets up a relative item
-     and then calBorder can be positioned absolutely inside that.
-     It sorta works, anyway ...
-     http://stackoverflow.com/questions/6040005/relatively-position-an-element-without-it-taking-up-space-in-document-flow
- -->
-<p>
-<span id="cal-container">
-<span id="calBorder"></span>
-</span>
-
-<p>
-<input type="button" id="prevDay" name="prevDay" value="-day" onClick="addHours(-24);">
-<input type="button" id="prevHour" name="prevHour" value="-hour" onClick="addHours(-1);">
-<input type="button" id="prevMins" name="prevMins" value="-5 min" onClick="addHours(-1/12);">
-<input type="button" id="nextMins" name="nextMins" value="+5 min" onClick="addHours(1/12);">
-<input type="button" id="nextHour" name="nextHour" value="+hour" onClick="addHours(1);">
-<input type="button" id="nextDay" name="nextDay" value="+day" onClick="addHours(24);">
-<p>
-<input type="button" id="animate" name="animate" value="Animate"
-       onClick="toggleAnimation();">
-<input type="button" name="faster" value="faster" onClick="animateFaster(20);">
-<input type="button" name="slower" value="slower" onClick="animateFaster(-20);">
-<span id="animDelay">(100 msec)</span>
-
-<p>
-Orientation:
-<select name='orientation' id='orientation' onChange="useNewDate(curDate);">
-<option value="NupWright" selected>N up, W right (normal)
-<option value="NupEright">N up, E right (reversed)
-<option value="SupEright">S up, E right (upside down)
-<option value="SupWright">S up, W right (upside down reversed)
-</select>
-</div>
 <hr>
 
 <h3>About SatSat:</h3>
@@ -115,6 +67,14 @@ Positions last updated: 2003.
 Based on original code in BASIC by Dan Bruton, astro@tamu.edu;
 translated to C by Akkana Peck for Linux and PalmOS devices,
 and then a Java applet, and now it's JavaScript.
+It is Copyright &copy; 2000 - 2019 by Akkana Peck,
+licensed under the GNU Public License v.2 (or later, at your option),
+so feel free to share or modify it.
+If you do, I'd appreciate hearing about it, and a link back to my site.
+Source code:
+<a href="https://github.com/akkana/webapps/tree/master/satsat">SatSat
+on GitHub</a>.
+
 </div>
 
 <hr>
@@ -126,17 +86,15 @@ and then a Java applet, and now it's JavaScript.
   -- rather than in the head.
   -->
 
-  <!-- General date/time utilities: -->
-  <script type="text/javascript" src="/javascript/datetimepicker/datetimes.js"></script>
+  <!-- date/time widget: -->
+  <script type="text/javascript"
+          src="/javascript/datetimepicker/astrotimewidget.js"></script>
 
   <!-- The code for calculating Jovian moon and GRS positions: -->
   <script type="text/javascript" src="satsat.js"></script>
 
   <!-- The code for drawing the result: -->
   <script type="text/javascript" src="drawsaturn.js"></script>
-
-  <!-- Date/time widget -->
-  <script type="text/javascript" src="/javascript/datetimepicker/datetimepicker.js"></script>
 
   <!-- DeltaHeavy in #javascript says this is better than body onload -->
   <script>document.addEventListener('DOMContentLoaded', initpage);</script>

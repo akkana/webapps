@@ -3,12 +3,9 @@
   <head>
     <meta charset="utf-8">
     <title>MarsMap</title>
-    <style>
-      canvas { display: block; }
-    </style>
-  <link rel="stylesheet" type="text/css" href="/css/planetstyles.css">
-  <link rel="stylesheet" type="text/css" href="/javascript/datetimepicker/datetimepicker.css">
-  <style type="text/css">
+    <link rel="stylesheet" type="text/css"
+        href="/javascript/datetimepicker/astrotimewidget.css">
+    <style type="text/css">
 body {
   -webkit-text-size-adjust: 100%;
   -moz-text-size-adjust: none;
@@ -20,27 +17,14 @@ body {
   /* Don't set height: 500px; it leads to extra space below the globe
    * on phones where width < 500.
    */
-      width: 500px;
-  max-width: 99%;     max-height: 99%;
+  width: 500px;
+  max-width: 99%;  max-height: 99%;
 }
+canvas { display: block; }
 
-/* The calendar */
-#cal-container {
-/*
-  position: relative;
-  margin-bottom: 250px;
- */
-  position: absolute; left: 1em; top: 350px;
-  z-index: 100;
-}
-#calBorder {
-  position: absolute; left: 2em; bottom: 0em;
-  background: white;
-  /* opacity: .8; */
-  z-index: 90;
-  border: 2px outset black;
-  box-shadow: 10px 10px 5px #888888;
-}
+/* don't show animation buttons in the astrotimewidget */
+#astrotimewidget #animation { display: none; }
+
   </style>
 
   <!-- various progressive-web-appy stuff -->
@@ -59,43 +43,10 @@ body {
 
 <body>
 <h1>MarsMap</h1>
+
 <div id="planet-container"></div>
 
-<table class="valign-row"><tr>
-<td><input type="text" id="datetimeinput" />
-<!-- Set the size a lot smaller than the actual number of characters --
-  -- we need: a lot of them are colons, slashes or 1,
-  -- and the size will be set by ems.
-  -->
-<td><input type="image" class="calendarbtn" src="/javascript/datetimepicker/datetimeimages/cal.gif"
- onclick="javascript:NewCssCal('datetimeinput','yyyyMMdd','dropdown',true,'24',false,null,useNewDate)" />
-
-<td>
-<input type="button" name="now" id="now" value="Now"
- onClick="reset2now(); return true">
-
-<td>
-<input class="recalcbtn" type="image" src="/javascript/datetimepicker/datetimeimages/reload.png"
- onClick="useNewDate(); return true">
-</table>
-
-<!-- In theory, cal-container sets up a relative item
-     and then calBorder can be positioned absolutely inside that.
-     It sorta works, anyway ...
-     http://stackoverflow.com/questions/6040005/relatively-position-an-element-without-it-taking-up-space-in-document-flow
- -->
-<p>
-<span id="cal-container">
-<span id="calBorder"></span>
-</span>
-
-<p>
-<input type="button" id="prevDay" name="prevDay" value="-day" onClick="addHours(-24);">
-<input type="button" id="prevHour" name="prevHour" value="-hour" onClick="addHours(-1);">
-<input type="button" id="prevMins" name="prevMins" value="-5 min" onClick="addHours(-1/12);">
-<input type="button" id="nextMins" name="nextMins" value="+5 min" onClick="addHours(1/12);">
-<input type="button" id="nextHour" name="nextHour" value="+hour" onClick="addHours(1);">
-<input type="button" id="nextDay" name="nextDay" value="+day" onClick="addHours(24);">
+<div id="astrotimewidget"></div>
 
 <hr>
 
@@ -110,7 +61,7 @@ There's currently no alternative on a phone or touchscreen.
 <p>
 You should be able to install MarsMap as an app on the home screen of Android or iOS phones and tablets:
 look for "Add to Home Screen" in the Chrome or Safari menu.
-It doesn't collect personal data or need any funky permissions, and shouldn't
+It doesn't collect personal data or need any special permissions, and shouldn't
 need to use the network at all once you have the app downloaded.
 
 <div class="chatty">
@@ -118,6 +69,8 @@ need to use the network at all once you have the app downloaded.
 Written by Akkana Peck, originally in C for Linux and PalmOS devices,
 subsequently translated to Java and then JavaScript.
 Uses equations from Jean Meeus, <i>Astronomical Algorithms</i>.
+<a href="https://github.com/akkana/webapps/tree/master/marsmap">Marsmap
+Source code on GitHub.</a>.
 </div>
 
 <hr>
@@ -128,16 +81,13 @@ Uses equations from Jean Meeus, <i>Astronomical Algorithms</i>.
 
 <!-- Date/time widget and utilities: -->
 <script type="text/javascript"
-        src="/javascript/datetimepicker/datetimes.js"></script>
-<script type="text/javascript"
-        src="/javascript/datetimepicker/datetimepicker.js"></script>
-<script type="text/javascript"
-        src="/javascript/datetimepicker/datebuttons.js"></script>
+        src="/javascript/datetimepicker/astrotimewidget.js"></script>
 
-<script src="js/three.js"></script>
+<script type="text/javascript" src="js/three.js"></script>
 
-<script src="js/planetcalcs.js"></script>
-<script src="js/marsmap.js"></script>
+<script type="text/javascript" src="js/planetcalcs.js"></script>
+
+<script type="text/javascript" src="js/marsmap.js"></script>
 
 </body>
 </html>
