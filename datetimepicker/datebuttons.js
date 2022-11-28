@@ -27,6 +27,8 @@ function useNewDate(d) {
 
     if (dateChangeCallback)
         dateChangeCallback(d);
+    if (astroTimeWidgetCallback)
+        astroTimeWidgetCallback(d);
 }
 
 //
@@ -41,6 +43,8 @@ function setPickerDate(d) {
 
     if (dateChangeCallback)
         dateChangeCallback(d);
+    if (astroTimeWidgetCallback)
+        astroTimeWidgetCallback(d);
 }
 
 //

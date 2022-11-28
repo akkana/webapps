@@ -7,6 +7,8 @@
   display: inline-block;  /* don't be wider than contents */
 }
 
+#astrotimewidget table { color: white; background: #556; }
+
 /* width of the datetime text input */
 #datetimeinput { width: 15em; }
 
@@ -38,3 +40,30 @@ select { background: #224; color: white; }
 
 #astrotimewidget input[type=button]#animate {
     color: yellow; background: #222; font-weight: bold; width: 6em; }
+
+/* The calendar */
+#cal-container {
+  position: relative; /* width: 0; height: 0;*/
+  z-index: 100;
+}
+#calBorder {
+  position: absolute; left: 2em; top: 0em;
+  background: white;
+  /* opacity: .8; */
+  z-index: 90;
+  border: 2px outset black;
+  box-shadow: 10px 10px 5px #888888;
+}
+
+@media (max-width: 40em) {    /* portrait */
+  #datetimeinput { width: 13em; font-size: 1.1rem; }
+  #cal-container { position: fixed; left: .5em; top: 145px; }
+}
+@media (max-height: 30em) {   /* landscape */
+  #datetimeinput { width: 12em; font-size: 1.1rem; }
+  /* Would be nice to position the calendar relative to the viewport right,
+   * but right: here doesn't work, probably because it doesn't have a fixed
+   * size for the cal-container. So just fudge it from the left.
+   */
+  #cal-container { position: fixed; left: 20em; top: 0px; }
+}

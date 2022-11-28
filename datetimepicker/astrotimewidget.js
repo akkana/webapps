@@ -29,6 +29,8 @@ function scriptLoader(path, callback) {
 // astrotimewidget depends on datetimepicker, which depends on datetimes:
 scriptLoader(scriptloc + "/datetimes.js");
 scriptLoader(scriptloc + "/datebuttons.js");
+
+// When the datepicker is finished loading, set it to the current time
 scriptLoader(scriptloc + "/datetimepicker.js", function() { reset2now(); });
 
 // Find where to put the widget
@@ -48,6 +50,12 @@ function dirname(s)
   return s.substring(0, slash);
 }
 
+function astroTimeWidgetCallback(d) {
+    show_ut = document.getElementById("show-ut");
+    if (show_ut)
+        show_ut.innerHTML = "<small>(" + d.toUTCString() + ")</small>";
+}
+
 var html = `<table class="valign-row"><tr>
 <td><input type="text" id="datetimeinput" />
 <!-- Set the size a lot smaller than the actual number of characters --
@@ -65,6 +73,10 @@ var html = `<table class="valign-row"><tr>
 <td>
 <input class="recalcbtn" type="image" src="` + scriptloc + `/images/reload.png"
  title="Recalculate" onClick="useNewDate(); return true">
+
+<!-- Universal Time -->
+<tr><td colspan=3 id="show-ut">
+
 </table>
 
 <!-- In theory, cal-container sets up a relative item

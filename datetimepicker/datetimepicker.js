@@ -14,7 +14,7 @@
 //Formatted for JSLint compatibility by Labsmedia.com (30-Dec-2010)
 
 
-//Global variables
+// Global variables
 
 var winCal;
 var dtToday;
