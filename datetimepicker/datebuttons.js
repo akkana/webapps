@@ -30,9 +30,26 @@ function useNewDate(d) {
 }
 
 //
+// Set the datetimepicker's date
+//
+function setPickerDate(d) {
+    datetimeinput = document.getElementById("datetimeinput");
+    if (! datetimeinput)
+        return;
+
+    datetimeinput.value = datetime2str(d);
+
+    if (dateChangeCallback)
+        dateChangeCallback(d);
+}
+
+//
 // Get the date/time from the datetimepicker
 //
 function getPickerDate() {
+    datetimeinput = document.getElementById("datetimeinput");
+    if (!datetimeinput)
+        return null;
     return parseDateTime(document.getElementById("datetimeinput").value);
 }
 
@@ -41,24 +58,66 @@ function addHours(hrs) {
     var d = getPickerDate();
     d.setTime(d.getTime() + 60 * 60 * hrs * 1000);
 
-    datetimeinput = document.getElementById("datetimeinput");
-    if (datetimeinput)
-        datetimeinput.value = datetime2str(d);
-
-    if (dateChangeCallback)
-        dateChangeCallback(d);
+    setPickerDate(d);
 }
 
 //
-// Reset the time to now, and redraw.
+// Get the orientation, a string like "NupWright"
+//
+function getOrientation() {
+    orientationSel = document.getElementById("orientation");
+    console.log("orientationSel:", orientationSel);
+    if (!orientationSel)
+        return "NupWright";
+    return orientationSel.options[orientationSel.selectedIndex].value;
+}
+
+//
+// Reset the time to now
 //
 function reset2now() {
-    d = new Date();
+    setPickerDate(new Date());
+}
 
-    datetimeinput = document.getElementById("datetimeinput");
-    if (datetimeinput)
-        datetimeinput.value = datetime2str(d);
+//
+// Animations
+//
+var animating = false;
+var animateTime = 100;  // default msec delay between steps
+var stepMinutes = 10;   // default time to advance in each step
 
-    if (dateChangeCallback)
-        dateChangeCallback(d);
+function animateStep() {
+  if (! animating)
+    return;
+  var d = jup.getDate();
+  d.setTime(d.getTime() + stepMinutes * 60 * 1000);
+  drawJupiter(jup, d);
+  setTimeout("animateStep();", animateTime);
+}
+
+function animateFaster(amt) {
+  animateTime -= amt;
+  if (animateTime < 1)
+    animateTime = 1;
+  // If we got down to 1 millisecond, then when we slow down again
+  // we'll have silly times like 21 milliseconds showing.
+  // Round them off.
+  else if (animateTime > 10 && (animateTime % 10) == 1)
+    animateTime -= animateTime % 10;
+
+  var animspan = document.getElementById("animDelay");
+  animspan.innerHTML = "(" + animateTime + " msec)";
+}
+
+function toggleAnimation() {
+  animating = !animating;
+  btn = document.getElementById("animate");
+  if (animating) {
+    btn.value = "Stop";
+    animateStep();
+  }
+  else {
+    btn.value = "Animate";
+    predictUpcoming();
+  }
 }

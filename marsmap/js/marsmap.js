@@ -1,3 +1,10 @@
+//
+// A Mars Globe, projected from a flat map.
+//
+
+// The known maps
+const NORMAL_MAP = 'maps/AkkColorMars.jpg';
+const REVERSE_MAP = 'maps/AkkColorMars-reverse.jpg';
 
 // Adapted from https://levelup.gitconnected.com/tutorial-build-an-interactive-virtual-globe-with-three-js-33cf7c2090cb
 
@@ -71,67 +78,56 @@ scene.background = new THREE.Color(0x000);
 
 scene.add(camera);
 
-/*
-// Someone suggested this was a way to size the canvas to its parent container,
-// but it doesn't make any difference: canvas.clientWidth and clientHeight
-// are undefined. And the canvas isn't a child of the container anyway
-// according to the DOM inspector.
-function resizeCanvasToDisplaySize() {
-    const canvas = renderer.domElement;
-    // look up the size the canvas is being displayed
-    const width = canvas.clientWidth;
-    const height = canvas.clientHeight;
-    console.log("canvas parent size:", width, height);
-
-    // adjust displayBuffer size to match
-    if (canvas.width !== width || canvas.height !== height) {
-        // you must pass false here or three.js sadly fights the browser
-        renderer.setSize(width, height, false);
-        camera.aspect = width / height;
-        camera.updateProjectionMatrix();
-
-        // update any render target sizes here
-    }
-}
-resizeCanvasToDisplaySize();
-*/
-
 // Attach the renderer to the DOM element.
 console.log("Container:", container);
 container.appendChild(renderer.domElement);
 
-//Three.js uses geometric meshes to create primitive 3D shapes like spheres, cubes, etc. I’ll be using a sphere.
-
+// Three.js uses geometric meshes to create primitive 3D shapes like
+// spheres, cubes, etc. I’ll be using a sphere.
 // Set up the sphere attributes.
 // You might think that to fill the available SIZE, you'd want a radius
 // of SIZE / 2, but no, that comes out too small for some reason.
 // On a computer display with SIZE == 500, SIZE/1.65 just about
 // fills it (but not quite), SIZE/1.7 looks good; but on my phone,
-// portrait size SIZE==341, // SIZE/1.2 is needed to fill most of the space.
-var RADIUS = SIZE / 2;
-var SEGMENTS = 50;
-var RINGS = 50;
+// portrait size SIZE==341, SIZE/1.2 is needed to fill most of the space.
+const RADIUS = SIZE / 2;
+const SEGMENTS = 50;
+const RINGS = 50;
 
 // Create a group which will include our sphere and its texture meshed together
 var globe = new THREE.Group();
 scene.add(globe);
 
-// Create the sphere with a texture loader.
-var loader = new THREE.TextureLoader();
-loader.load('maps/AkkColorMars.jpg', function (texture) {
-    var sphere = new THREE.SphereGeometry(RADIUS, SEGMENTS, RINGS);
+//
+// Make a new sphere (when it's time to change maps)
+//
+function sphereFromMap(mapfile) {
+    // Create the sphere with a texture loader.
+    var loader = new THREE.TextureLoader();
+    loader.load(mapfile, function (texture) {
+        texture.needsUpdate = true;   // XXX doesn't help
+        var sphere = new THREE.SphereGeometry(RADIUS, SEGMENTS, RINGS);
 
-    // Map the texture to the material.
-    var material = new THREE.MeshBasicMaterial({ map: texture, overdraw: 0.5 });
+        // Map the texture to the material.
+        var material = new THREE.MeshBasicMaterial({ map: texture, overdraw: 0.5 });
+        material.needsUpdate = true;   // XXX doesn't help
 
-    // Create a new mesh with sphere geometry.
-    var mesh = new THREE.Mesh(sphere, material);
-    globe.add(mesh);
-});
+        // Create a new mesh with sphere geometry.
+        var mesh = new THREE.Mesh(sphere, material);
+        globe.add(mesh);
 
-// // Move the Sphere back in Z so we
-//     // can see it.
-//globe.position.z = -300;
+        /*
+        // XXX experiment: try scheduling a render from here
+        // renderer.render(scene, camera);
+        setTimeout( function() {
+            renderer.render(scene, camera);
+        }, 1250 );
+        // XXX end experiment
+        */
+    });
+}
+
+// Move the Sphere back in Z so we can see it.
 globe.position.z = -SIZE/2.8;
 
 // create a point light
@@ -155,39 +151,86 @@ var marsVals;
 // Draw Mars with the current values in marsVals.
 var firstTime = true;
 function drawMars() {
-    //rotateTo(marsVals.CM);
     if (!marsVals) {
         console.log("drawMars: no mars yet");
         return;
     }
-    globe.rotation.y = marsVals.CM + Math.PI * 1.5;
-    globe.rotation.x = marsVals.lat;
+
+    globe.rotation.y = marsVals.CM + Math.PI * 1.5;    // longitude
+    globe.rotation.x = marsVals.lat;                   // latitude tilt
     //console.log("drawMars", marsVals.CM);
 
-    // Request a render.
-    // When first setting up the page, three.js takes a while
-    // before it's actually ready to render, so without a delay,
-    // the screen will remain blank. Subsequently, no delay is needed.
-    if (firstTime) {
+    var orientation = getOrientation(); // a string like "NupWright"
+    if (orientation != savedOrientation) {
+        // Orientation changed. A redraw will be scheduled from sphereFromMap.
+        console.log("Switching orientation to", orientation);
+        savedOrientation = orientation;
+
+        if (orientation[0] == 'S') {
+            console.log("Rotating camera upside down");
+            // This is supposedly how to turn the camera upside down
+            // but it doesn't do anything
+            //camera.up.set(0, -1, 0);
+            camera.rotation.z = Math.PI;
+        }
+        else {
+            console.log("Rotating camera upside down");
+            camera.rotation.z = 0;
+        }
+
+        if (orientation == "NupEright" || orientation == "SupWright") {
+            console.log("Rotating to reversed");
+            sphereFromMap(REVERSE_MAP);
+        }
+        else {
+            console.log("Rotating to normal map");
+            sphereFromMap(NORMAL_MAP);
+        }
+
+        // XXX Drawing now will draw the wrong thing, because the
+        // texture load in sphereFromMap hasn't had time to finish.
+        // But without this, the eventual render from sphereFromMap
+        // will rotate to the wrong place.
+        // Drawing the wrong thing now makes the later render correct
+        // when it's called on the new map from sphereFromMap.
+        // But that means the user has to see a completely bogus
+        // render of the old map first.
+        // ??????
+        // Anyway, delaying setting globe.rotation.y helps here
+        // because it makes the first render just draw whatever
+        // was there before, so the user doesn't notice it.
         setTimeout( function() {
             renderer.render(scene, camera);
+            globe.rotation.y = Math.PI * 1.5 - marsVals.CM;
         }, 250 );
-        firstTime = false;
-    } else {
-        renderer.render(scene, camera);
+    }
+    else {
+        // Orientation didn't change, so request a render from here.
+        // When first setting up the page, three.js takes a while
+        // before it's actually ready to render, so without a delay,
+        // the screen will remain blank. Subsequently, no delay is needed.
+        if (firstTime) {
+            setTimeout( function() {
+                renderer.render(scene, camera);
+            }, 250 );
+            firstTime = false;
+        } else {
+            renderer.render(scene, camera);
+        }
     }
 }
 
-// Rotate to where the given longitude, in radians, is centered.
+// Rotate to where the given longitude, in radians, is centered,
 // Weirdly, globe.rotation.x is latitude, y is longitude. Go figure.
 // With globe.rotation.y == 1.5 * PI, Meridiani is centered.
 // Don't change Y rotation.
+var savedOrientation = null;
 function rotateTo(centerlon) {
     //resizeCanvasToDisplaySize();
     console.log("rotateTo", centerlon);
     globe.rotation.y = centerlon + Math.PI * 1.5;
     console.log("Rotated to y =", globe.rotation.y);
-    renderer.render(scene, camera);
+    //renderer.render(scene, camera);
 }
 
 // Calculate marsVals for date, then draw it.
@@ -203,6 +246,7 @@ function drawMarsOnDate(d) {
 
     drawMars();
 }
+
 // Set the dateChangeCallback for datetimepicker/datebuttons.js.
 dateChangeCallback = drawMarsOnDate;
 
@@ -213,6 +257,8 @@ dateChangeCallback = drawMarsOnDate;
 // So we start animating when the shifted left button is down,
 // and stop when that ends.
 //
+// This is different from the animation in the astrotimewidget/datetimepicker.
+//
 
 // JavaScript mouse move events don't reliably report button state.
 // So keep track of button state separately.
@@ -220,16 +266,16 @@ var leftButton = false;
 var animating = false;
 
 // Update function for animations
-function animate() {
+function animateGlobe() {
     drawMars();
 
     // Schedule the next frame, but only if the mouse button is still down.
     if (animating && leftButton)
-        requestAnimationFrame(animate);
+        requestAnimationFrame(animateGlobe);
 
     /* A way to request frames less frequently:
     setTimeout( function() {
-        requestAnimationFrame( animate );
+        requestAnimationFrame( animateGlobe );
     }, 500 );
      */
 }
@@ -297,7 +343,7 @@ document.body.onmousedown = function(e) {
     if (e.button == 0) {
         leftButton = true;
         if (!animating && e.shiftKey) {
-            requestAnimationFrame(animate);
+            requestAnimationFrame(animateGlobe);
             animating = true;
         }
     }
@@ -335,10 +381,4 @@ document.addEventListener('mousemove', onMouseMove);
 //
 // Finally, draw Mars as it is right now.
 //
-var d = new Date();
-datetimeinput = document.getElementById("datetimeinput");
-if (datetimeinput)
-    datetimeinput.value = datetime2str(d);
-else
-    console.log("No datetimeinput");
-drawMarsOnDate(d);
+drawMarsOnDate();

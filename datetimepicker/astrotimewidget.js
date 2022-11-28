@@ -29,7 +29,7 @@ function scriptLoader(path, callback) {
 // astrotimewidget depends on datetimepicker, which depends on datetimes:
 scriptLoader(scriptloc + "/datetimes.js");
 scriptLoader(scriptloc + "/datebuttons.js");
-scriptLoader(scriptloc + "/datetimepicker.js");
+scriptLoader(scriptloc + "/datetimepicker.js", function() { reset2now(); });
 
 // Find where to put the widget
 var widgetParent = document.getElementById(WIDGET_NAME);
@@ -54,16 +54,17 @@ var html = `<table class="valign-row"><tr>
   -- we need: a lot of them are colons, slashes or 1,
   -- and the size will be set by ems.
   -->
-<td><input type="image" class="calendarbtn" src="` + dirname(scriptloc) + `/datetimepicker/datetimeimages/cal.gif"
+<td><input type="image" class="calendarbtn" src="` + dirname(scriptloc) +
+`/datetimepicker/datetimeimages/cal.gif" title="Date/time picker"
  onclick="javascript:NewCssCal('datetimeinput','yyyyMMdd','dropdown',true,'24',false,null,useNewDate)" />
 
 <td>
-<input type="button" name="now" id="now" value="Now"
+<input type="button" name="now" id="now" value="Now" title="Current time"
  onClick="reset2now(); return true">
 
 <td>
 <input class="recalcbtn" type="image" src="` + scriptloc + `/images/reload.png"
- onClick="useNewDate(); return true">
+ title="Recalculate" onClick="useNewDate(); return true">
 </table>
 
 <!-- In theory, cal-container sets up a relative item
@@ -85,15 +86,16 @@ var html = `<table class="valign-row"><tr>
 <input type="button" id="nextDay" name="nextDay" value="+day" onClick="addHours(24);">
 
 <!-- Animations -->
-<p id="animation">
+<p id="show-animation">
 <input type="button" id="animate" name="animate" value="Animate"
        onClick="toggleAnimation();">
 <input type="button" name="faster" value="faster" onClick="animateFaster(20);">
 <input type="button" name="slower" value="slower" onClick="animateFaster(-20);">
 <span id="animDelay">(100 msec)</span>
+</p>
 
 <!-- Orientation selector -->
-<p id="orientation">
+<p id="show-orientation">
 Orientation:
 <select name='orientation' id='orientation' onChange="useNewDate();">
 <option value="NupWright" selected>N up, W right (normal)
@@ -101,6 +103,8 @@ Orientation:
 <option value="SupEright">S up, E right (upside down)
 <option value="SupWright">S up, W right (upside down reversed)
 </select>
+</p>
 </div>`;
 
 widgetParent.innerHTML = html;
+

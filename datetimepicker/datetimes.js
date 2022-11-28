@@ -22,6 +22,9 @@ function parseDateTime(dateTimeString) {
   var timeString = dateArray[4];
   var hour, min, sec, tzoffset;
 
+  if (!timeString)
+    return null;
+
   console.log("Parsing date " + timeString);
 
   // H:M:S +TZ

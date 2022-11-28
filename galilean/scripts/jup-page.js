@@ -15,25 +15,7 @@ function initpage() {
   if (!date)
     date = new Date();
 
-  updateDateTimeFields(date);
-
-  useNewDate();
-}
-
-function reset2now() {
-  console.log("Resetting to now");
-  curDate = new Date();
-  document.getElementById("datetimeinput").value = datetime2str(curDate);
-  useNewDate();
-}
-
-function updateDateTimeFields(d) {
-  /*
-  console.log("updateDateTimeFields " + d);
-  console.log("tzoffset: " + d.getTimezoneOffset()/60);
-  console.log("datetime2str thinks " + datetime2str(d));
-  */
-  document.getElementById("datetimeinput").value = datetime2str(d);
+  setPickerDate(date);
 }
 
 // A place to store the last width and height we measured.
@@ -139,84 +121,6 @@ function placeImage(im, left, top, width, height) {
   return [ leftpx, toppx ];
 }
 
-// Parse a date and time in form YYYY-MM-DD HH:MM:SS +TZ.
-// Return UTC time, already corrected for timezone.
-// If no timezone, assume the time is UTC.
-function parseDateTime(dateTimeString) {
-  // The date regexp is easy, YYYY-MM-DD
-  var re_date = /(\d{4})-(\d{1,2})-(\d{1,2}) *([0-9].*)$/;
-  var dateArray = re_date.exec(dateTimeString);
-
-  // The time array is more complicated because it has optional parts.
-  // It could be H:M, H:M:S, H:M +TZ or H:M:S +TZ.
-  // If +TZ is missing, we'll assume localtime.
-  // It's hard to do this as one regexp; if the last group is missing
-  // then JS mysteriously makes the FIRST array item NaN.
-  // There's no easy way of distinguishing which of the two
-  // optional fields was present.
-  // Using separate regexps is easier.
-  // XXX This doesn't allow for -tzoffset. Is that ever used?
-  var timeString = dateArray[4];
-  var hour, min, sec, tzoffset;
-
-  console.log("Parsing date " + timeString);
-
-  // H:M:S +TZ
-  var timeArray = /(\d{1,2}):(\d{1,2}):(\d{1,2}) ([\+-]\d)/.exec(timeString);
-  if (timeArray) {
-    hour = +timeArray[1];
-    min = +timeArray[2];
-    sec = +timeArray[3];
-    tzoffset = +timeArray[4];
-  } else {
-    // H:M:S
-    timeArray = /(\d{1,2}):(\d{1,2}):(\d{1,2})/.exec(timeString);
-    if (timeArray) {
-      hour = +timeArray[1];
-      min = +timeArray[2];
-      sec = +timeArray[3];
-      tzoffset = null;
-    } else {
-      // H:M +TZ
-      timeArray = /(\d{1,2}):(\d{1,2}) \+(\d)/.exec(timeString);
-      if (timeArray) {
-        hour = +timeArray[1];
-        min = +timeArray[2];
-        sec = 0;
-        tzoffset = +timeArray[4];
-      } else {
-        // H:M
-        timeArray = /(\d{1,2}):(\d{1,2})/.exec(timeString);
-        if (timeArray) {
-          hour = +timeArray[1];
-          min = +timeArray[2];
-          sec = 0;
-          tzoffset = null;
-        }
-      }
-    }
-  }
-  if (!timeArray)
-    return null;
-
-  var d;
-  if (tzoffset)
-    return new Date(Date.UTC(
-        +dateArray[1],
-        +dateArray[2]-1, // Careful, month starts at 0!
-        +dateArray[3],
-        hour - tzoffset, min, sec
-    ));
-  else
-    // If no timezone offset specified, new Date() will assume localtime.
-    return new Date(
-        +dateArray[1],
-        +dateArray[2]-1, // Careful, month starts at 0!
-        +dateArray[3],
-        hour, min, sec
-    );
-}
-
 // Update Jupiter and predict upcoming events based on whatever
 // date is in the date field of the page.
 function useNewDate()
@@ -237,57 +141,6 @@ function useNewDate()
 }
 
 window.onresize = useNewDate;
-
-// Add or subtract hours (or days) from jupiter's current time.
-// Update the date field and the graphics.
-function addHours(hrs) {
-  var d = jup.getDate();
-  d.setTime(d.getTime() + 60 * 60 * hrs * 1000);
-  document.getElementById("datetimeinput").value = datetime2str(d);
-  drawJupiter(jup, d);
-  predictUpcoming();
-}
-
-// Animate:
-var animating = false;
-var animateTime = 100;  // default msec delay between steps
-var stepMinutes = 10;   // default time to advance in each step
-
-function animateStep() {
-  if (! animating)
-    return;
-  var d = jup.getDate();
-  d.setTime(d.getTime() + stepMinutes * 60 * 1000);
-  drawJupiter(jup, d);
-  setTimeout("animateStep();", animateTime);
-}
-
-function animateFaster(amt) {
-  animateTime -= amt;
-  if (animateTime < 1)
-    animateTime = 1;
-  // If we got down to 1 millisecond, then when we slow down again
-  // we'll have silly times like 21 milliseconds showing.
-  // Round them off.
-  else if (animateTime > 10 && (animateTime % 10) == 1)
-    animateTime -= animateTime % 10;
-
-  var animspan = document.getElementById("animDelay");
-  animspan.innerHTML = "(" + animateTime + " msec)";
-}
-
-function toggleAnimation() {
-  animating = !animating;
-  btn = document.getElementById("animate");
-  if (animating) {
-    btn.value = "Stop";
-    animateStep();
-  }
-  else {
-    btn.value = "Animate";
-    predictUpcoming();
-  }
-}
 
 var busy;
 
@@ -321,10 +174,9 @@ function drawJupiter(jup, date) {
   }
 
   // Are we reversing?
-  // Note that we do this *after* drawing Jupiter.
+  // Note that we do this *after* drawing the base Jupiter.
   // Jupiter always goes in the center regardless of the orientation.
-  orientationSel = document.getElementById("orientation");
-  orientation = orientationSel.options[orientationSel.selectedIndex].value;
+  orientationSel = getOrientation();
   if (orientation == "NupWright") {
     reverseX = false;
     reverseY = false;
