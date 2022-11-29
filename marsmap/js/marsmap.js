@@ -101,31 +101,38 @@ scene.add(globe);
 //
 // Make a new sphere (when it's time to change maps)
 //
-function sphereFromMap(mapfile) {
+
+var material;
+
     // Create the sphere with a texture loader.
     var loader = new THREE.TextureLoader();
-    loader.load(mapfile, function (texture) {
-        texture.needsUpdate = true;   // XXX doesn't help
+    normalMapTexture = loader.load(NORMAL_MAP, function (texture) {
+        //texture.needsUpdate = true;   // XXX doesn't help
         var sphere = new THREE.SphereGeometry(RADIUS, SEGMENTS, RINGS);
 
         // Map the texture to the material.
-        var material = new THREE.MeshBasicMaterial({ map: texture, overdraw: 0.5 });
-        material.needsUpdate = true;   // XXX doesn't help
+        material = new THREE.MeshBasicMaterial({ map: texture,
+                                                 overdraw: 0.5 });
+        //material.needsUpdate = true;   // XXX doesn't help
 
         // Create a new mesh with sphere geometry.
         var mesh = new THREE.Mesh(sphere, material);
         globe.add(mesh);
 
+        // XXX experiment: try scheduling a render from here.
+        // But even from here inside the load callack,
+        // it renders with the old texture, not the new one
+        // even though the new one has supposedly finished loading.
         /*
-        // XXX experiment: try scheduling a render from here
-        // renderer.render(scene, camera);
         setTimeout( function() {
+            console.log("Rendering from sphereFromMap");
             renderer.render(scene, camera);
         }, 1250 );
-        // XXX end experiment
         */
+        // XXX end experiment
     });
-}
+    // Make the other texture available in case the user asks for it
+    reversedMapTexture = loader.load(REVERSE_MAP);
 
 // Move the Sphere back in Z so we can see it.
 globe.position.z = -SIZE/2.8;
@@ -156,35 +163,49 @@ function drawMars() {
         return;
     }
 
-    globe.rotation.y = marsVals.CM + Math.PI * 1.5;    // longitude
+    var orientation = getOrientation();   // a string like "NupWright"
+
+    // Rotate to the CM longitude
+    console.log("globe.rotation.y is", globe.rotation.y);
+    if (orientation == "NupWright" || orientation == "SupEright") {
+        // normal orientation
+        globe.rotation.y = marsVals.CM + Math.PI * 1.5;
+    }
+    else {
+        // reversed map
+        //globe.rotation.y = marsVals.CM + Math.PI;
+        globe.rotation.y = Math.PI * 1.5 - marsVals.CM;
+    }
+    console.log("globe.rotation.y became", globe.rotation.y);
+    // XXX Latitude might also needs to change with orientation.
+    // It's okay for upside down, not sure about reversed.
     globe.rotation.x = marsVals.lat;                   // latitude tilt
     //console.log("drawMars", marsVals.CM);
 
-    var orientation = getOrientation(); // a string like "NupWright"
     if (orientation != savedOrientation) {
         // Orientation changed. A redraw will be scheduled from sphereFromMap.
         console.log("Switching orientation to", orientation);
         savedOrientation = orientation;
 
         if (orientation[0] == 'S') {
-            console.log("Rotating camera upside down");
+            console.log("Rotating camera upside down", orientation);
             // This is supposedly how to turn the camera upside down
             // but it doesn't do anything
             //camera.up.set(0, -1, 0);
             camera.rotation.z = Math.PI;
         }
         else {
-            console.log("Rotating camera upside down");
+            console.log("Camera is rightside up");
             camera.rotation.z = 0;
         }
 
         if (orientation == "NupEright" || orientation == "SupWright") {
             console.log("Rotating to reversed");
-            sphereFromMap(REVERSE_MAP);
+            material.map = reversedMapTexture;
         }
         else {
             console.log("Rotating to normal map");
-            sphereFromMap(NORMAL_MAP);
+            material.map = normalMapTexture;
         }
 
         // XXX Drawing now will draw the wrong thing, because the
@@ -199,9 +220,11 @@ function drawMars() {
         // Anyway, delaying setting globe.rotation.y helps here
         // because it makes the first render just draw whatever
         // was there before, so the user doesn't notice it.
+        /*
+         */
         setTimeout( function() {
+            console.log("Rendering from changed orientation timeout in drawMars");
             renderer.render(scene, camera);
-            globe.rotation.y = Math.PI * 1.5 - marsVals.CM;
         }, 250 );
     }
     else {
@@ -211,10 +234,12 @@ function drawMars() {
         // the screen will remain blank. Subsequently, no delay is needed.
         if (firstTime) {
             setTimeout( function() {
+                console.log("Rendering from same-orientation timeout in drawMars");
                 renderer.render(scene, camera);
             }, 250 );
             firstTime = false;
         } else {
+            console.log("Rendering directly in drawMars, no change");
             renderer.render(scene, camera);
         }
     }
@@ -242,7 +267,7 @@ function drawMarsOnDate(d) {
     marsVals = MarsMapCalcCM(jdate);
     console.log("Calculated Mars:", marsVals);
 
-    rotateTo(marsVals.CM);
+    //rotateTo(marsVals.CM);
 
     drawMars();
 }
@@ -379,6 +404,8 @@ function onMouseMove(e) {
 document.addEventListener('mousemove', onMouseMove);
 
 //
-// Finally, draw Mars as it is right now.
+// Finally, draw Mars initially as it is right now.
 //
-drawMarsOnDate();
+setTimeout( function() {
+    drawMarsOnDate();
+}, 300 );

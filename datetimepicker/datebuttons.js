@@ -70,7 +70,6 @@ function addHours(hrs) {
 //
 function getOrientation() {
     orientationSel = document.getElementById("orientation");
-    console.log("orientationSel:", orientationSel);
     if (!orientationSel)
         return "NupWright";
     return orientationSel.options[orientationSel.selectedIndex].value;
