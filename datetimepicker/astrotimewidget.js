@@ -5,7 +5,6 @@ const WIDGET_NAME = "astrotimewidget";
 
 // Some things, like the reload image, are relative to the current script
 var scriptloc = dirname(document.currentScript.src);
-// console.log("scriptloc:", scriptloc);
 
 function scriptLoader(path, callback) {
     var script = document.createElement('script');
@@ -16,6 +15,7 @@ function scriptLoader(path, callback) {
         if(typeof(callback) == "function") {
             callback();
         }
+        // console.log("Loaded script", path);
     }
     try {
         var scriptOne = document.getElementsByTagName('script')[0];
@@ -75,7 +75,7 @@ var html = `<table class="valign-row"><tr>
  title="Recalculate" onClick="useNewDate(); return true">
 
 <!-- Universal Time -->
-<tr><td colspan=3 id="show-ut">
+<tr><td colspan=3 id="show-ut"></td></tr>
 
 </table>
 

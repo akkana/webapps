@@ -25,12 +25,11 @@ function parseDateTime(dateTimeString) {
   if (!timeString)
     return null;
 
-  console.log("Parsing date " + timeString);
+  // console.log("Parsing date " + timeString);
 
   // H:M:S +TZ
   var timeArray = /(\d{1,2}):(\d{1,2}):(\d{1,2}) ([\+-]\d)/.exec(timeString);
   if (timeArray) {
-    console.log("1", timeArray);
     hour = +timeArray[1];
     min = +timeArray[2];
     sec = +timeArray[3];
@@ -39,7 +38,6 @@ function parseDateTime(dateTimeString) {
     // H:M:S
     timeArray = /(\d{1,2}):(\d{1,2}):(\d{1,2})/.exec(timeString);
     if (timeArray) {
-      console.log("2", timeArray);
       hour = +timeArray[1];
       min = +timeArray[2];
       sec = +timeArray[3];
@@ -48,7 +46,6 @@ function parseDateTime(dateTimeString) {
       // H:M +TZ
       timeArray = /(\d{1,2}):(\d{1,2}) \+(\d)/.exec(timeString);
       if (timeArray) {
-        console.log("3", timeArray);
         hour = +timeArray[1];
         min = +timeArray[2];
         sec = 0;
@@ -56,7 +53,6 @@ function parseDateTime(dateTimeString) {
       } else {
         // H:M
         timeArray = /(\d{1,2}):(\d{1,2})/.exec(timeString);
-        console.log("4", timeArray);
         if (timeArray) {
           hour = +timeArray[1];
           min = +timeArray[2];
@@ -96,7 +92,6 @@ function getJulianDate(d) {
             + 2440587.83333333333);
 }
 
-
 function datetime2str(d) {
     return date2str(d) + " " + time2str(d);
 }
@@ -107,7 +102,6 @@ function date2str(d) {
 }
 
 function time2str(d) {
-    console.log("time2str", d);
     var s = "" + leading0(d.getHours()) + ":" + leading0(d.getMinutes())
         + ":" + leading0(d.getSeconds());
     // Javascript timezone offset is in minutes. Convert to hours..
@@ -117,7 +111,6 @@ function time2str(d) {
         s += " +" + -tzoffset;
     else
         s += " -" + tzoffset;
-    console.log("  ... ", s);
     return s;
 }
 

@@ -2,21 +2,22 @@
 
 // Javascript code to display Jupiter, its moons and their shadows.
 
-var jup = null;
+var jup = new Jupiter();
 
+/*
 function initpage() {
   //calendar.set("datefield", useNewDate);
 
   var date = null;
 
   // Call the code that calculates the positions, defined in jupiter.js.
-  jup = new Jupiter();
-
   if (!date)
     date = new Date();
 
   setPickerDate(date);
 }
+initpage();
+*/
 
 // A place to store the last width and height we measured.
 var gfxWidth, gfxHeight;
@@ -117,7 +118,7 @@ function placeImage(im, left, top, width, height) {
   }
 
   im.style.visibility = "visible";
-  console.log("placed", im.id, "at", im.style.left, im.style.top);
+  // console.log("placed", im.id, "at", im.style.left, im.style.top);
   return [ leftpx, toppx ];
 }
 
@@ -125,19 +126,16 @@ function placeImage(im, left, top, width, height) {
 // date is in the date field of the page.
 function useNewDate()
 {
-  // parse date and time from the two fields:
-  console.log("datetimeinput value is "
-              + document.getElementById("datetimeinput").value);
-  var d = parseDateTime(document.getElementById("datetimeinput").value);
+  var d = getPickerDate();
 
   if (!d) {
-    alert("Couldn't parse date/time '"
-          + document.getElementById("datetimeinput").value);
+    console.log("Couldn't parse date/time");
     return;
   }
 
   drawJupiter(jup, d);
-  predictUpcoming();
+  if (! animating)
+    predictUpcoming();
 }
 
 window.onresize = useNewDate;
@@ -168,8 +166,8 @@ function drawJupiter(jup, date) {
   var jupimg = document.getElementById("jupiter");
   if (jupimg) {
     jupimg.width = jupimg.height = 2 * jupRadius;
-    console.log("Placing Jupiter image at", halfwidth, halfheight,
-                "diameter", jupRadius*2);
+    // console.log("Placing Jupiter image at", halfwidth, halfheight,
+    //             "diameter", jupRadius*2);
     placeImage(jupimg, halfwidth, halfheight, jupRadius*2);
   }
 
@@ -325,8 +323,8 @@ function drawJupiter(jup, date) {
   }
 
   busy.style.visibility = "hidden";
-  console.log("jup.getDate() says " + jup.getDate());
-  updateDateTimeFields(jup.getDate());
+  //console.log("jup.getDate() says " + jup.getDate());
+  //updateDateTimeFields(jup.getDate());
 }
 
 function predictUpcoming()
@@ -352,3 +350,6 @@ function printUpcoming()
                           "",
                           "width=640,height=480,location=no,menubar=yes,toolbar=yes,scrollbars=yes,resizable=yes");
 }
+
+// Set the dateChangeCallback for datetimepicker/datebuttons.js.
+dateChangeCallback = useNewDate;

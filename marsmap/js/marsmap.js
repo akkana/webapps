@@ -189,21 +189,21 @@ function drawMars() {
     if (orientation == "NupWright") {         // Normal map
         // normal orientation
         globe.rotation.y = marsVals.CM + Math.PI * 1.5;
-        globe.rotation.x = marsVals.lat;                   // latitude tilt
+        globe.rotation.x = marsVals.lat;      // latitude tilt
     }
     else if (orientation == "NupEright") {    // reversed L-R
         // reversed map
         //globe.rotation.y = marsVals.CM + Math.PI;
         globe.rotation.y = Math.PI * 1.5 - marsVals.CM;
-        globe.rotation.x = marsVals.lat;                   // latitude tilt
+        globe.rotation.x = marsVals.lat;
     }
     else if (orientation == "SupEright") {    // upside down
         globe.rotation.y = Math.PI * 1.5 - marsVals.CM;
-        globe.rotation.x = -marsVals.lat;                   // latitude tilt
+        globe.rotation.x = -marsVals.lat;
     }
     else if (orientation == "SupWright") {    // upside down and reversed
         globe.rotation.y = Math.PI * 1.5 + marsVals.CM;
-        globe.rotation.x = -marsVals.lat;                   // latitude tilt
+        globe.rotation.x = -marsVals.lat;
     }
     console.log("globe.rotation.y became", globe.rotation.y);
     //console.log("drawMars", marsVals.CM);
@@ -227,6 +227,10 @@ function drawMars() {
         console.log("Rendering directly in drawMars, no change");
         renderer.render(scene, camera);
     }
+
+    // Show the CM value
+    infobanner = document.getElementById("infobanner");
+    infobanner.innerHTML = "CM: " + marsVals.CM.toFixed(1);
 }
 
 // Rotate to where the given longitude, in radians, is centered,

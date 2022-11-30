@@ -285,7 +285,7 @@ function Jupiter()
         // See if the spot is visible:
         if (spotangle > Math.PI * .5 && spotangle < Math.PI * 1.5) {
             coord.x = coord.y = NaN;
-            console.log("Invisible, spot angle is", spotangle * 180 / Math.PI);
+            // console.log("Invisible, spot angle is", spotangle * 180 / Math.PI);
         } else {
             coord.x = Math.sin(spotangle);
             // The spot's center is approx 20 degrees south.

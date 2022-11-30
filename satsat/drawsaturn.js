@@ -44,7 +44,7 @@ function Oval(xc, yc, r, a1, a2, aspect, fill) {
 }
 
 function Message(s) {
-    console.log("Message:", s);
+    // console.log("Message:", s);
     ctx.textAlign = "end";
     ChangeColor("#ddf");
     DrawString(canvas.width - 10, 20, s, null);
@@ -258,8 +258,8 @@ function DrawSaturn()
             DrawMoon(flipEW ? Xmax-X : X, flipNS ? Ymax-Y : Y, 7);
         }
         else {
-            console.log("Iapetus Y out of bounds: would be at",
-                        flipEW ? Xmax-X : X, flipNS ? Ymax-Y : Y);
+            // console.log("Iapetus Y out of bounds: would be at",
+            //             flipEW ? Xmax-X : X, flipNS ? Ymax-Y : Y);
         }
     }
     else {
@@ -267,3 +267,6 @@ function DrawSaturn()
                     flipEW ? Xmax-X : X, flipNS ? Ymax-Y : Y);
     }
 }
+
+// Set the dateChangeCallback for datetimepicker/datebuttons.js.
+dateChangeCallback = CalcAndDrawSaturn;

@@ -13,8 +13,8 @@ var dateChangeCallback;
 //
 function useNewDate(d) {
     // parse date and time from the text input field:
-    console.log("datetimeinput value is "
-                + document.getElementById("datetimeinput").value);
+    // console.log("datetimeinput value is "
+    //             + document.getElementById("datetimeinput").value);
     if (!d) {
         d = parseDateTime(document.getElementById("datetimeinput").value);
 
@@ -58,10 +58,14 @@ function getPickerDate() {
 }
 
 function addHours(hrs) {
-    console.log("addHours", hrs);
     var d = getPickerDate();
     d.setTime(d.getTime() + 60 * 60 * hrs * 1000);
+    setPickerDate(d);
+}
 
+function addMinutes(m) {
+    var d = getPickerDate();
+    d.setTime(d.getTime() + m * 60. * 1000.);
     setPickerDate(d);
 }
 
@@ -90,12 +94,20 @@ var animateTime = 100;  // default msec delay between steps
 var stepMinutes = 10;   // default time to advance in each step
 
 function animateStep() {
-  if (! animating)
+  if (! animating) {
+    console.log("Stopping animation");
     return;
-  var d = jup.getDate();
-  d.setTime(d.getTime() + stepMinutes * 60 * 1000);
-  drawJupiter(jup, d);
-  setTimeout("animateStep();", animateTime);
+  }
+  addMinutes(stepMinutes);
+  setTimeout("animateStep();", animateTime)
+
+  // var d = getPickerDate();
+  // setPickerDate(d.setTime(d.getTime() + stepMinutes * 60 * 1000));
+  // if (dateChangeCallback) {
+  //     dateChangeCallback(d);
+  //     setTimeout("animateStep();", animateTime);
+  // }
+  // else console.log("No dateChangeCallback");
 }
 
 function animateFaster(amt) {
@@ -121,6 +133,5 @@ function toggleAnimation() {
   }
   else {
     btn.value = "Animate";
-    predictUpcoming();
   }
 }

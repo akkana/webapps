@@ -15,7 +15,7 @@ a:link { color: #ffff00; }
 a:visited { color: #aaffaa; }
 a:hover, a:active { color: #ffffaa; }
 
-#satCanvas { width: 99%; height: 300px; }
+#satCanvas { width: 99%; height: 300px; background: black; }
 
 /* Verbose text: want this on the web page but not on small devices or windows.
  * On my Galaxy S5 with default font, portrait mode has a width of about 48em

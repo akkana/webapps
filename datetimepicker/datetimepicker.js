@@ -1218,37 +1218,6 @@ function NewCssCal(pCtrl, pFormat, pScroller, pShowTime, pTimeMode, pShowSeconds
 function closewin(id) {
     callback(id, Cal.FormatDate(Cal.Date));
 
-    /* The rest of this function doesn't work: the checks against
-     * stuff like MaxYear and StartYear keep it from ever calling
-     * the callback.
-    if (Cal.ShowTime === true) {
-        console.log("ShowTime is true");
-        var MaxYear = dtToday.getFullYear() + EndYear;
-        var beforeToday =
-            (Cal.Date < dtToday.getDate()) &&
-            (Cal.Month === dtToday.getMonth()) &&
-            (Cal.Year === dtToday.getFullYear())
-            ||
-            (Cal.Month < dtToday.getMonth()) &&
-            (Cal.Year === dtToday.getFullYear())
-            ||
-            (Cal.Year < dtToday.getFullYear());
-        console.log("beforeToday:", beforeToday);
-
-        if ((Cal.Year <= MaxYear) && (Cal.Year >= StartYear) && (Cal.Month === selDate.getMonth()) && (Cal.Year === selDate.getFullYear())) {
-            if (Cal.EnableDateMode === "future") {
-                if (beforeToday === false) {
-                    callback(id, Cal.FormatDate(Cal.Date));
-                }
-            }
-            else
-                callback(id, Cal.FormatDate(Cal.Date));
-        }
-    }
-    else
-        console.log("Not ShowTime");
-         */
-
     var CalId = document.getElementById(id);
     //CalId.focus();
     // Commented out because it calls up an on-screen keyboard.
