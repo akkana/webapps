@@ -79,14 +79,8 @@ def fetch_horizons(body, start, end, date_incr):
     if VERBOSE:
         print("URL:", url)
 
-    try:
-        jpltext = requests.get(url).text
-        return parse_horizons(jpltext)
-
-    except Exception as e:
-        error(f"Couldn't fetch HORIZONS data: {e}")
-        error(f"URL was: {url}")
-        return None
+    jpltext = requests.get(url).text
+    return parse_horizons(jpltext)
 
 
 def parse_horizons(jpltext):
@@ -112,7 +106,7 @@ def parse_horizons(jpltext):
             continue
         lastline = line
     else:    # Never saw the start line
-        error("Never saw the table")
+        raise RuntimeError("Never saw the table")
         return None
 
 
@@ -155,7 +149,7 @@ def fetch_cache_horizons(body, obstime):
        for the given time.
        (Might eventually return other values, like size and NP angle,
        which are already in the cachefiles.
-       Return a dict with keys CM and Earth_sublon.
+       Return a dict with keys CM and lat.
     """
 
     day = obstime.date()
@@ -200,11 +194,11 @@ def fetch_cache_horizons(body, obstime):
                 break
 
     if not dayvals:
-        error(f"Didn't see Date__(UT)__HR:MN: {daystr} in {cachepath}")
-        return None
+        raise RuntimeError(f"No Date__(UT)__HR:MN: {daystr} in {cachepath}")
 
-    # print("dayvals:", dayvals)
-    # print("nextdayvals:", nextdayvals)
+    if VERBOSE:
+        print("dayvals:", dayvals)
+        print("nextdayvals:", nextdayvals)
 
     # Interpolate between the two days' values to get values
     # for the observation time, assuming everything is close enough
@@ -213,6 +207,9 @@ def fetch_cache_horizons(body, obstime):
     dayfrac = (obstime.second / 60.
                + (obstime.minute / 60.
                   + obstime.hour)) / 24.
+    if VERBOSE:
+        print("dayfrac:", dayfrac);
+
     # Central Meridian aka ObsSub-LON:
     # Mars rotates a little less than 360 in an Earth day, about 351.216135,
     # so add 360 before subtracting.
@@ -220,9 +217,9 @@ def fetch_cache_horizons(body, obstime):
     retvals['CM'] = interpolate(dayvals['ObsSub-LON'],
                                 nextdayvals['ObsSub-LON'],
                                 dayfrac, add360=True)
-    retvals['Earth_sublon'] = interpolate(dayvals['ObsSub-LAT'],
-                                          nextdayvals['ObsSub-LAT'],
-                                          dayfrac)
+    retvals['lat'] = interpolate(dayvals['ObsSub-LAT'],
+                                 nextdayvals['ObsSub-LAT'],
+                                 dayfrac)
     return retvals
 
 
@@ -233,6 +230,8 @@ def interpolate(val1, val2, dayfrac, add360=False):
     retval = val1 + (val2 + add - val1) * dayfrac
     if add360:
         retval %= 360
+    if VERBOSE:
+        print("interpolate", val1, val2, dayfrac, add360, "==>", retval);
     return retval
 
 
@@ -243,66 +242,63 @@ def parse_args():
                         type=lambda s: datetime.strptime(s, '%Y-%m-%d %H:%M'))
     parser.add_argument('-b', action="store", default='Mars', dest="body",
                         help='body (default=Mars)')
+    parser.add_argument('-v', action="store_true", dest="verbose",
+                        help="verbose")
     args = parser.parse_args(sys.argv[1:])
+    if args.verbose:
+        global VERBOSE
+        VERBOSE = True
     return args.body, args.date
 
 
 def parse_cgi():
     form = cgi.FieldStorage()
 
-    print("Parsing CGI", form, file=sys.stderr)
-
     print("Content-type: text/plain\n")
 
-    try:
-        if 'body' in form:
-            body = form['body'].value.lower
-        else:
-            body = 'mars'
+    if 'body' in form:
+        body = form['body'].value.lower()
+    else:
+        body = 'mars'
 
-        # For the CGI, all dates are interpreted as UT
-        # since we don't know the requester's timezone.
-        if 'obstime' in form:
-            obstime = datetime.strptime(form['obstime'].value,
-                                        '%Y-%m-%d %H:%M')
-        else:
-            obstime = datetime.now()
-        return body, obstime
-
-    except Exception as e:
-        error(f"Error: couldn't parse arguments: {e}")
-        sys.exit(0)
-
-
-ERRSTR = ''
-def error(s):
-    global ERRSTR
-    ERRSTR += s + '\n'
-    if VERBOSE:
-        print("Error:", s)
+    # For the CGI, all dates are interpreted as UT
+    # since we don't know the requester's timezone.
+    if 'obstime' in form:
+        obstime = datetime.strptime(form['obstime'].value,
+                                    '%Y-%m-%d %H:%M')
+    else:
+        obstime = datetime.now()
+    return body, obstime
 
 
 def main():
-    if 'REQUEST_URI' in os.environ:
-        # Running from a CGI. Set the cachedir to something that
-        # doesn't depend on a user's homedir
-        global CACHEDIR
-        CACHEDIR = CGI_CACHEDIR
+    import json
+    try:
+        if 'REQUEST_URI' in os.environ:
+            # Running from a CGI. Set the cachedir to something that
+            # doesn't depend on a user's homedir
+            global CACHEDIR
+            CACHEDIR = CGI_CACHEDIR
 
-        body, obstime = parse_cgi()
+            body, obstime = parse_cgi()
 
-    else:
-        body, obstime = parse_args()
+        else:
+            body, obstime = parse_args()
 
-    if not obstime:
-        obstime = datetime.now()
+        if VERBOSE:
+            print("body", body, "obstime", obstime, file=sys.stderr)
 
-    marsvals = fetch_cache_horizons(body, obstime)
-    if marsvals:
-        print(marsvals)
+        if not obstime:
+            obstime = datetime.now()
 
-    if ERRSTR:
-        print(ERRSTR)
+        marsvals = fetch_cache_horizons(body, obstime)
+
+    except Exception as e:
+        marsvals = { 'error': str(e) }
+
+    # Just printing marsvals prints with single quotes, which JSON
+    # can't parse. So use the JSON module.
+    print(json.dumps(marsvals))
 
 
 if __name__ == '__main__':

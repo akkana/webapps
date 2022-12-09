@@ -229,7 +229,7 @@ function drawMars() {
     }
 
     // Show the CM value
-    infobanner = document.getElementById("infobanner");
+    var infobanner = document.getElementById("infobanner");
     infobanner.innerHTML = "CM: " + (marsVals.CM * 180. / Math.PI).toFixed(0)
         + "&deg;";
 }
@@ -250,14 +250,44 @@ function rotateTo(centerlon) {
 function drawMarsOnDate(d) {
     if (!d)
         d = new Date();
-    var jdate = getJulianDate(d);
-    console.log("*** drawMarsOnDate:", d, "jdate", jdate);
-    marsVals = MarsMapCalcCM(jdate);
-    console.log("Calculated Mars:", marsVals);
 
-    //rotateTo(marsVals.CM);
+    // d is in localtime, but the horizons CGI needs UTC,
+    // formatted as YYYY-MM-DD+HH:MM
+    // Here's a ridiculously circuitous way to do that in JS:
+    //var jdate = getJulianDate(d);
+    var utcstr = d.getUTCFullYear().toString().padStart(4, '0') + '-'
+        // JS Date months start at zero
+        + (d.getUTCMonth()+1).toString().padStart(2, '0') + '-'
+        + d.getUTCDate().toString().padStart(2, '0') + '+'
+        + d.getUTCHours().toString().padStart(2, '0') + ':'
+        + d.getUTCMinutes().toString().padStart(2, '0');
 
-    drawMars();
+    console.log("Time", d, "utcstring", utcstr);
+    var url = 'horizons.cgi?body=mars&obstime=' + utcstr;
+    console.log(url);
+    fetch(url, {
+        method: 'GET'
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(json) {
+        // json is like: {"obstime": "2022-11-09 16:18", "CM": 302.1065052791667, "lat": -0.06939146666666667}
+        console.log("Read JSON:", json);
+        if (json['error']) {
+            var infobanner = document.getElementById("infobanner");
+            infobanner.innerHTML = json['error'];
+        }
+        else {
+            // marsVals is in degrees, drawMars needs radians
+            marsVals = json;
+            marsVals['CM'] =  marsVals['CM'] * Math.PI / 180.;
+            marsVals['lat'] = marsVals['lat'] * Math.PI / 180.;
+            console.log("*** drawMarsOnDate:", d);
+            console.log("Calculated Mars:", marsVals);
+            console.log("CM",  marsVals['CM'] * 180. / Math.PI,
+                        "lat", marsVals['lat'] * 180. / Math.PI);
+            drawMars();
+        }
+    });
 }
 
 // Set the dateChangeCallback for datetimepicker/datebuttons.js.
