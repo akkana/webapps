@@ -13,6 +13,10 @@ body {
 
   color: white; background: #556;
 }
+a:link { color: #ffff00; }
+a:visited { color: #aaffaa; }
+a:hover, a:active { color: #ffffaa; }
+
 #planet-container {
   /* Don't set height: 500px; it leads to extra space below the globe
    * on phones where width < 500.
@@ -48,7 +52,7 @@ canvas { display: block; }
 <body>
 <h1>MarsMap</h1>
 
-<div id="infobanner">This is the info banner</div>
+<div id="infobanner">&nbsp;</div>
 
 <div id="planet-container"></div>
 
@@ -74,7 +78,6 @@ need to use the network at all once you have the app downloaded.
 <p>
 Written by Akkana Peck, originally in C for Linux and PalmOS devices,
 subsequently translated to Java and then JavaScript.
-Uses equations from Jean Meeus, <i>Astronomical Algorithms</i>.
 <a href="https://github.com/akkana/webapps/tree/master/marsmap">Marsmap
 Source code on GitHub.</a>.
 </div>
