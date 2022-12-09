@@ -44,7 +44,8 @@ function MarsMapCalcCM(jdate) {
     /* compute ecliptic coordinates of the Earth */
     var earthM = earth.lon - earth.per;
     var earthV = Kepler(earthM, earth.ecc);
-    var earthR = earth.sem * (1.0 - earth.ecc * earth.ecc) / (1.0 + earth.ecc * Math.cos(earthV));
+    var earthR = earth.sem * (1.0 - earth.ecc * earth.ecc)
+                  / (1.0 + earth.ecc * Math.cos(earthV));
     earthPos = { "x": earthR * Math.cos(earthV + earth.per),
                  "y": earthR * Math.sin(earthV + earth.per),
                  "z": 0.0 }
@@ -52,31 +53,43 @@ function MarsMapCalcCM(jdate) {
     /* compute ecliptic coordinates of Mars */
     var marsM = mars.lon - mars.per;
     var marsV = Kepler(marsM, mars.ecc);
-    var marsR = mars.sem * (1.0 - mars.ecc * mars.ecc) / (1.0 + mars.ecc * Math.cos(marsV));
-    var marsPos= { "x": marsR * (Math.cos(mars.asc) * Math.cos(marsV + mars.per - mars.asc)
-                                 - Math.sin(mars.asc) * Math.sin(marsV + mars.per - mars.asc) * Math.cos(mars.inc)),
-                   "y": marsR * (Math.sin(mars.asc) * Math.cos(marsV + mars.per - mars.asc)
-                                 + Math.cos(mars.asc) * Math.sin(marsV + mars.per - mars.asc) * Math.cos(mars.inc)),
-                   "z": marsR * Math.sin(marsV + mars.per - mars.asc) * Math.sin(mars.inc)
-                 }
+    var marsR = mars.sem * (1.0 - mars.ecc * mars.ecc)
+    / (1.0 + mars.ecc * Math.cos(marsV));
+    var marsPos= {
+        "x": marsR * (Math.cos(mars.asc) * Math.cos(marsV + mars.per - mars.asc)
+                      - Math.sin(mars.asc)
+                        * Math.sin(marsV + mars.per - mars.asc)
+                        * Math.cos(mars.inc)),
+        "y": marsR * (Math.sin(mars.asc) * Math.cos(marsV + mars.per - mars.asc)
+                      + Math.cos(mars.asc)
+                        * Math.sin(marsV + mars.per - mars.asc)
+                          * Math.cos(mars.inc)),
+        "z": marsR * Math.sin(marsV + mars.per - mars.asc) * Math.sin(mars.inc)
+    }
 
     /* compute vector from center of Mars to center of Earth */
     var mars2Earth = { "x": earthPos.x-marsPos.x,
                        "y": earthPos.y-marsPos.y,
                        "z": earthPos.z-marsPos.z }
     var marsDist = Math.sqrt(DotProduct(mars2Earth, mars2Earth));
+    console.log("marsPos x, y, z:", marsPos);
+    console.log("marsDist:", marsDist);
     NormalizeVector(mars2Earth);
     /* note: centerXYZ also points from center of Mars to center of disc */
 
     /* compute vector from center of Mars to Mars's north pole */
-    var marsNorth = { "x": Math.sin(northObl*DEGREES) * Math.cos(northLon * DEGREES),
-                      "y": Math.sin(northObl*DEGREES) * Math.sin(northLon * DEGREES),
+    var marsNorth = { "x": Math.sin(northObl*DEGREES)
+                           * Math.cos(northLon * DEGREES),
+                      "y": Math.sin(northObl*DEGREES)
+                           * Math.sin(northLon * DEGREES),
                       "z": Math.cos(northObl*DEGREES) }
 
     /* compute vector from center of Mars to equator of Mars
        at reference longitude */
-    var marsRef = { "x": Math.cos(northObl * DEGREES) * Math.cos(northLon * DEGREES),
-                    "y": Math.cos(northObl * DEGREES) * Math.sin(northLon * DEGREES),
+    var marsRef = { "x": Math.cos(northObl * DEGREES)
+                         * Math.cos(northLon * DEGREES),
+                    "y": Math.cos(northObl * DEGREES)
+                         * Math.sin(northLon * DEGREES),
                     "z": -Math.sin(northObl*DEGREES) }
     /* note: the reference longitude is the Mars longitude of the
        ecliptic *south* pole */
