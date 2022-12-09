@@ -230,7 +230,8 @@ function drawMars() {
 
     // Show the CM value
     infobanner = document.getElementById("infobanner");
-    infobanner.innerHTML = "CM: " + marsVals.CM.toFixed(1);
+    infobanner.innerHTML = "CM: " + (marsVals.CM * 180. / Math.PI).toFixed(0)
+        + "&deg;";
 }
 
 // Rotate to where the given longitude, in radians, is centered,
