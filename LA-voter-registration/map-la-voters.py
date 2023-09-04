@@ -1,26 +1,17 @@
 #!/usr/bin/env python3
 
 import folium
-import random
+import pandas as pd
 import csv
 import json
 
 
-precinct_data = {}
+precinct_data = {}   # the modified geojson data
+pdata = None         # the pandas dataframe from the CSV file
 
-
-def colorize(row):
-    # Each row is an OrderedDict,
-    # keys Precinct,DEMOCRATIC,REPUBLICAN,LIBERTARIAN,OTHER,TOTAL
-    # Calculate a shade of purple based on D vs. R
-    print("row:", row)
-    total = float(row['TOTAL'])
-    print("total", total)
-    bluefrac = float(row['DEMOCRATIC']) / total
-    redfrac  = float(row['REPUBLICAN']) / total
-    color = '#%02x%02x%02x' % (int(redfrac * 256), 0, int(bluefrac * 256))
-    print("bluefrac =", bluefrac, "redfrac =", redfrac, "-->", color)
-    return color
+# Max/min percents for the major parties (to scale the colormap)
+max_percent = None
+min_percent = None
 
 
 def clean_precinct_number(precinct):
@@ -33,51 +24,47 @@ def clean_precinct_number(precinct):
     return precinct
 
 
-def string_for_precinct(precinct):
-    """Make a string for the popup over each precinct.
-       precinct_data must already be populated.
-    """
-    precinct = clean_precinct_number(precinct)
-    thisprecinct = precinct_data[precinct]
-    return """Precinct:
- %s<br>
-Democratic: %d (%d%%)<br>
-Republican: %d (%d%%)<br>
-Other: %d (%d%%)""" % (
-        precinct,
-        thisprecinct["DEMOCRATIC"],
-        thisprecinct["DEMOCRATIC"] * 100 / thisprecinct["TOTAL"],
-        thisprecinct["REPUBLICAN"],
-        thisprecinct["REPUBLICAN"] * 100 / thisprecinct["TOTAL"],
-        thisprecinct["OTHER"],
-        thisprecinct["OTHER"] * 100 / thisprecinct["TOTAL"])
-
-
-def style_by_precinct(feature):
-    precinct = clean_precinct_number(feature['properties']['V_DISTRICT'])
-    # if precinct not in precinct_data:
-    #     precinct_data[precinct] = random_html_color()
-    #     # print("precinct", precinct, "-->", precinct_data[precinct])
-
-    return { 'fillColor': precinct_data[precinct]["color"] }
-
-
 if __name__ == '__main__':
-    # First read in the precinct data
-    with open("la-precinct-registration.csv") as csvfp:
-        reader = csv.DictReader(csvfp)
-        for row in reader:
-            p = int(row['Precinct'])
-            if p not in precinct_data:
-                precinct_data[p] = {}
-            for key in row:
-                precinct_data[p][key] = int(row[key])
-            precinct_data[p]["color"] = colorize(row)
-            print(row, "->", precinct_data[p])
-    from pprint import pprint
-    pprint(precinct_data)
 
     m = folium.Map(location=[35.86, -106.27], zoom_start=12)
+
+    # Read in the registration data to a pandas dataframe
+    pdata = pd.read_csv("la-precinct-registration.csv")
+
+    # Make colums for percentages
+    pdata['R_PCT'] = pdata['REPUBLICAN'] * 100 / pdata['TOTAL']
+    pdata['D_PCT'] = pdata['DEMOCRATIC'] * 100 / pdata['TOTAL']
+    pdata['O_PCT'] = pdata['OTHER'] * 100 / pdata['TOTAL']
+
+    # Make a column the choropleth will use.
+    # Red is positive, blue is negative.
+    # XXX But how do we make zero come out in the middle,
+    # so it will have a neutral color?
+    pdata['bluered'] = pdata['R_PCT'] - pdata['D_PCT']
+
+    # What's the maximum partisanship percent for either party?
+    # For use in scaling.
+    max_percent = max(pdata['D_PCT'].max(), pdata['R_PCT'].max())
+    min_percent = min(pdata['D_PCT'].min(), pdata['R_PCT'].min())
+
+    def string_for_precinct(precinct):
+        """Make a string for the popup over each precinct.
+           pdata is the datafrom from the CSV file.
+        """
+        precinct = clean_precinct_number(precinct)
+        thisprecinct = pdata[pdata["Precinct"] == precinct]
+
+        return """Precinct:
+     %s<br>
+    Democratic: %d (%d%%)<br>
+    Republican: %d (%d%%)<br>
+    Other: %d (%d%%)<br>
+    blue-red index: %d""" % (
+            precinct,
+            thisprecinct["DEMOCRATIC"], thisprecinct["D_PCT"],
+            thisprecinct["REPUBLICAN"], thisprecinct["R_PCT"],
+            thisprecinct["OTHER"], thisprecinct["O_PCT"],
+            thisprecinct["bluered"])
 
     # Read in the JSON defining the precincts.
     # You can pass a filename to folium.GeoJson,
@@ -92,19 +79,67 @@ if __name__ == '__main__':
                 feature["properties"]["featuretxt"] = \
                     string_for_precinct(precinct)
 
-    folium.GeoJson(precinct_json,    # 'los_alamos_precincts.json',
-                   style_function=style_by_precinct,
-                   # highlight_function= lambda feat: {'fillColor': 'red' if feat['properties']['Party'] == "Democrat" else "green"},
-                   opacity=1,
-                   highlight_function=lambda feat: {'fillColor': "red"},
-                   popup=folium.GeoJsonPopup(
-                       fields=['featuretxt'],
-                       labels=False,
-                       aliases=['Precinct']
-                   )).add_to(m)
+    cp = folium.Choropleth(
+        geo_data=precinct_json,
+        name="Precincts",
+        data=pdata,
+        columns=["Precinct", "bluered"],
+        key_on="feature.properties.V_DISTRICT",
+        # see https://en.wikipedia.org/wiki/Cynthia_Brewer#Brewer_palettes
+        fill_color="RdBu_r",
+        fill_opacity=1, # 0.7,
+        line_opacity=0.2,
+        legend_name="Bluer or Redder?",
+    )
 
-    tooltip = folium.GeoJsonTooltip(fields=['V_DISTRICT'])
+    # Try to replace the colormap
+    # Want one which will have a neutral color for zero.
+    # https://github.com/python-visualization/folium/issues/403
+    # suggests this, but it doesn't work, the choropleth is invisible
+    '''
+    colourstep = folium.LinearColormap(['green','yellow','red'],
+                                       vmin=3., vmax=10.).to_step(4)
+    style_f = lambda x: { 'fillColor': colourstep,
+                         # colourstep(df_dict[x['properties']['postalCode']]),
+                         "color": "black", "weight": 2}
+    cp.geojson.style_function = style_f
+    '''
 
-    m.save("index.html")
-    print("Saved to index.html")
+    def redbluestyle(feature):
+        """What color should this precinct be?"""
+        precinct = clean_precinct_number(feature['properties']['V_DISTRICT'])
+        thisprecinct = pdata[pdata["Precinct"] == precinct]
+        total = thisprecinct['TOTAL']
+        normalize = max_percent - min_percent + 1
+
+        bluefrac = (thisprecinct['D_PCT'] - min_percent) / normalize;
+        redfrac  = (thisprecinct['R_PCT']  - min_percent)/ normalize;
+        print("percents %2d, %2d; blue, red fracs: %03f, %03f"
+              % (thisprecinct['D_PCT'] , thisprecinct['R_PCT'],
+                 bluefrac, redfrac))
+
+        color = '#%02x%02x%02x' % (int(redfrac * 256), 0, int(bluefrac * 256))
+        print("color for precinct %2d:" % precinct, color)
+        print()
+        return { 'fillColor': color, 'fillOpacity': .75 }
+
+    cp.geojson.style_function = redbluestyle
+
+    cp.add_to(m)
+
+    folium.GeoJsonPopup(['featuretxt'],
+                        aliases=['']).add_to(cp.geojson)
+
+    m.save("enhanced.html")
+    print("Saved to enhanced.html")
+
+    # Print out a sorted table of values
+    pdata.sort_values(by="bluered", inplace=True)
+    for index, thisprecinct in pdata.iterrows():
+        print("%4d:   R %2d   D %2d   O %2d  %6d" % (
+        thisprecinct['Precinct'],
+        100 * (thisprecinct['REPUBLICAN'] / thisprecinct['TOTAL']),
+        100 * (thisprecinct['DEMOCRATIC'] / thisprecinct['TOTAL']),
+        100 * (thisprecinct['OTHER'] / thisprecinct['TOTAL']),
+        thisprecinct["bluered"]))
 
