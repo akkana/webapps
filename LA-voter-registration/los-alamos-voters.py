@@ -135,19 +135,3 @@ if __name__ == '__main__':
                          for x in totals[town] ]
         print(fmtstr % tuple([town] + totalstrings))
 
-
-'''
-              DEMOCRATIC   REPUBLICAN  LIBERTARIAN        OTHER        TOTAL
- White Rock   1823 (36%)   1773 (35%)      91 (1%)   1368 (27%)  5055 (100%)
- Los Alamos   4641 (44%)   2682 (25%)     178 (1%)   2992 (28%) 10493 (100%)
-
-
-White Rock: DEMOCRATIC 1823 (36 %)
-Los Alamos: DEMOCRATIC 4641 (44 %)
-White Rock: REPUBLICAN 1773 (35 %)
-Los Alamos: REPUBLICAN 2682 (25 %)
-White Rock: LIBERTARIAN 91 (1 %)
-Los Alamos: LIBERTARIAN 178 (1 %)
-White Rock: OTHER 1368 (27 %)
-Los Alamos: OTHER 2992 (28 %)
-'''
