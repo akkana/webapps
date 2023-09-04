@@ -196,8 +196,8 @@ function drawJupiter(jup, date) {
   // the system 2 longitude of the spot drifts around,
   // so this needs to be updated regularly.
   // http://jupos.privat.t-online.de/ is a good resource.
-  // Last updated 2020-08-20
-  var coord = jup.getRedSpotXY(337);
+  // Last updated 2023-09-02
+  var coord = jup.getRedSpotXY(39);
 
   var spotimg = document.getElementById("grs");
   var label = document.getElementById("grslabel");
