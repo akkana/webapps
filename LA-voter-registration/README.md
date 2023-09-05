@@ -1,5 +1,6 @@
 This is a Python/folium app that generates a red-blue map of registrations
-by major party Los Alamos, NM, USA voting precincts.
+by major party for Los Alamos, NM, USA voting precincts (of course, it
+could be adapted to other locations).
 
 There are two stages:
 

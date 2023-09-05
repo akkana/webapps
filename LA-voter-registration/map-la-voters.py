@@ -92,19 +92,7 @@ if __name__ == '__main__':
         legend_name="Bluer or Redder?",
     )
 
-    # Try to replace the colormap
-    # Want one which will have a neutral color for zero.
-    # https://github.com/python-visualization/folium/issues/403
-    # suggests this, but it doesn't work, the choropleth is invisible
-    '''
-    colourstep = folium.LinearColormap(['green','yellow','red'],
-                                       vmin=3., vmax=10.).to_step(4)
-    style_f = lambda x: { 'fillColor': colourstep,
-                         # colourstep(df_dict[x['properties']['postalCode']]),
-                         "color": "black", "weight": 2}
-    cp.geojson.style_function = style_f
-    '''
-
+    # Replace the colormap with one that will have a neutral color for zero.
     def redbluestyle(feature):
         """What color should this precinct be?"""
         precinct = clean_precinct_number(feature['properties']['V_DISTRICT'])
