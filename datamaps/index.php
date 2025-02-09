@@ -17,6 +17,11 @@ if (isset($_GET['map']))
 else
     $dataset = NULL;
 
+if (isset($_GET['show']))
+    $show_features = $_GET['show'];
+else
+    $show_features = NULL;
+
 /*
 function startsWith($haystack, $needle)
 {
@@ -214,7 +219,14 @@ if (! empty($json_content))
 else
     echo 'var boundaryData = {};';
 echo 'var setname = "' . $GLOBALS["setname"] . '";';
+
+if ($show_features)
+    echo 'var show_features = "' . $show_features . '";';
+else
+    echo 'var show_features = "";';
 ?>
+
+var show_features_array = show_features.split(",");
 
 var mapNM = L.map(
     "mapid",
@@ -252,11 +264,24 @@ var mapNM = L.map(
  }
 
  function geojson_boundaries_styler(feature) {
-     if (! (feature.properties.NAME in distcolors))
-         distcolors[feature.properties.NAME] = nextColor();
-     const hue = distcolors[feature.properties.NAME][0];
-     const saturation = distcolors[feature.properties.NAME][1];
-     const lightness = distcolors[feature.properties.NAME][1];
+     if (! (feature.properties.DIST in distcolors))
+         distcolors[feature.properties.DIST] = nextColor();
+
+     // Highlight in red anything with show= in the URL
+     if (show_features_array.includes(feature.properties.DIST)) {
+       return { "fillColor": `red`,
+                "fillOpacity": .5,
+                // Border color and opacity will only be seen if these
+                // polygons are drawn last, otherwise other polygons'
+                // borders will draw on top
+                "color": "purple",
+                "opacity": 1.0,
+       };
+     }
+
+     const hue = distcolors[feature.properties.DIST][0];
+     const saturation = distcolors[feature.properties.DIST][1];
+     const lightness = distcolors[feature.properties.DIST][1];
      return { "fillColor": `hsl(${hue},${saturation}%,${lightness}%)`,
               "fillOpacity": .4 };
  }
@@ -273,6 +298,8 @@ var mapNM = L.map(
 
  var popup = L.popup();
 
+ var selectedLayer = null;
+
  function geojson_boundaries_onEachFeature(feature, layer) {
      if ("NAME" in feature.properties)
          namestr = feature.properties.NAME + "<br>";
@@ -283,10 +310,10 @@ var mapNM = L.map(
      // offscreen, the tooltip will be too.
      //layer.bindTooltip(namestr + feature.properties.NAME);
      layer.on({
+         /*
          mouseout: function(e) {
              geojson_boundaries.resetStyle(e.target);
          },
-         /*
             Mouseover disabled because it's super annoying:
             it tries to bring up the popup in the center of the region,
             which might be out of the window, in which case it pans
@@ -305,7 +332,14 @@ var mapNM = L.map(
          },
          */
          click: function(e) {
+             if (selectedLayer) {
+               // Try to put it on top so its borders will show. But it's a nop.
+               //selectedLayer.bringToFront();
+               selectedLayer.setStyle(geojson_boundaries_styler(selectedLayer.feature));
+             }
              // mapNM.fitBounds(e.target.getBounds());
+             selectedLayer = e.target;
+             e.target.setStyle(geojson_boundaries_highlighter(e.target.feature));
              popup.setLatLng(e.latlng)
                   .setContent(setname + ": " + feature.properties.NAME)
                   .openOn(mapNM);
